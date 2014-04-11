@@ -8,6 +8,8 @@
  <![endif]-->
 <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
 <script src="http://code.jquery.com/jquery-latest.min.js"type="text/javascript"></script>
+<script type="text/javascript" src='https://cdn.firebase.com/js/client/1.0.11/firebase.js'></script>
+
 <style>
 #map { height: 100%;
 	width: 100%;
@@ -37,28 +39,31 @@
 		maxZoom: 18
 		}).addTo(map);
 
-
-	    var json_url = "/json";
-	    $.getJSON(json_url, function(data) {
-		    $.each(data, function(i, value) {
-
+            var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
+	    json_firebase.on('value', function(data) {
+		    //  alert('fred’s first name is ' + snapshot.val());
+//	      });
+//	    var json_url = "/json";
+//	    $.getJSON(json_url, function(data) {
+		    $.each(data.val(), function(i, value) {
+			//value = data.val()[i]  in a sense
 			eventListString = '';
 
-			for (var j=0; j<data[i].events.length; j++) {
-			    eventListString += '<iframe src="' + data[i].events[j].eventUrl  + '"></iframe>'
-				    + '<h2> ' + data[i].events[j].eventName + ' ' 
-				      + data[i].events[j].eventTime + ' ' 
-				      + data[i].events[0].eventPrice + ' </h2> <br>'
+			for (var j=0; j<value.events.length; j++) {
+			    eventListString += '<iframe src="' + value.events[j].eventUrl  + '"></iframe>'
+				    + '<h2> ' + value.events[j].eventName + ' ' 
+				      + value.events[j].eventTime + ' ' 
+				      + value.events[0].eventPrice + ' </h2> <br>'
 			}
 
-			var binder = L.circle([data[i].lat, data[i].lng], 25,
+			var binder = L.circle([value.lat, value.lng], 25,
 				{
 				    color: 'red',
 				    fillColor: '#f03',
 				    fillOpacity: 0.5
 				})
 				.addTo(map)
-				.bindPopup('<a href="'+data[i].url+'"> <h1> ' + data[i].venue + ' <h1> </a>' + eventListString); 
+				.bindPopup('<a href="'+value.url+'"> <h1> ' + value.venue + ' <h1> </a>' + eventListString); 
 
 		    
 			if (i == data.length-1 ) binder.openPopup();
