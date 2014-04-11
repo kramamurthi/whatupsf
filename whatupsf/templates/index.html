@@ -41,10 +41,6 @@
 
             var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
 	    json_firebase.on('value', function(data) {
-		    //  alert('fred’s first name is ' + snapshot.val());
-//	      });
-//	    var json_url = "/json";
-//	    $.getJSON(json_url, function(data) {
 		    $.each(data.val(), function(i, value) {
 			//value = data.val()[i]  in a sense
 			eventListString = '';
