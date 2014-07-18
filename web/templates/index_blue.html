@@ -35,7 +35,7 @@
 	<script>
 
 		var stamen = new L.StamenTileLayer("toner-lite");
-		     
+	    //var stamen = new L.StamenTileLayer("toner");   
 		var myLayer = new L.TileLayer.WMS("http://10.101.21.28/cgi-bin/qgis_mapserv.fcgi", {
 		    map: "/usr/lib/cgi-bin/test/test.qgs",
 		    layers: 'mylayer',
@@ -43,7 +43,7 @@
 		    transparent: 'TRUE',
 		});
 
-		  var map = new L.Map("map", {
+      var map = new L.Map("map", {
 			  center: new L.LatLng(37.76,-122.42),
 			  zoom: 15,
 			  minZoom: 10,
@@ -51,6 +51,7 @@
 			  layers: [stamen,myLayer],
 		      });
 
+       //map.on("viewreset", function {});
 /*		
 		var map = L.map('map').setView([37.76, -122.42], 15);
 		// add an OpenStreetMap tile layer
@@ -59,8 +60,9 @@
 		maxZoom: 18
 		}).addTo(map);
 */
-            var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
-            json_firebase.on('value', function(data) {
+        var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
+        var random_event = Math.floor(Math.random()*40);
+	    json_firebase.on('value', function(data) {
 		    $.each(data.val(), function(i, value) {
 			//value = data.val()[i]  in a sense
 			eventListString = '';
@@ -72,18 +74,21 @@
 				      + value.events[0].eventPrice + ' </h2> <br>'
 			}
 
-			var binder = L.circle([value.lat, value.lng], 25,
+            eventListString = '<iframe src="http://' + value.url +'"></iframe>'
+            //alert(eventListString);
+			var binder = L.circleMarker([value.lat, value.lng], 80,
 				{
-				    color: 'red',
-				    fillColor: '#f03',
-				    fillOpacity: 0.5
+				    color: '#f00',
+				    fillColor: '#FF0031',
+				    fillOpacity:1.0 
 				})
-				.addTo(map)
 				.bindPopup('<a href="http://'+value.url+'"> <h1> ' + value.venue + ' <h1> </a>' + eventListString); 
 
+				//.addTo(map)
+            //console.log(binder.getBounds());
 		    
-			//if (i == data.length-1 ) binder.openPopup();
-            if (value.venue == "Amnesia") binder.openPopup();
+            map.addLayer(binder);
+			if (i == random_event ) binder.openPopup();
 		});
 	});
 
