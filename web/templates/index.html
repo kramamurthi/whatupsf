@@ -12,6 +12,11 @@
 <script type="text/javascript" src='https://cdn.firebase.com/js/client/1.0.11/firebase.js'></script>
 
 <style>
+
+.leaflet-popup-content-wrapper {
+    background-color: #abc
+}
+
 #map { height: 100%;
 	width: 100%;
 }
@@ -63,27 +68,34 @@
             json_firebase.on('value', function(data) {
 		    $.each(data.val(), function(i, value) {
 			//value = data.val()[i]  in a sense
-			eventListString = '';
+			var eventListString = '';
 
 			for (var j=0; j<value.events.length; j++) {
-			    eventListString += '<iframe src="' + value.events[j].eventUrl  + '"></iframe>'
+                var heightOffset = '';
+                if (value.events[j].eventUrl.substring(11,18) == "youtube")
+                    heightOffset = '-262px' 
+                else if (value.events[j].eventUrl.substring(14,19) == "vimeo")
+                    heightOffset = '-249px' 
+                else
+                    heightOffset = '-69px';
+                eventListString += '<div style="position:relative;width:300px;height:46px;overflow:hidden;"><div style="position:absolute;top:' + heightOffset + ';left:-2px"><iframe width="300" height="300" src="' + value.events[j].eventUrl  + '"></iframe></div></div>'
 				    + '<h2> ' + value.events[j].eventName + ' ' 
 				      + value.events[j].eventTime + ' ' 
-				      + value.events[0].eventPrice + ' </h2> <br>'
+                      + value.events[j].eventPrice + ' </h2> <hr> <br>'
 			}
 
 			var binder = L.circle([value.lat, value.lng], 25,
 				{
-				    color: 'red',
-				    fillColor: '#f03',
+				    color: '#abc',
+				    fillColor: '#f07',
 				    fillOpacity: 0.5
 				})
 				.addTo(map)
-				.bindPopup('<a href="http://'+value.url+'"> <h1> ' + value.venue + ' <h1> </a>' + eventListString); 
+                .bindPopup('<a href="http://'+value.url+'"> <h1><font color="#F07">' + value.venue + '</font></h1> </a>' + eventListString); 
 
 		    
 			//if (i == data.length-1 ) binder.openPopup();
-            if (value.venue == "Amnesia") binder.openPopup();
+            if (value.venue == "Monarch") binder.openPopup();
 		});
 	});
 
