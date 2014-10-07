@@ -52,8 +52,7 @@ ROOT_URLCONF = 'web.urls'
 
 TEMPLATE_DIRS = (
 	os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates')
-)
-
+,)
 
 WSGI_APPLICATION = 'web.wsgi.application'
 
