@@ -76,15 +76,15 @@
 
             eventListString = '<iframe src="http://' + value.url +'"></iframe>'
             //alert(eventListString);
-			var binder = L.circleMarker([value.lat, value.lng], 80,
+			var binder = L.circleMarker([value.lat, value.lng],
 				{
-				    color: '#f00',
-				    fillColor: '#FF0031',
+				    color: '#0f0',
+				    fillColor: '#00FF00',
 				    fillOpacity:1.0 
 				})
+				//.addTo(map)
 				.bindPopup('<a href="http://'+value.url+'"> <h1> ' + value.venue + ' <h1> </a>' + eventListString); 
 
-				//.addTo(map)
             //console.log(binder.getBounds());
 		    
             map.addLayer(binder);
