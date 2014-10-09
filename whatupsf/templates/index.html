@@ -1,0 +1,170 @@
+<html>
+
+<head>
+
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+ <!--[if lte IE 8]>
+     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
+ <![endif]-->
+<script type="text/javascript" src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+<script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.1.3"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript" src='https://cdn.firebase.com/js/client/1.0.11/firebase.js'></script>
+
+<style>
+
+.leaflet-popup-content-wrapper {
+    background-color: #abc
+}
+
+#map { height: 100%;
+	width: 100%;
+}
+
+
+#panel { height: 100%;
+		width: 30%;
+	    background: #555;
+		position: absolute;
+		left: 70%;
+		top:1.3%;
+		bottom:95%;
+	}
+
+.ux-control {
+background:#fff;
+position:absolute;
+top:10px;
+right:10px;
+padding:10px;
+z-index:100;
+border-radius:3px;
+    } 
+</style>
+</head>
+
+<body>
+<div id="map">
+
+<div id='output' class='ui-control'>
+      Click: <code id='id_click'></code><br/>
+      Mousemove: <code id='id_mousemove'></code><br/>
+      Zoom: <code id='zoom'></code><br/>
+</div>
+<script>
+    var click= document.getElementById('id_click'),
+    mousemove = document.getElementById('id_mousemove'),
+    zoombox = document.getElementById('zoom');
+
+
+    var myArray = ['#f21','#2f1','#21f','#000','#ff2']
+    var bgmap = new L.StamenTileLayer("terrain-background");
+    var fgmap = new L.StamenTileLayer("toner-lines");
+    var lbmap = new L.StamenTileLayer("toner-labels");
+         
+    var myLayer = new L.TileLayer.WMS("http://10.101.21.28/cgi-bin/qgis_mapserv.fcgi", {
+      map: "/usr/lib/cgi-bin/test/test.qgs",
+      layers: 'mylayer',
+      format: 'image/png',
+      transparent: 'FALSE',
+    });
+
+    var map = new L.Map("map", {
+      center: new L.LatLng(37.76,-122.42),
+      zoom: 13,
+      minZoom: 11,
+      maxZoom: 18,
+      layers: [bgmap, fgmap, lbmap],
+    });
+
+
+
+    var markers = new Array();
+    var initialRadius = Math.pow(2, 11 - map.getZoom()) * 512;
+    var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
+      json_firebase.on('value', function(data) {
+      $.each(data.val(), function(i, value) {
+        var eventListString = '';
+
+        for (var j=0; j<value.events.length; j++) {
+          var heightOffset = '';
+          if (value.events[j].eventUrl.substring(11,18) == "youtube")
+            heightOffset = '-262px' 
+          else if (value.events[j].eventUrl.substring(14,19) == "vimeo")
+            heightOffset = '-249px' 
+          else
+            heightOffset = '-69px';
+            
+        eventListString += '<div style="position:relative;width:300px;height:46px;overflow:hidden;"><div style="position:absolute;top:' 
+                        + heightOffset 
+                        + ';left:-2px"><iframe width="300" height="300" src="' 
+                            + value.events[j].eventUrl  
+                            + '"></iframe></div></div>'
+				            + '<h2> ' + value.events[j].eventName + ' ' 
+				            + value.events[j].eventTime + ' ' 
+                            + value.events[j].eventPrice + ' </h2> <hr> <br>'
+			}
+
+          var randColor = myArray[Math.floor(Math.random() * myArray.length)];
+          var binder = L.circle([value.lat, value.lng], initialRadius, {
+            color: '#FFF',
+            weight: 3,
+            fillColor: randColor,
+            fillOpacity: 1.0
+          });
+
+          markers.push(binder);
+          markers[markers.length-1].addTo(map).bindPopup('<a href="http://'+value.url+'"> <h1><font color="#F07">' + value.venue + '</font></h1> </a>' + eventListString); 
+          
+
+          //alert('Venue: '+ value.venue + 'Latitude = ' + value.lat + 'Longitude = ' + value.lng + '--> leafletID' + binder._leaflet_id);
+          //markers[binder._leaflet_id] = binder;
+
+          //if (i == data.length-1 ) binder.openPopup();
+          //if (value.venue == "Amnesia") binder.openPopup();
+		});
+	});
+
+    console.log(markers);
+    var swapArray = new Array();
+    map.on( "zoomend", function( e ) {
+    // runs this code after you finishing the zoom
+       zoombox.innerHTML = "you zoomed the map! to:" + map.getZoom();
+       var zoomRadius = Math.pow(2, 11 - map.getZoom()) * 512;
+       //alert('zoomRadius = ' + zoomRadius + ' and Zoom = ' + map.getZoom());
+       for(i=0;i<markers.length;i++) {
+               markers[i].setRadius(zoomRadius);
+           }  
+       });
+
+    map.on('mousemove click', function(e) {
+        window[e.type].innerHTML = e.containerPoint.toString() + ', ' + e.latlng.toString();
+       //var zoomRadius = map.getCenter().distanceTo(e.latlng); 
+       var zoomRadius = Math.pow(2, 11 - map.getZoom()) * 512;
+       for(i=0;i<markers.length;i++) {
+               moveRadius = Math.min(4*zoomRadius, Math.max(zoomRadius, zoomRadius*Math.exp(1.0 - 0.0125*markers[i].getLatLng().distanceTo(e.latlng))));
+               //moveRadius = Math.max(250, 250 - markers[i].getLatLng().distanceTo(e.latlng));
+               markers[i].setRadius(moveRadius);
+           }  
+
+    });
+
+</script>
+
+ </div>
+
+
+
+<!--div id="panel">
+ 	
+ 	<a href="http://www.amnesiathebar.com"> <h1> Amnesia bar <h1> </a> 
+    			<iframe src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/69974084"></iframe> 
+    			<h2> Snowapple 7pm, $5 </h2> <br>
+    			<iframe src="http://player.vimeo.com/video/16101483"></iframe> 
+    			<h2> Hella Tight 10pm, $5 </h2>
+
+</div-->
+
+</body>
+
+</html>
