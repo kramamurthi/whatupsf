@@ -1,7 +1,7 @@
 <html>
 
 <head>
-
+    <!--L_DISABLE_3D = true for Androud!-->
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
  <!--[if lte IE 8]>
      <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
@@ -57,7 +57,9 @@ border-radius:3px;
     zoombox = document.getElementById('zoom');
 
 
-    var myArray = ['#f21','#2f1','#21f','#000','#ff2']
+    //var myArray = ['#f21','#2f1','#000','#ff2']
+    var myArray = ['#f00'];
+    var lite = new L.StamenTileLayer("toner-lite");
     var bgmap = new L.StamenTileLayer("terrain-background");
     var fgmap = new L.StamenTileLayer("toner-lines");
     var lbmap = new L.StamenTileLayer("toner-labels");
@@ -71,10 +73,11 @@ border-radius:3px;
 
     var map = new L.Map("map", {
       center: new L.LatLng(37.76,-122.42),
-      zoom: 14,
-      minZoom: 10,
-      maxZoom: 20,
-      layers: [bgmap, fgmap, lbmap],
+      zoom: 13,
+      minZoom: 11,
+      maxZoom: 18,
+      layers : [lite],
+      //layers: [bgmap, fgmap, lbmap],
     });
 
 
@@ -82,7 +85,10 @@ border-radius:3px;
     var markers = new Array();
     var grpMarkers = new Array();
     var rawMarkers = new Array();
-    var initialRadius = Math.pow(2, 11 - map.getZoom()) * 512;
+    var currentSelectedMarkerId = -1;;
+    function zoomRadius(){ return  Math.pow(2, 11 - map.getZoom()) * 512};
+    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 3000.0}; 
+
     var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
       json_firebase.on('value', function(data) {
       $.each(data.val(), function(i, value) {
@@ -108,7 +114,7 @@ border-radius:3px;
 			}
 
           var randColor = myArray[Math.floor(Math.random() * myArray.length)];
-          var binder = L.circle([value.lat, value.lng], 0.5*initialRadius, {
+          var binder = L.circle([value.lat, value.lng], zoomRadius(), {
             color: '#FFF',
             weight: 3,
             fillColor: randColor,
@@ -116,13 +122,13 @@ border-radius:3px;
             //riseOnHover: true,
             //riseOffset: 50,
             zIndexOffset: 0 
-          });
+          }).bindPopup('<a href="http://'+value.url+'"> <h1><font color="#F07">' + value.venue + '</font></h1> </a>' + eventListString); 
 
           
           rawMarkers.push(binder);
-          rawMarkers[rawMarkers.length-1].bindPopup('<a href="http://'+value.url+'"> <h1><font color="#F07">' + value.venue + '</font></h1> </a>' + eventListString); 
+          //rawMarkers[rawMarkers.length-1].
 
-          populateGroups(500.0, binder); 
+          populateGroups(clusterSize(), binder); 
 
           //alert('Venue: '+ value.venue + 'Latitude = ' + value.lat + 'Longitude = ' + value.lng + '--> leafletID' + binder._leaflet_id);
 
@@ -137,42 +143,52 @@ border-radius:3px;
     function secondPass() {
         markers = [];
         for (var k=0; k<grpMarkers.length; k++) {
-          //var grpRadius = 0.75*initialRadius*grpMarkers[k]['mlist'].length;
+          //var grpRadius = 0.75*zoomRadius()*grpMarkers[k]['mlist'].length;
           var grpRadius;
           var maxDist = -1;
           var dist;
+          var clusterColor;
+          var clusterGroup = new Array();
           for (var i=0; i<grpMarkers[k]['mlist'].length; i++)
           {
               for (var j=0; j<grpMarkers[k]['mlist'].length; j++)
               {
-                  if (i == j) {dist = 0.0;} 
-                  else {
+                  if (i != j) {
                       dist = grpMarkers[k]['mlist'][i]._latlng.distanceTo(grpMarkers[k]['mlist'][j]._latlng);
+                      if (dist > maxDist) {maxDist = dist;}
                   }
-                  if (dist > maxDist) {maxDist = dist;}
               }
+              clusterGroup.push(grpMarkers[k]['mlist'][i].getLatLng());
           }
           if (grpMarkers[k]['mlist'].length > 1)
           {
-              grpRadius = 0.33*maxDist;
+              //grpRadius = 0.75*maxDist+grpMarkers[k]['mlist'].length*10/map.getZoom();
+              grpRadius = Math.max(2*zoomRadius(),0.5*maxDist);
+              clusterColor = '#00F';
+              var binder = L.circle([grpMarkers[k]['center'][0], grpMarkers[k]['center'][1]], grpRadius, {
+                color: '#FFF',
+                weight: 2,
+                fillColor: clusterColor,
+                fillOpacity: 0.7,
+                zIndexOffset: 0 
+              });
+              markers.push(binder);
+              markers[markers.length-1].addTo(map).on('click', zoomIn);
           }
           else {
-             grpRadius = 0.5*initialRadius;
-         }
-          var binder = L.circle([grpMarkers[k]['center'][0], grpMarkers[k]['center'][1]], grpRadius, {
-            color: '#00F',
-            weight: 2,
-            fillColor: '#00F',
-            fillOpacity: 1.0,
-            zIndexOffset: 0 
-          });
-          markers.push(binder);
-          markers[markers.length-1].addTo(map).on('click', zoomIn);
+              markers.push(grpMarkers[k]['mlist'][0]);
+              markers[markers.length-1].addTo(map);
+          }
         }
     }
 
     function populateGroups(dist, binder){
         
+         if (currentSelectedMarkerId != -1) {
+              markers[currentSelectedMarkerId].setRadius(zoomRadius());
+              markers[currentSelectedMarkerId].setStyle({color : '#FFF', fillColor : '#F00'});
+              currentSelectedMarkerId = -1;
+         }
          if (grpMarkers.length == 0) {
              //alert("Initial Family");
              var markerFamily = new Array();
@@ -188,6 +204,7 @@ border-radius:3px;
             for (var k=0; k<grpMarkers.length; k++) {
                 var grpLoc = L.latLng(grpMarkers[k]['center'][0], grpMarkers[k]['center'][1]);
                 var dstFrm = grpLoc.distanceTo(binder._latlng);
+                if (dstFrm == 0.0) alert("WARNING: Two places at same lat/lng");
                 if (dstFrm < minDistance) {
                     minDistance = dstFrm;
                     myGroup = k;
@@ -213,59 +230,69 @@ border-radius:3px;
     }
     function onClick(e) {alert(this.getLatLng());}
     function zoomIn(e) {
+        //map.fitBounds(L.latLngBounds(cGroup));
         map.setView(this.getLatLng(), map.getZoom()+2);
+        //map.panTo(this.getLatLng());
         //map.setZoom(map.getZoom()+1);
     }
 
 
     map.on("zoomend", function(e) {
+
+         if (currentSelectedMarkerId != -1) {
+              markers[currentSelectedMarkerId].setRadius(zoomRadius());
+              markers[currentSelectedMarkerId].setStyle({color : '#FFF', fillColor : '#F00'});
+              currentSelectedMarkerId = -1;
+         }
        zoombox.innerHTML = "you zoomed the map! to:" + map.getZoom();
+       //var zoomRadius = Math.pow(2, 11 - map.getZoom()) * 512;
         if (map.getZoom() > 16) {
             for(var i=0; i<markers.length; i++) {map.removeLayer(markers[i]);}
-            for(var j=0; j<rawMarkers.length; j++) {rawMarkers[j].addTo(map);}
+            for(var j=0; j<rawMarkers.length; j++) {
+                rawMarkers[j].setRadius(zoomRadius());
+                rawMarkers[j].addTo(map);
+                markers[j] = rawMarkers[j]; //for state consistency. 
+            }
         }
         else {
             for(var i=0; i<markers.length; i++) {map.removeLayer(markers[i]);}
             grpMarkers = [];
             for(var j=0; j<rawMarkers.length; j++) {
                 map.removeLayer(rawMarkers[j]);
-                populateGroups(2000.0*Math.pow(2, 12 - map.getZoom()), rawMarkers[j]);
+                rawMarkers[j].setRadius(zoomRadius());
+                populateGroups(clusterSize(), rawMarkers[j]);
             }
             secondPass();
-            for(var i=0; i<markers.length; i++) {markers[i].addTo(map);}
+            for(var i=0; i<markers.length; i++) {
+                markers[i].addTo(map);
+            }
         }
       }
     );
     
-    map.on('mousemove click', function(e) {
-        window[e.type].innerHTML = e.containerPoint.toString() + ', ' + e.latlng.toString();
+    map.on("resize", function(e) {
+        //alert("Hi");
     });
 
-/*
-    //console.log(markers);
-    //var swapArray = new Array();
-    map.on( "zoomend", function( e ) {
-    // runs this code after you finishing the zoom
-       zoombox.innerHTML = "you zoomed the map! to:" + map.getZoom();
-       var zoomRadius = Math.pow(2, 11 - map.getZoom()) * 512;
-       //alert('zoomRadius = ' + zoomRadius + ' and Zoom = ' + map.getZoom());
-       for(i=0;i<markers.length;i++) {
-               markers[i].setRadius(zoomRadius);
-           }  
-       });
+    //map.on('mousemove click', function(e) {
+    //    window[e.type].innerHTML = e.containerPoint.toString() + ', ' + e.latlng.toString();
+    //});
 
-       /*
-    map.on('mousemove click', function(e) {
+    map.on('click', function(e) {
         window[e.type].innerHTML = e.containerPoint.toString() + ', ' + e.latlng.toString();
-       //var zoomRadius = map.getCenter().distanceTo(e.latlng); 
-       var zoomRadius = Math.pow(2, 11 - map.getZoom()) * 512;
        var maxMoveRadius = -1, maxZindex = 0;
+       var closestMarker = -1;
+       var lastSelectedMarker = -1;
+       var nearest = 1000000.0;
        for(i=0;i<markers.length;i++) {
-               moveRadius = Math.min(4*zoomRadius, Math.max(zoomRadius, zoomRadius*Math.exp(2.5 - 0.015*markers[i].getLatLng().distanceTo(e.latlng))));
+               //moveRadius = Math.min(4*zoomRadius(), Math.max(zoomRadius(), zoomRadius()*Math.exp(2.5 - 0.015*markers[i].getLatLng().distanceTo(e.latlng))));
                //moveRadius = Math.max(250, 250 - markers[i].getLatLng().distanceTo(e.latlng));
-               if (moveRadius > maxMoveRadius) 
+               markerDistance = markers[i].getLatLng().distanceTo(e.latlng);
+               //debugger;
+               if ( (markerDistance < nearest) && (markers[i]._popup != null) ) 
                {
-                   maxMoveRadius = moveRadius;
+                   nearest = markerDistance;
+                   closestMarker = i;
                }
                //if (markers[i].zIndexOffset > maxZindex)
                //{
@@ -273,15 +300,25 @@ border-radius:3px;
                //    alert(maxZindex);
                //}
 
-               markers[i].setRadius(moveRadius);
+               /*
                if ((moveRadius >= 2*zoomRadius) && (moveRadius == maxMoveRadius)) {
                    //markers[i].setZIndexOffset(maxZindex);
                    if (e.type == 'click') {
                        markers[i].openPopup();
                    }
                }
+               */
            }  
-    });*/
+           if (currentSelectedMarkerId != -1) {
+               markers[currentSelectedMarkerId].setRadius(zoomRadius());
+               markers[currentSelectedMarkerId].setStyle({color : '#FFF', fillColor : '#F00'});
+           }
+
+           markers[closestMarker].setRadius(2*zoomRadius());
+           markers[closestMarker].setStyle({color : '#0F0', fillColor : '#000'});
+           markers[closestMarker].bringToFront();
+           currentSelectedMarkerId = closestMarker;
+    });
 
 </script>
 
