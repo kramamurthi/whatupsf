@@ -16,14 +16,8 @@
 .leaflet-popup-content-wrapper {
     background-color: #abc
 }
-#map
-{
-    background-image: url(../static/district_9.svg);
-    height: 100%;
-    width: 100%;
-}
 
-#map1 { height: 100%;
+#map { height: 100%;
 	width: 100%;
 }
 
@@ -79,9 +73,9 @@ border-radius:3px;
 
     var map = new L.Map("map", {
       center: new L.LatLng(37.76,-122.42),
-      zoom: 14,
+      zoom: 13,
       minZoom: 11,
-      maxZoom: 19,
+      maxZoom: 18,
       layers : [lite],
       //layers: [bgmap, fgmap, lbmap],
     });
@@ -92,8 +86,8 @@ border-radius:3px;
     var grpMarkers = new Array();
     var rawMarkers = new Array();
     var currentSelectedMarkerId = -1;;
-    function zoomRadius(){ return  Math.pow(2, 12 - map.getZoom()) * 512};
-    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 7000.0}; 
+    function zoomRadius(){ return  Math.pow(2, 11 - map.getZoom()) * 512};
+    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 5000.0}; 
 
     var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
       json_firebase.on('value', function(data) {
@@ -180,11 +174,11 @@ border-radius:3px;
               });
               markers.push(binder);
               markers[markers.length-1].addTo(map).on('click', zoomIn);
-              /*for (var j=0; j<grpMarkers[k]['mlist'].length; j++) {
-                grpMarkers[k]['mlist'][j].setRadius(zoomRadius());
+              for (var j=0; j<grpMarkers[k]['mlist'].length; j++) {
+                grpMarkers[k]['mlist'][j].setRadius(0.2*zoomRadius());
                 markers.push(grpMarkers[k]['mlist'][j]);
                 markers[markers.length-1].addTo(map);
-            }*/
+            }
           }
           else {
               markers.push(grpMarkers[k]['mlist'][0]);

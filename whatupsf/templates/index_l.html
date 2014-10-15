@@ -16,14 +16,8 @@
 .leaflet-popup-content-wrapper {
     background-color: #abc
 }
-#map
-{
-    background-image: url(../static/district_9.svg);
-    height: 100%;
-    width: 100%;
-}
 
-#map1 { height: 100%;
+#map { height: 100%;
 	width: 100%;
 }
 
@@ -37,7 +31,7 @@
 		bottom:95%;
 	}
 
-.ux-control {
+.ui-control {
 background:#fff;
 position:absolute;
 top:10px;
@@ -79,9 +73,9 @@ border-radius:3px;
 
     var map = new L.Map("map", {
       center: new L.LatLng(37.76,-122.42),
-      zoom: 14,
+      zoom: 13,
       minZoom: 11,
-      maxZoom: 19,
+      maxZoom: 18,
       layers : [lite],
       //layers: [bgmap, fgmap, lbmap],
     });
@@ -92,8 +86,8 @@ border-radius:3px;
     var grpMarkers = new Array();
     var rawMarkers = new Array();
     var currentSelectedMarkerId = -1;;
-    function zoomRadius(){ return  Math.pow(2, 12 - map.getZoom()) * 512};
-    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 7000.0}; 
+    function zoomRadius(){ return  Math.pow(2, 11 - map.getZoom()) * 512};
+    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 3000.0}; 
 
     var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
       json_firebase.on('value', function(data) {
@@ -122,9 +116,9 @@ border-radius:3px;
           var randColor = myArray[Math.floor(Math.random() * myArray.length)];
           var binder = L.circle([value.lat, value.lng], zoomRadius(), {
             color: '#FFF',
-            weight: 0,
+            weight: 3,
             fillColor: randColor,
-            fillOpacity: 0.8,
+            fillOpacity: 1.0,
             //riseOnHover: true,
             //riseOffset: 50,
             zIndexOffset: 0 
@@ -173,18 +167,13 @@ border-radius:3px;
               clusterColor = '#00F';
               var binder = L.circle([grpMarkers[k]['center'][0], grpMarkers[k]['center'][1]], grpRadius, {
                 color: '#FFF',
-                weight: 0,
+                weight: 2,
                 fillColor: clusterColor,
-                fillOpacity: 0.5,
+                fillOpacity: 0.7,
                 zIndexOffset: 0 
               });
               markers.push(binder);
               markers[markers.length-1].addTo(map).on('click', zoomIn);
-              /*for (var j=0; j<grpMarkers[k]['mlist'].length; j++) {
-                grpMarkers[k]['mlist'][j].setRadius(zoomRadius());
-                markers.push(grpMarkers[k]['mlist'][j]);
-                markers[markers.length-1].addTo(map);
-            }*/
           }
           else {
               markers.push(grpMarkers[k]['mlist'][0]);
@@ -271,7 +260,6 @@ border-radius:3px;
             for(var j=0; j<rawMarkers.length; j++) {
                 map.removeLayer(rawMarkers[j]);
                 rawMarkers[j].setRadius(zoomRadius());
-                rawMarkers[j].setStyle({color : '#FFF', weight : 0, fillColor : '#F00', fillOpacity : 0.8});
                 populateGroups(clusterSize(), rawMarkers[j]);
             }
             secondPass();
@@ -326,8 +314,8 @@ border-radius:3px;
                markers[currentSelectedMarkerId].setStyle({color : '#FFF', fillColor : '#F00'});
            }
 
-           markers[closestMarker].setRadius(1.33*zoomRadius());
-           markers[closestMarker].setStyle({color : '#F00', weight : 2, fillColor : '#2F4', fillOpacity : 0.7});
+           markers[closestMarker].setRadius(2*zoomRadius());
+           markers[closestMarker].setStyle({color : '#0F0', fillColor : '#000'});
            markers[closestMarker].bringToFront();
            currentSelectedMarkerId = closestMarker;
     });

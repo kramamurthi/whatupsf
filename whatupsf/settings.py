@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'whatupsf',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -48,13 +49,13 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'web.urls'
+ROOT_URLCONF = 'whatupsf.urls'
 
 TEMPLATE_DIRS = (
 	os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates')
 ,)
 
-WSGI_APPLICATION = 'web.wsgi.application'
+WSGI_APPLICATION = 'whatupsf.wsgi.application'
 
 
 # Database
