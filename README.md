@@ -1,4 +1,7 @@
 whatupsf
 ========
 
-Event Visualizer on Steroids
+Event Visualizer on Steroids.
+
+
+A KR Project.
