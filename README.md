@@ -3,5 +3,10 @@ whatupsf
 
 Event Visualizer on Steroids
 
+---
 
-A KR Project
+###To get the project set up:
+To install requirements, run
+```
+pip install -r requirements.txt
+```
