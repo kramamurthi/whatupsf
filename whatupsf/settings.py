@@ -64,7 +64,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 DATABASES = {
-    'default': dj_database_url.config(),
     'development': {
     	'ENGINE': 'django.db.backends.mysql',
     	'NAME': 'whatup',
@@ -74,6 +73,8 @@ DATABASES = {
     	'PORT': '3306',
     }
 }
+DATABASES['default'] = dj_database_url.config()
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/

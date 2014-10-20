@@ -10,3 +10,12 @@ To install requirements, run
 ```
 pip install -r requirements.txt
 ```
+
+
+
+foreman start
+heroku toolbelt
+pg (brew)
+launchrocket
+virtualenv
+virtualenvwrapper
