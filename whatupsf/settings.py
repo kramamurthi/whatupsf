@@ -62,8 +62,8 @@ WSGI_APPLICATION = 'whatupsf.wsgi.application'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
-
 DATABASES = {
+    'default': dj_database_url.config(default='postgres://localhost'),
     'development': {
     	'ENGINE': 'django.db.backends.mysql',
     	'NAME': 'whatup',
@@ -73,8 +73,13 @@ DATABASES = {
     	'PORT': '3306',
     }
 }
-DATABASES['default'] = dj_database_url.config()
 
+# Email settings.
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_HOST_USER = os.environ.get("SENDGRID_USERNAME", "")
+EMAIL_HOST_PASSWORD = os.environ.get("SENDGRID_PASSWORD", "")
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
