@@ -1,1 +1,1 @@
-web: gunicorn whatupsf.wsgi --log-file -
+web: waitress-serve --port=$PORT whatupsf.wsgi:application
