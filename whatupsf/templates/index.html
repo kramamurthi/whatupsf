@@ -66,6 +66,7 @@ border-radius:3px;
     //var myArray = ['#f21','#2f1','#000','#ff2']
     var myArray = ['#f00'];
     var lite = new L.StamenTileLayer("toner-lite");
+    var dark = new L.StamenTileLayer("toner");
     var bgmap = new L.StamenTileLayer("terrain-background");
     var fgmap = new L.StamenTileLayer("toner-lines");
     var lbmap = new L.StamenTileLayer("toner-labels");
@@ -82,7 +83,7 @@ border-radius:3px;
       zoom: 14,
       minZoom: 11,
       maxZoom: 19,
-      layers : [lite],
+      layers : [dark],
       //layers: [bgmap, fgmap, lbmap],
     });
 

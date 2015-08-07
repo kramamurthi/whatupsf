@@ -173,9 +173,23 @@ class EventInformation(models.Model):
     eventName = models.CharField(db_column='eventName', max_length=100)  # Field name made lowercase.
     eventPrice = models.DecimalField(db_column='eventPrice', max_digits=4, decimal_places=0)  # Field name made lowercase.
     eventDate = models.DateField(db_column='eventDate')  # Field name made lowercase.
-    #eventTime = models.DateTimeField(db_column='eventTime')  # Field name made lowercase.
+    eventTime = models.DateTimeField(db_column='eventTime')  # Field name made lowercase.
     eventUrl = models.CharField(db_column='eventUrl', max_length=255)  # Field name made lowercase.
 
     class Meta:
         managed = False
-        db_table = 'whatupsf_eventinformation'
+        db_table = 'events'
+
+
+
+class BandInformation(models.Model):
+    #id = models.IntegerField(primary_key=True)  # AutoField?
+    name = models.CharField(max_length=100, blank=True)
+    media_url = models.TextField(blank=True)
+    image_url = models.TextField(blank=True)
+    descriptions = models.TextField(blank=True)
+
+    class Meta:
+        managed = False
+        db_table = 'bands'
+
