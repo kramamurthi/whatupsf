@@ -151,15 +151,15 @@ class Geoloc(models.Model):
         db_table = 'geoloc'
 
 
-class Venues(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
+class VenueInformation(models.Model):
+    #id = models.IntegerField(primary_key=True)  # AutoField?
     name = models.CharField(max_length=100, blank=True)
     address = models.CharField(max_length=255, blank=True)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
     city = models.CharField(max_length=30, blank=True)
     state = models.CharField(max_length=2, blank=True)
-    zip = models.IntegerField(blank=True, null=True)
+    zipcode = models.IntegerField(blank=True, null=True)
     phone = models.CharField(max_length=12, blank=True)
     url = models.CharField(max_length=50, blank=True)
 

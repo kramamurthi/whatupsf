@@ -16,4 +16,5 @@ urlpatterns = patterns('',
     url(r'^json/', map_view.render_json, name='Event Data'),
     url(r'^event/', form_view.event_information),
     url(r'^band/', form_view.band_information),
+    url(r'^venue/', form_view.venue_information),
 )

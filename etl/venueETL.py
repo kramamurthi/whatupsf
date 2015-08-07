@@ -116,8 +116,26 @@ def get_events(dump=False):
             if event[u'eventName'] != u'':
                 eventList.append(event)
 
-    return eventList
-    #json_str = json.dumps(json_data)
+    return eventList, jData
+
+def updated_venues(dump=False):
+    E,D = get_events()
+    V = get_json_data('sfev', 'venues')
+    for venue in V:
+        exists = False
+        for location in D:
+            if location['venue'] == venue['venue']:
+                exists = True
+        if not exists:
+            D.append(venue)
+
+    if dump:
+        jString = json.dumps(D, sort_keys = False, indent=4)        
+        fH = open("new_events.json","w")
+        fH.write(jString)
+        fH.close()
+
+    return D
 
 
 def ingest_bands(dbName, tblName):
