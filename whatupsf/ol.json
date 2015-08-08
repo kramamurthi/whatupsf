@@ -1,0 +1,479 @@
+[
+    {
+        "lat": 37.7715110778809, 
+        "url": "slimspresents.com", 
+        "lng": -122.413276672363, 
+        "venue": "Slim's", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7847595214844, 
+        "url": "gamh.com", 
+        "lng": -122.418838500977, 
+        "venue": "Great American Music Hall", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7792892456055, 
+        "url": "hotelutah.com", 
+        "lng": -122.398132324219, 
+        "venue": "The Hotel Utah Saloon", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7592811584473, 
+        "url": "amnesiathebar.com", 
+        "lng": -122.42121887207, 
+        "venue": "Amnesia", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7555389404297, 
+        "url": "revolutioncafesf.com", 
+        "lng": -122.419731140137, 
+        "venue": "Revolution Cafe", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7667503356934, 
+        "url": "cafedunord.com", 
+        "lng": -122.43049621582, 
+        "venue": "Cafe Du Nord", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7820587158203, 
+        "url": "yoshis.com/sanfrancisco", 
+        "lng": -122.432243347168, 
+        "venue": "Yoshi's SF", 
+        "events": []
+    }, 
+    {
+        "lat": 37.784610748291, 
+        "url": "boomboomblues.com", 
+        "lng": -122.433197021484, 
+        "venue": "Boom Boom Room", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7605590820312, 
+        "url": "thechapelsf.com", 
+        "lng": -122.421188354492, 
+        "venue": "The Chapel", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7621002197266, 
+        "url": "sf-submission.com", 
+        "lng": -122.419151306152, 
+        "venue": "Sub-Mission", 
+        "events": []
+    }, 
+    {
+        "lat": 37.769718170166, 
+        "url": "brickandmortarmusic.com", 
+        "lng": -122.420379638672, 
+        "venue": "Brick & Mortar Music Hall", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7689018249512, 
+        "url": "publicsf.com", 
+        "lng": -122.419372558594, 
+        "venue": "Public Works", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7712593078613, 
+        "url": "wishsf.com", 
+        "lng": -122.414413452148, 
+        "venue": "Wish", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7713890075684, 
+        "url": "theholycow.com", 
+        "lng": -122.414337158203, 
+        "venue": "Holy Cow Nightclub", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7714500427246, 
+        "url": "beatboxsf.com", 
+        "lng": -122.413940429688, 
+        "venue": "Beatbox", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7710304260254, 
+        "url": "smoothasbutter.com", 
+        "lng": -122.413352966309, 
+        "venue": "Butter", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7710189819336, 
+        "url": "dnalounge.com", 
+        "lng": -122.412719726562, 
+        "venue": "DNA Lounge", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7589416503906, 
+        "url": "brunosf.com", 
+        "lng": -122.418769836426, 
+        "venue": "Bruno's", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7500381469727, 
+        "url": "savanajazz.com", 
+        "lng": -122.417892456055, 
+        "venue": "Savanna Jazz", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7468109130859, 
+        "url": "elriosf.com", 
+        "lng": -122.419471740723, 
+        "venue": "El Rio", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7642517089844, 
+        "url": "blondiesbarsf.com", 
+        "lng": -122.421859741211, 
+        "venue": "Blondies' Bar & No Grill", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7780990600586, 
+        "url": "1015.com", 
+        "lng": -122.40576171875, 
+        "venue": "1015 Folsom", 
+        "events": []
+    }, 
+    {
+        "lat": 37.775390625, 
+        "url": "sfcatclub.com", 
+        "lng": -122.409927368164, 
+        "venue": "Cat Club", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7753486633301, 
+        "url": "iconloungesf.comPui", 
+        "lng": -122.410011291504, 
+        "venue": "Icon Ultra Lounge", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7772216796875, 
+        "url": "theendup.com", 
+        "lng": -122.403800964355, 
+        "venue": "The Endup", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7875900268555, 
+        "url": "rubyskye.com", 
+        "lng": -122.409812927246, 
+        "venue": "Ruby Skye", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7757797241211, 
+        "url": "ravenbarsf.com", 
+        "lng": -122.408889770508, 
+        "venue": "Raven Bar", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7911796569824, 
+        "url": "masonicauditorium.com", 
+        "lng": -122.412940979004, 
+        "venue": "Nob Hill Masonic Center", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7755393981934, 
+        "url": "theindependentsf.com", 
+        "lng": -122.437606811523, 
+        "venue": "The Independent", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7763290405273, 
+        "url": "sfjazz.org", 
+        "lng": -122.421539306641, 
+        "venue": "SFJAZZ Center", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7792510986328, 
+        "url": "shnsf.com", 
+        "lng": -122.414573669434, 
+        "venue": "Orpheum Theatre", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7826614379883, 
+        "url": "thewarfieldtheatre.com", 
+        "lng": -122.410179138184, 
+        "venue": "The Warfield", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7809715270996, 
+        "url": "monarchsf.com", 
+        "lng": -122.408409118652, 
+        "venue": "Monarch", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7674713134766, 
+        "url": "mighty119.com", 
+        "lng": -122.406883239746, 
+        "venue": "Mighty", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7651214599609, 
+        "url": "theeparkside.com", 
+        "lng": -122.399909973145, 
+        "venue": "Thee Parkside", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7650184631348, 
+        "url": "bottomofthehill.com", 
+        "lng": -122.396438598633, 
+        "venue": "Bottom of the Hill", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7633895874023, 
+        "url": "verdiclub.net", 
+        "lng": -122.407928466797, 
+        "venue": "Verdi Club", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7873916625977, 
+        "url": "hemlocktavern.com", 
+        "lng": -122.420257568359, 
+        "venue": "Hemlock Tavern", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7761192321777, 
+        "url": "rickshawstop.com", 
+        "lng": -122.420478820801, 
+        "venue": "Rickshaw Stop", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7873001098633, 
+        "url": "biscuitandblues.com", 
+        "lng": -122.410140991211, 
+        "venue": "Biscuits and Blues", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7824783325195, 
+        "url": "mezzaninesf.com", 
+        "lng": -122.408073425293, 
+        "venue": "Mezzanine", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7876091003418, 
+        "url": "caferoyale-sf.com", 
+        "lng": -122.41520690918, 
+        "venue": "Cafe Royale", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7867889404297, 
+        "url": "swigbar.com", 
+        "lng": -122.412521362305, 
+        "venue": "Swig", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7922286987305, 
+        "url": "reddevillounge.com", 
+        "lng": -122.421226501465, 
+        "venue": "Red Devil Lounge", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7602500915527, 
+        "url": "thebeautybar.com/san_francisco", 
+        "lng": -122.419227600098, 
+        "venue": "The Beauty Bar", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7602806091309, 
+        "url": "www.bissapbaobab.com", 
+        "lng": -122.418838500977, 
+        "venue": "Little Baobab", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7601699829102, 
+        "url": "bendersbar.com", 
+        "lng": -122.417259216309, 
+        "venue": "Benders Bar", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7675895690918, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.49494934082, 
+        "venue": "Lands End Stage", 
+        "events": [
+            {
+                "eventName": "Wilco", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/213701049", 
+                "eventPrice": "$150"
+            }, 
+            {
+                "eventName": "Mumford & Sons", 
+                "eventTime": " 7:55 PM", 
+                "eventUrl": " https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/3871246", 
+                "eventPrice": "$150"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.7699394226074, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.493072509766, 
+        "venue": "Sutro Stage", 
+        "events": [
+            {
+                "eventName": "Chet Faker", 
+                "eventTime": " 6:25 PM", 
+                "eventUrl": " https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/157068773", 
+                "eventPrice": "$150"
+            }, 
+            {
+                "eventName": "D'Angelo and The Vanguard", 
+                "eventTime": " 7:45 PM", 
+                "eventUrl": " http://youtube.com/embed/mVsQwJfWzoI", 
+                "eventPrice": "$150"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.7697257995605, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.483070373535, 
+        "venue": "Twin Peaks Stage", 
+        "events": [
+            {
+                "eventName": "Porter Robinson", 
+                "eventTime": " 6:50 PM", 
+                "eventUrl": " https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/200818581", 
+                "eventPrice": "$150"
+            }, 
+            {
+                "eventName": "Amon Tobin", 
+                "eventTime": " 8:40 PM", 
+                "eventUrl": " http://youtube.com/embed/ba_4oOpn9Qw", 
+                "eventPrice": "$150"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.7699127197266, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.485000610352, 
+        "venue": "Panhandle Stage", 
+        "events": [
+            {
+                "eventName": "The Drums", 
+                "eventTime": " 6:05 PM", 
+                "eventUrl": " http://youtube.com/embed/4IbkytcnRa4", 
+                "eventPrice": "$150"
+            }, 
+            {
+                "eventName": "Iration", 
+                "eventTime": " 7:50 PM", 
+                "eventUrl": " http://youtube.com/embed/UeyRvNFJgL0", 
+                "eventPrice": "$150"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.767936706543, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.491584777832, 
+        "venue": "The House by Heneiken", 
+        "events": []
+    }, 
+    {
+        "lat": 37.7670707702637, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.491264343262, 
+        "venue": "The Barbary", 
+        "events": [
+            {
+                "eventName": "James Adomian", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": " http://youtube.com/embed/6y17xDblrWE", 
+                "eventPrice": "$150"
+            }, 
+            {
+                "eventName": "Andy Kindler", 
+                "eventTime": " 6:55 PM", 
+                "eventUrl": " http://youtube.com/embed/kVGt6QMxtW0", 
+                "eventPrice": "$150"
+            }, 
+            {
+                "eventName": "Tig Notaro", 
+                "eventTime": " 7:20 PM", 
+                "eventUrl": " http://youtube.com/embed/WwFiFJn-v5w", 
+                "eventPrice": "$150"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.7689666748047, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.489585876465, 
+        "venue": "Gastro Magic", 
+        "events": [
+            {
+                "eventName": "Beatz N Pieces", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": " http://youtube.com/embed/xq6sZwHHP-A", 
+                "eventPrice": "$150"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.7706336975098, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.488227844238, 
+        "venue": "Presidio Stage", 
+        "events": [
+            {
+                "eventName": "Red Meat", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": " http://youtube.com/embed/Ynyx6qs2wa0", 
+                "eventPrice": "$150"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.769416809082, 
+        "url": "milksf.com", 
+        "lng": -122.452583312988, 
+        "venue": "Milk Bar", 
+        "events": []
+    }
+]

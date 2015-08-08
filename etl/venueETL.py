@@ -72,6 +72,7 @@ def get_json_data(dbName, tblName):
     finally:
         db.close()
 
+
 def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
     desc = cursor.description

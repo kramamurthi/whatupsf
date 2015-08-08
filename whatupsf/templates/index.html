@@ -79,9 +79,9 @@ border-radius:3px;
     });
 
     var map = new L.Map("map", {
-      center: new L.LatLng(37.76,-122.42),
-      zoom: 14,
-      minZoom: 11,
+      center: new L.LatLng(37.77,-122.49),
+      zoom: 16,
+      minZoom: 14,
       maxZoom: 19,
       layers : [lite],
       //layers: [bgmap, fgmap, lbmap],
@@ -100,17 +100,16 @@ border-radius:3px;
       json_firebase.on('value', function(data) {
       $.each(data.val(), function(i, value) {
         var eventListString = '';
-
         for (var j=0; j<value.events.length; j++) {
           var heightOffset = '';
           if (value.events[j].eventUrl.substring(11,18) == "youtube")
-            heightOffset = '-262px' 
+            heightOffset = '-108px' 
           else if (value.events[j].eventUrl.substring(14,19) == "vimeo")
             heightOffset = '-249px' 
           else
             heightOffset = '-69px';
             
-        eventListString += '<div style="position:relative;width:300px;height:46px;overflow:hidden;"><div style="position:absolute;top:' 
+        eventListString += '<div style="position:relative;width:300px;height:75px;overflow:hidden;"><div style="position:absolute;top:' 
                         + heightOffset 
                         + ';left:-2px"><iframe width="300" height="300" src="' 
                             + value.events[j].eventUrl  

@@ -4,7 +4,7 @@ import sys
 from django.contrib import admin
 #admin.autodiscover()
 
-from whatupsf.views import map_view, form_view
+from whatupsf.views import map_view, form_view, test_view
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'whatupsf.views.home', name='home'),
@@ -17,4 +17,6 @@ urlpatterns = patterns('',
     url(r'^event/', form_view.event_information),
     url(r'^band/', form_view.band_information),
     url(r'^venue/', form_view.venue_information),
+    url(r'^dates/', form_view.date_form),
+    url(r'^test/', test_view.test),
 )

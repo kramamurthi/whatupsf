@@ -1,0 +1,11 @@
+<form method="POST">
+    {% csrf_token %}
+    <h2>Event Information:</h2>
+    <!-- Make use of Django's automatic form templating -->
+    {{ form.as_p }}
+
+    <!-- Now add the sub-form to this form -->
+    <h3>Band Information:</h3>
+    {{ sub_form.as_p }}
+    <p><button type="submit">Add School</button></p>
+</form>

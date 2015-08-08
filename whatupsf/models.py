@@ -151,10 +151,10 @@ class Geoloc(models.Model):
         db_table = 'geoloc'
 
 
-class VenueInformation(models.Model):
+class Venues(models.Model):
     #id = models.IntegerField(primary_key=True)  # AutoField?
-    name = models.CharField(max_length=100, blank=True)
-    address = models.CharField(max_length=255, blank=True)
+    name = models.CharField(max_length=100)
+    address = models.CharField(max_length=255)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
     city = models.CharField(max_length=30, blank=True)
@@ -163,33 +163,38 @@ class VenueInformation(models.Model):
     phone = models.CharField(max_length=12, blank=True)
     url = models.CharField(max_length=50, blank=True)
 
+    def __unicode__(self):
+        return "%s" % (self.name)
+
     class Meta:
-        managed = False
+        managed = True 
         db_table = 'venues'
 
 
-class EventInformation(models.Model):
+class Bands(models.Model):
     #id = models.IntegerField(primary_key=True)  # AutoField?
-    eventName = models.CharField(db_column='eventName', max_length=100)  # Field name made lowercase.
-    eventPrice = models.DecimalField(db_column='eventPrice', max_digits=4, decimal_places=0)  # Field name made lowercase.
-    eventDate = models.DateField(db_column='eventDate')  # Field name made lowercase.
-    eventTime = models.DateTimeField(db_column='eventTime')  # Field name made lowercase.
-    eventUrl = models.CharField(db_column='eventUrl', max_length=255)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'events'
-
-
-
-class BandInformation(models.Model):
-    #id = models.IntegerField(primary_key=True)  # AutoField?
-    name = models.CharField(max_length=100, blank=True)
-    media_url = models.TextField(blank=True)
-    image_url = models.TextField(blank=True)
+    name = models.CharField(max_length=100)
+    media_url = models.CharField(max_length=255)
+    image_url = models.CharField(max_length=255, blank=True)
     descriptions = models.TextField(blank=True)
 
+    def __unicode__(self):
+         return "%s" % (self.name)
+
     class Meta:
-        managed = False
+        managed = True 
         db_table = 'bands'
+
+class Events(models.Model):
+    #id = models.IntegerField(primary_key=True)  # AutoField?
+    #eventName = models.CharField(db_column='eventName', max_length=100)  # Field name made lowercase.
+    band = models.ForeignKey(Bands)
+    venue = models.ForeignKey(Venues)
+    price = models.DecimalField(db_column='event_price',max_digits=4, decimal_places=0)  # Field name made lowercase.
+    date = models.DateField(db_column='event_date')  # Field name made lowercase.
+    time = models.TimeField(db_column='event_time')  # Field name made lowercase.
+
+    class Meta:
+        managed = True
+        db_table = 'events'
 
