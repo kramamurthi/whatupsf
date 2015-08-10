@@ -14,7 +14,7 @@ def test(request):
                  "url": venue.url,
                  "events": eData, 
                  "venue": venue.name}
-        b = Events.objects.filter(venue__id=venue.id)
+        b = Events.objects.filter(venue__id=venue.id, date = "2015-08-09")
         for event in b:
             eDict = {}
             print(venue.name)

@@ -167,6 +167,7 @@ class Venues(models.Model):
         return "%s" % (self.name)
 
     class Meta:
+        ordering = ('name', 'zipcode',)
         managed = True 
         db_table = 'venues'
 
@@ -182,6 +183,7 @@ class Bands(models.Model):
          return "%s" % (self.name)
 
     class Meta:
+        ordering = ('name',)
         managed = True 
         db_table = 'bands'
 

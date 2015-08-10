@@ -1,6 +1,7 @@
 <html>
 
 <head>
+    <meta http-equiv="Cache-control" content="public" max-age=50000>
     <!--L_DISABLE_3D = true for Androud!-->
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
  <!--[if lte IE 8]>
@@ -80,12 +81,16 @@ border-radius:3px;
 
     var map = new L.Map("map", {
       center: new L.LatLng(37.77,-122.49),
+      zoomControl: false,
       zoom: 16,
       minZoom: 14,
       maxZoom: 19,
       layers : [lite],
       //layers: [bgmap, fgmap, lbmap],
     });
+
+    map.scrollWheelZoom.disable();
+    new L.Control.Zoom({ position: 'bottomleft' }).addTo(map);
 
 
 //Initial Pass of Markers at default start zoom of 14. 
@@ -94,7 +99,7 @@ border-radius:3px;
     var rawMarkers = new Array();
     var currentSelectedMarkerId = -1;;
     function zoomRadius(){ return  Math.pow(2, 12 - map.getZoom()) * 512};
-    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 7000.0}; 
+    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 3000.0}; // was 7000 before osl
 
     var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
       json_firebase.on('value', function(data) {
@@ -255,7 +260,7 @@ border-radius:3px;
               markers[currentSelectedMarkerId].setStyle({color : '#FFF', fillColor : '#F00'});
               currentSelectedMarkerId = -1;
          }
-       zoombox.innerHTML = "you zoomed the map! to:" + map.getZoom();
+       //zoombox.innerHTML = "you zoomed the map! to:" + map.getZoom();
        //var zoomRadius = Math.pow(2, 11 - map.getZoom()) * 512;
         if (map.getZoom() > 16) {
             for(var i=0; i<markers.length; i++) {map.removeLayer(markers[i]);}
