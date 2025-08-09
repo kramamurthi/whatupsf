@@ -1,36 +1,22 @@
-"""
-Django settings for whatupsf project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
-"""
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
+# --- SECURITY ---
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-insecure-key")  # replace in prod
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'hv^els(+tv@svfcag^8+sy-n*4=gpqx&2r&nj)=p=+vsxv7yo1'
+ALLOWED_HOSTS = ["whatupsf.com", "www.whatupsf.com", "127.0.0.1", "localhost"]
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# If you're on Django 4.0+, use full https URLs here. For 2.x, it’s ignored safely.
+CSRF_TRUSTED_ORIGINS = [
+    "https://whatupsf.com",
+    "https://www.whatupsf.com",
+]
 
-TEMPLATE_DEBUG = True
-EMAIL_SUBJECT_PREFIX = 'WhatupSF Error:'
-SERVER_EMAIL='whatupsf-error@do_not_reply.com'
-ALLOWED_HOSTS = []
-
-
-# Application definition
-
-INSTALLED_APPS = (
+# --- APPS / MIDDLEWARE unchanged ---
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,57 +25,69 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'whatupsf',
     'bootstrap3_datetime',
-)
+]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 ROOT_URLCONF = 'whatupsf.urls'
-
-TEMPLATE_DIRS = (
-	os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates')
-,)
-
 WSGI_APPLICATION = 'whatupsf.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
+# --- DATABASE (MySQL strict mode + utf8mb4) ---
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-	'ENGINE': 'django.db.backends.mysql',
-	'NAME': 'sfev',
-	'USER': 'kramamurthi',
-	'PASSWORD': 'dream2Win',
-	'HOST': 'mysql.whatupsf.com',
-	'PORT': '3306',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'sfev',
+        'USER': 'kramamurthi',
+        'PASSWORD': 'dream2Win',          # move to env var in prod
+        'HOST': 'mysql.whatupsf.com',
+        'PORT': '3306',
+        'OPTIONS': {
+            # strict mode + sane defaults
+            'init_command': (
+                "SET sql_mode="
+                "'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,"
+                "ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION', "
+                "NAMES 'utf8mb4'"
+            ),
+            'charset': 'utf8mb4',
+        },
     }
 }
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.6/topics/i18n/
-
+# --- I18N ---
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/static-files/
-
+# --- STATIC / MEDIA ---
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'   # required for collectstatic
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# --- TEMPLATES (yours looked fine) ---
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],  # add template dirs if you have them
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+

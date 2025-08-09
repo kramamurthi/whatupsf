@@ -15,7 +15,7 @@
 <style>
 
 .leaflet-popup-content-wrapper {
-    background-color: #abc
+    background-color: #fafacc;
 }
 #map
 {
@@ -47,6 +47,26 @@ padding:10px;
 z-index:100;
 border-radius:3px;
     } 
+
+.leaflet-container a.leaflet-popup-close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 4px 4px 0 0;
+    text-align: center;
+    width: 18px;
+    height: 14px;
+    font: 24px/22px Tahoma, Verdana, sans-serif;
+    color: #ff5500;
+    text-decoration: none;
+    font-weight: bold;
+    background: transparent;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+    color: #F00;
+}
+
 </style>
 </head>
 
@@ -71,6 +91,7 @@ border-radius:3px;
     var bgmap = new L.StamenTileLayer("terrain-background");
     var fgmap = new L.StamenTileLayer("toner-lines");
     var lbmap = new L.StamenTileLayer("toner-labels");
+    var water = new L.StamenTileLayer("watercolor");
          
     var myLayer = new L.TileLayer.WMS("http://10.101.21.28/cgi-bin/qgis_mapserv.fcgi", {
       map: "/usr/lib/cgi-bin/test/test.qgs",
@@ -80,13 +101,16 @@ border-radius:3px;
     });
 
     var map = new L.Map("map", {
-      center: new L.LatLng(37.77,-122.49),
+      //center: new L.LatLng(37.769073,-122.489147), // For OSL
+      center: new L.LatLng(37.769073,-122.44),
       zoomControl: false,
-      zoom: 16,
-      minZoom: 14,
-      maxZoom: 19,
+      zoom: 14, // 16 for OSL
+      minZoom: 12,
+      maxZoom: 17,
       layers : [lite],
+      //layers: [water],
       //layers: [bgmap, fgmap, lbmap],
+      //layers: [bgmap, lbmap],
     });
 
     map.scrollWheelZoom.disable();
@@ -97,9 +121,9 @@ border-radius:3px;
     var markers = new Array();
     var grpMarkers = new Array();
     var rawMarkers = new Array();
-    var currentSelectedMarkerId = -1;;
+    var currentSelectedMarkerId = -1; 
     function zoomRadius(){ return  Math.pow(2, 12 - map.getZoom()) * 512};
-    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 3000.0}; // was 7000 before osl
+    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 7000.0}; // was 3000 for osl
 
     var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
       json_firebase.on('value', function(data) {
@@ -143,8 +167,8 @@ border-radius:3px;
 
           //alert('Venue: '+ value.venue + 'Latitude = ' + value.lat + 'Longitude = ' + value.lng + '--> leafletID' + binder._leaflet_id);
 
-          //if (i == data.length-1 ) binder.openPopup();
-          //if (value.venue == "Amnesia") binder.openPopup();
+          //if (i == 30 ) binder.openPopup();
+          //if (value.venue == "Lands End Stage") binder.openPopup();
 		});
 
     //Now 2nd Pass through family Group to bind to map.
@@ -322,7 +346,7 @@ border-radius:3px;
                    //markers[i].setZIndexOffset(maxZindex);
                    if (e.type == 'click') {
                        markers[i].openPopup();
-                   }
+                   } 
                }
                */
            }  
@@ -332,7 +356,8 @@ border-radius:3px;
            }
 
            markers[closestMarker].setRadius(1.33*zoomRadius());
-           markers[closestMarker].setStyle({color : '#F00', weight : 2, fillColor : '#2F4', fillOpacity : 0.7});
+           markers[closestMarker].setStyle({color : '#F00', weight : 2, fillColor : '#ffff4d', fillOpacity : 0.9});
+           markers[closestMarker].openPopup();
            markers[closestMarker].bringToFront();
            currentSelectedMarkerId = closestMarker;
     });

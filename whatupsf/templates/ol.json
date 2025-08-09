@@ -1,0 +1,1338 @@
+[
+    {
+        "lat": 37.778099060058594, 
+        "url": "1015.com", 
+        "lng": -122.40576171875, 
+        "venue": "1015 Folsom", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.759281158447266, 
+        "url": "amnesiathebar.com", 
+        "lng": -122.42121887207031, 
+        "venue": "Amnesia", 
+        "events": [
+            {
+                "eventName": "DJ Mustard", 
+                "eventTime": " 9:00 AM", 
+                "eventUrl": "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/189659249", 
+                "eventPrice": "$10"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.77145004272461, 
+        "url": "beatboxsf.com", 
+        "lng": -122.4139404296875, 
+        "venue": "Beatbox", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.760169982910156, 
+        "url": "bendersbar.com", 
+        "lng": -122.4172592163086, 
+        "venue": "Benders Bar", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.78730010986328, 
+        "url": "biscuitandblues.com", 
+        "lng": -122.41014099121094, 
+        "venue": "Biscuits and Blues", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.764251708984375, 
+        "url": "blondiesbarsf.com", 
+        "lng": -122.42185974121094, 
+        "venue": "Blondies' Bar & No Grill", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.784610748291016, 
+        "url": "boomboomblues.com", 
+        "lng": -122.43319702148438, 
+        "venue": "Boom Boom Room", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.765018463134766, 
+        "url": "bottomofthehill.com", 
+        "lng": -122.39643859863281, 
+        "venue": "Bottom of the Hill", 
+        "events": [
+            {
+                "eventName": "The Laughs", 
+                "eventTime": " 9:00 PM", 
+                "eventUrl": "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/155777022", 
+                "eventPrice": "$8"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.769718170166016, 
+        "url": "brickandmortarmusic.com", 
+        "lng": -122.42037963867188, 
+        "venue": "Brick & Mortar Music Hall", 
+        "events": [
+            {
+                "eventName": "Heartwatch (FKA the tropics)", 
+                "eventTime": " 9:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/DwjIfQXgZlw", 
+                "eventPrice": "$20"
+            }, 
+            {
+                "eventName": "Heartwatch (FKA the tropics)", 
+                "eventTime": " 9:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/DwjIfQXgZlw", 
+                "eventPrice": "$20"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.758941650390625, 
+        "url": "brunosf.com", 
+        "lng": -122.41876983642578, 
+        "venue": "Bruno's", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.77103042602539, 
+        "url": "smoothasbutter.com", 
+        "lng": -122.4133529663086, 
+        "venue": "Butter", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76675033569336, 
+        "url": "cafedunord.com", 
+        "lng": -122.43049621582031, 
+        "venue": "Cafe Du Nord", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.7876091003418, 
+        "url": "caferoyale-sf.com", 
+        "lng": -122.41520690917969, 
+        "venue": "Cafe Royale", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.775390625, 
+        "url": "sfcatclub.com", 
+        "lng": -122.40992736816406, 
+        "venue": "Cat Club", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.771018981933594, 
+        "url": "dnalounge.com", 
+        "lng": -122.4127197265625, 
+        "venue": "DNA Lounge", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.74681091308594, 
+        "url": "elriosf.com", 
+        "lng": -122.41947174072266, 
+        "venue": "El Rio", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76896667480469, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.48958587646484, 
+        "venue": "Gastro Magic", 
+        "events": [
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 3:50 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 3:50 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 3:50 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.784759521484375, 
+        "url": "gamh.com", 
+        "lng": -122.41883850097656, 
+        "venue": "Great American Music Hall", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.787391662597656, 
+        "url": "hemlocktavern.com", 
+        "lng": -122.42025756835938, 
+        "venue": "Hemlock Tavern", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.77138900756836, 
+        "url": "theholycow.com", 
+        "lng": -122.41433715820312, 
+        "venue": "Holy Cow Nightclub", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.77534866333008, 
+        "url": "iconloungesf.comPui", 
+        "lng": -122.4100112915039, 
+        "venue": "Icon Ultra Lounge", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.7675895690918, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.49494934082031, 
+        "venue": "Lands End Stage", 
+        "events": [
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Elton John", 
+                "eventTime": " 7:35 PM", 
+                "eventUrl": "http://www.youtube.com/embed/HBHxjaImeLc", 
+                "eventPrice": "$135"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76028060913086, 
+        "url": "www.bissapbaobab.com", 
+        "lng": -122.41883850097656, 
+        "venue": "Little Baobab", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.78247833251953, 
+        "url": "mezzaninesf.com", 
+        "lng": -122.40807342529297, 
+        "venue": "Mezzanine", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76747131347656, 
+        "url": "mighty119.com", 
+        "lng": -122.4068832397461, 
+        "venue": "Mighty", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76941680908203, 
+        "url": "milksf.com", 
+        "lng": -122.45258331298828, 
+        "venue": "Milk Bar", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.78097152709961, 
+        "url": "monarchsf.com", 
+        "lng": -122.40840911865234, 
+        "venue": "Monarch", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.79117965698242, 
+        "url": "masonicauditorium.com", 
+        "lng": -122.4129409790039, 
+        "venue": "Nob Hill Masonic Center", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.77925109863281, 
+        "url": "shnsf.com", 
+        "lng": -122.4145736694336, 
+        "venue": "Orpheum Theatre", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76991271972656, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.48500061035156, 
+        "venue": "Panhandle Stage", 
+        "events": [
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Green Velvet & Claude VonStroke (Get Real)", 
+                "eventTime": " 7:40 PM", 
+                "eventUrl": "http://www.youtube.com/embed/WWSGnDh9E6g", 
+                "eventPrice": "$135"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.770633697509766, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.48822784423828, 
+        "venue": "Presidio Stage", 
+        "events": [
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Arann Harris & The Farm Band", 
+                "eventTime": " 6:45 PM", 
+                "eventUrl": "http://www.youtube.com/embed/8p_MqDS4Mjk", 
+                "eventPrice": "$135"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76890182495117, 
+        "url": "publicsf.com", 
+        "lng": -122.41937255859375, 
+        "venue": "Public Works", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.775779724121094, 
+        "url": "ravenbarsf.com", 
+        "lng": -122.40888977050781, 
+        "venue": "Raven Bar", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.79222869873047, 
+        "url": "reddevillounge.com", 
+        "lng": -122.42122650146484, 
+        "venue": "Red Devil Lounge", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.75553894042969, 
+        "url": "revolutioncafesf.com", 
+        "lng": -122.41973114013672, 
+        "venue": "Revolution Cafe", 
+        "events": [
+            {
+                "eventName": "Kaoss Kasserole", 
+                "eventTime": " 5:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/Nu4jutM8hMQ", 
+                "eventPrice": "$0"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.776119232177734, 
+        "url": "rickshawstop.com", 
+        "lng": -122.42047882080078, 
+        "venue": "Rickshaw Stop", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.78759002685547, 
+        "url": "rubyskye.com", 
+        "lng": -122.4098129272461, 
+        "venue": "Ruby Skye", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.750038146972656, 
+        "url": "savanajazz.com", 
+        "lng": -122.41789245605469, 
+        "venue": "Savanna Jazz", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.776329040527344, 
+        "url": "sfjazz.org", 
+        "lng": -122.42153930664062, 
+        "venue": "SFJAZZ Center", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.77151107788086, 
+        "url": "slimspresents.com", 
+        "lng": -122.41327667236328, 
+        "venue": "Slim's", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76210021972656, 
+        "url": "sf-submission.com", 
+        "lng": -122.41915130615234, 
+        "venue": "Sub-Mission", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76993942260742, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.49307250976562, 
+        "venue": "Sutro Stage", 
+        "events": [
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Slightly Stoopid", 
+                "eventTime": " 7:15 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5U1ndFiYLh4", 
+                "eventPrice": "$135"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.78678894042969, 
+        "url": "swigbar.com", 
+        "lng": -122.41252136230469, 
+        "venue": "Swig", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76707077026367, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.49126434326172, 
+        "venue": "The Barbary", 
+        "events": [
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Pete Holmes", 
+                "eventTime": " 6:30 PM", 
+                "eventUrl": "http://www.youtube.com/embed/950PPlYYA0Y", 
+                "eventPrice": "$135"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.760250091552734, 
+        "url": "thebeautybar.com/san_francisco", 
+        "lng": -122.41922760009766, 
+        "venue": "The Beauty Bar", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76055908203125, 
+        "url": "thechapelsf.com", 
+        "lng": -122.42118835449219, 
+        "venue": "The Chapel", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.7772216796875, 
+        "url": "theendup.com", 
+        "lng": -122.40380096435547, 
+        "venue": "The Endup", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.77928924560547, 
+        "url": "hotelutah.com", 
+        "lng": -122.39813232421875, 
+        "venue": "The Hotel Utah Saloon", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76793670654297, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.49158477783203, 
+        "venue": "The House by Heneiken", 
+        "events": [
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Kidnap Kid", 
+                "eventTime": " 6:00 PM", 
+                "eventUrl": "http://www.youtube.com/embed/5Wtx2gACxfA", 
+                "eventPrice": "$135"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.77553939819336, 
+        "url": "theindependentsf.com", 
+        "lng": -122.43760681152344, 
+        "venue": "The Independent", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.78266143798828, 
+        "url": "thewarfieldtheatre.com", 
+        "lng": -122.4101791381836, 
+        "venue": "The Warfield", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76512145996094, 
+        "url": "theeparkside.com", 
+        "lng": -122.39990997314453, 
+        "venue": "Thee Parkside", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.76972579956055, 
+        "url": "www.sfoutsidelands.com", 
+        "lng": -122.48307037353516, 
+        "venue": "Twin Peaks Stage", 
+        "events": [
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }, 
+            {
+                "eventName": "Axwell & Ingrosso", 
+                "eventTime": " 8:25 PM", 
+                "eventUrl": "http://www.youtube.com/embed/eCH9gClZprM", 
+                "eventPrice": "$135"
+            }
+        ]
+    }, 
+    {
+        "lat": 37.763389587402344, 
+        "url": "verdiclub.net", 
+        "lng": -122.40792846679688, 
+        "venue": "Verdi Club", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.77125930786133, 
+        "url": "wishsf.com", 
+        "lng": -122.41441345214844, 
+        "venue": "Wish", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }, 
+    {
+        "lat": 37.78205871582031, 
+        "url": "yoshis.com/sanfrancisco", 
+        "lng": -122.43224334716797, 
+        "venue": "Yoshi's SF", 
+        "events": [
+            {
+                "eventName": "", 
+                "eventTime": "", 
+                "eventUrl": "", 
+                "eventPrice": ""
+            }
+        ]
+    }
+]

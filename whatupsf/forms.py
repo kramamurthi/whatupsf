@@ -1,16 +1,18 @@
 from bootstrap3_datetime.widgets import DateTimePicker
 from django import forms
-from models import Events
-from models import Bands
-from models import Venues
+from .models import Events
+from .models import Bands
+from .models import Venues
 
 class EventInformationForm(forms.ModelForm):
     class Meta:
         model = Events
+        fields = '__all__'
 
 class BandInformationForm(forms.ModelForm):
     class Meta:
         model = Bands
+        fields = '__all__'
 
 #class BandForm(forms.Form):
 #    pass
@@ -19,6 +21,7 @@ class BandInformationForm(forms.ModelForm):
 class VenueInformationForm(forms.ModelForm):
     class Meta:
         model = Venues
+        fields = '__all__'
 
 class ToDoForm(forms.Form):
 
