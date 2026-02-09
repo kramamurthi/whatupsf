@@ -7,15 +7,17 @@ def default(request):
 	context = {
 	'name':'SFEventMapper',
 	}
-	return render(request,"default.html", context)
+	return render(request,"whatupsf/index.html", context)
 
 
 def render_json(request):
 
     #old method
-	#json_data = json.load(open('/home/kriram5/whatupSF.com/whatupsf/web/static/event.json','r'))
-    fire = firebase.FirebaseApplication('https://popping-fire-3129.firebaseio.com/')
-    json_data = fire.get('', None)
+    with open('/home/kriram5/whatupsf.com/static/od-sat.json', 'r') as f:
+        json_data = json.load(f)
+	#json_data = json.load(open('/home/kriram5/whatupsf.com/static','r'))
+    #fire = firebase.FirebaseApplication('https://popping-fire-3129.firebaseio.com/')
+    #json_data = fire.get('', None)
     json_str = json.dumps(json_data)
     return HttpResponse(json_str, content_type="application/json")
 

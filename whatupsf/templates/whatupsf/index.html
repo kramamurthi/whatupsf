@@ -3,19 +3,27 @@
 <head>
     <meta http-equiv="Cache-control" content="public" max-age=50000>
     <!--L_DISABLE_3D = true for Androud!-->
-<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
  <!--[if lte IE 8]>
      <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
  <![endif]-->
-<script type="text/javascript" src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
-<script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.1.3"></script>
-<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-<script type="text/javascript" src='https://cdn.firebase.com/js/client/1.0.11/firebase.js'></script>
+<script type="text/javascript" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<!--script type="text/javascript" src='https://cdn.firebase.com/js/client/1.0.11/firebase.js'></script--!>
 
 <style>
+.leaflet-bar .locate-btn {
+  display: block;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 18px;
+}
 
 .leaflet-popup-content-wrapper {
-    background-color: #abc
+    background-color: #fafacc;
 }
 #map
 {
@@ -47,6 +55,26 @@ padding:10px;
 z-index:100;
 border-radius:3px;
     } 
+
+.leaflet-container a.leaflet-popup-close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 4px 4px 0 0;
+    text-align: center;
+    width: 18px;
+    height: 14px;
+    font: 24px/22px Tahoma, Verdana, sans-serif;
+    color: #ff5500;
+    text-decoration: none;
+    font-weight: bold;
+    background: transparent;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+    color: #F00;
+}
+
 </style>
 </head>
 
@@ -59,6 +87,7 @@ border-radius:3px;
       Zoom: <code id='zoom'></code><br/>
 </div>
 <script>
+    const STADIA_KEY = '1ce6d341-6ad2-4e0e-a58f-9948f9f8d224';
     var click= document.getElementById('id_click'),
     mousemove = document.getElementById('id_mousemove'),
     zoombox = document.getElementById('zoom');
@@ -66,12 +95,45 @@ border-radius:3px;
 
     //var myArray = ['#f21','#2f1','#000','#ff2']
     var myArray = ['#f00'];
-    var lite = new L.StamenTileLayer("toner-lite");
-    var dark = new L.StamenTileLayer("toner");
-    var bgmap = new L.StamenTileLayer("terrain-background");
-    var fgmap = new L.StamenTileLayer("toner-lines");
-    var lbmap = new L.StamenTileLayer("toner-labels");
-         
+    var lite = new L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}.png?api_key=${STADIA_KEY}`,
+            {
+                    maxZoom: 20,
+                    attribution:
+                    'Map tiles © <a href="https://www.stadiamaps.com/">Stadia Maps</a>, ' +
+      '© <a href="https://stamen.com/">Stamen</a>, ' +
+      '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }
+            );
+    // Toner (dark)
+    var dark = L.tileLayer(
+      `https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png?api_key=${STADIA_KEY}`,
+      { maxZoom: 20, attribution: lite.getAttribution() }
+    );
+
+    // Terrain Background
+    var bgmap = L.tileLayer(
+      `https://tiles.stadiamaps.com/tiles/stamen_terrain_background/{z}/{x}/{y}.png?api_key=${STADIA_KEY}`,
+      { maxZoom: 18, attribution: lite.getAttribution() }
+    );
+
+    // Toner Lines
+    var fgmap = L.tileLayer(
+      `https://tiles.stadiamaps.com/tiles/stamen_toner_lines/{z}/{x}/{y}.png?api_key=${STADIA_KEY}`,
+      { maxZoom: 20, attribution: lite.getAttribution() }
+    );
+
+    // Toner Labels
+    var lbmap = L.tileLayer(
+      `https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}.png?api_key=${STADIA_KEY}`,
+      { maxZoom: 20, attribution: lite.getAttribution() }
+    );
+
+    // Watercolor (note: maxZoom 16 per Stadia docs)
+    var water = L.tileLayer(
+      `https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key=${STADIA_KEY}`,
+      { maxZoom: 16, attribution: lite.getAttribution() }
+    );
+             
     var myLayer = new L.TileLayer.WMS("http://10.101.21.28/cgi-bin/qgis_mapserv.fcgi", {
       map: "/usr/lib/cgi-bin/test/test.qgs",
       layers: 'mylayer',
@@ -80,13 +142,16 @@ border-radius:3px;
     });
 
     var map = new L.Map("map", {
-      center: new L.LatLng(37.77,-122.49),
+      center: new L.LatLng(37.769073,-122.489147), // For OSL
+      //center: new L.LatLng(37.769073,-122.44),
       zoomControl: false,
-      zoom: 16,
-      minZoom: 14,
-      maxZoom: 19,
-      layers : [lite],
-      //layers: [bgmap, fgmap, lbmap],
+      zoom: 16, // 14 for SF, 16 for OSL
+      minZoom: 12,
+      maxZoom: 17,
+      //layers : [lite],
+      //layers: [water],
+      layers: [bgmap, fgmap, lbmap],
+      //layers: [bgmap, lbmap],
     });
 
     map.scrollWheelZoom.disable();
@@ -97,13 +162,16 @@ border-radius:3px;
     var markers = new Array();
     var grpMarkers = new Array();
     var rawMarkers = new Array();
-    var currentSelectedMarkerId = -1;;
+    var currentSelectedMarkerId = -1; 
     function zoomRadius(){ return  Math.pow(2, 12 - map.getZoom()) * 512};
-    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 3000.0}; // was 7000 before osl
+    function clusterSize() { return Math.pow(2, 11 - map.getZoom()) * 7000.0}; // was 3000 for osl
 
-    var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
-      json_firebase.on('value', function(data) {
-      $.each(data.val(), function(i, value) {
+    //var json_firebase = new Firebase('https://popping-fire-3129.firebaseio.com/');
+    //  json_firebase.on('value', function(data) {
+    fetch("/api/map-data.json?v=20250810")
+        .then(r => r.json())
+        .then(function(data) {
+      $.each(data, function(i, value) {
         var eventListString = '';
         for (var j=0; j<value.events.length; j++) {
           var heightOffset = '';
@@ -114,16 +182,28 @@ border-radius:3px;
           else
             heightOffset = '-69px';
             
-        eventListString += '<div style="position:relative;width:300px;height:75px;overflow:hidden;"><div style="position:absolute;top:' 
-                        + heightOffset 
-                        + ';left:-2px"><iframe width="300" height="300" src="' 
-                            + value.events[j].eventUrl  
-                            + '"></iframe></div></div>'
-				            + '<h2> ' + value.events[j].eventName + ' ' 
-				            + value.events[j].eventTime + ' ' 
-                            + value.events[j].eventPrice + ' </h2> <hr> <br>'
-			}
-
+//        eventListString += '<div style="position:relative;width:300px;height:75px;overflow:hidden;"><div style="position:absolute;top:' 
+  //                      + heightOffset 
+    //                    + ';left:-2px"><iframe width="300" height="600" src="' 
+      //                      + value.events[j].eventUrl  
+        //                    + '"></iframe></div></div>'
+		//		            + '<h2> ' + value.events[j].eventName + ' ' 
+		//		            + value.events[j].eventTime + ' ' 
+          //                  + value.events[j].eventPrice + ' </h2> <hr> <br>'
+eventListString += `
+  <div style="position:relative;width:300px;padding-top:56.25%;overflow:hidden;">
+    <iframe
+      src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${value.events[j].eventUrl}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+      allowfullscreen
+    ></iframe>
+  </div>
+  <h2>
+    ${value.events[j].eventName} ${value.events[j].eventTime} ${value.events[j].eventPrice}
+  </h2>
+  <hr><br>
+`;
+          }
           var randColor = myArray[Math.floor(Math.random() * myArray.length)];
           var binder = L.circle([value.lat, value.lng], zoomRadius(), {
             color: '#FFF',
@@ -143,13 +223,13 @@ border-radius:3px;
 
           //alert('Venue: '+ value.venue + 'Latitude = ' + value.lat + 'Longitude = ' + value.lng + '--> leafletID' + binder._leaflet_id);
 
-          //if (i == data.length-1 ) binder.openPopup();
-          //if (value.venue == "Amnesia") binder.openPopup();
+          //if (i == 30 ) binder.openPopup();
+          //if (value.venue == "Lands End Stage") binder.openPopup();
 		});
 
     //Now 2nd Pass through family Group to bind to map.
         secondPass();
-    });    
+    }).catch(console.error);    
 
     function secondPass() {
         markers = [];
@@ -322,7 +402,7 @@ border-radius:3px;
                    //markers[i].setZIndexOffset(maxZindex);
                    if (e.type == 'click') {
                        markers[i].openPopup();
-                   }
+                   } 
                }
                */
            }  
@@ -332,10 +412,88 @@ border-radius:3px;
            }
 
            markers[closestMarker].setRadius(1.33*zoomRadius());
-           markers[closestMarker].setStyle({color : '#F00', weight : 2, fillColor : '#2F4', fillOpacity : 0.7});
+           markers[closestMarker].setStyle({color : '#F00', weight : 2, fillColor : '#ffff4d', fillOpacity : 0.9});
+           markers[closestMarker].openPopup();
            markers[closestMarker].bringToFront();
            currentSelectedMarkerId = closestMarker;
     });
+
+
+    // Geo Locator
+    // --- Locate Me control for Leaflet ---
+(function () {
+  let userMarker = null;
+  let userCircle = null;
+
+  function updateUserPos(map, latlng, accuracy) {
+    if (!userMarker) {
+      userMarker = L.marker(latlng, { title: "You are here" }).addTo(map);
+    } else {
+      userMarker.setLatLng(latlng);
+    }
+
+    if (!userCircle) {
+      userCircle = L.circle(latlng, { radius: accuracy || 25 }).addTo(map);
+    } else {
+      userCircle.setLatLng(latlng).setRadius(accuracy || 25);
+    }
+  }
+
+  // Custom control
+  L.Control.LocateMe = L.Control.extend({
+    options: { position: "bottomleft" }, // matches your zoom position
+    onAdd: function (map) {
+      const container = L.DomUtil.create("div", "leaflet-bar");
+      const btn = L.DomUtil.create("a", "locate-btn", container);
+      btn.href = "#";
+      btn.title = "Locate me";
+      btn.innerHTML = "📍";
+
+      // Prevent map drag/zoom when tapping the button
+      L.DomEvent.disableClickPropagation(container);
+      L.DomEvent.on(btn, "click", function (e) {
+        e.preventDefault();
+
+        if (!("geolocation" in navigator)) {
+          alert("Geolocation not supported on this device/browser.");
+          return;
+        }
+
+        // Request a fresh position
+        map.locate({
+          setView: true,
+          maxZoom: 16,
+          watch: false,
+          enableHighAccuracy: true,
+          timeout: 8000,       // 8s
+          maximumAge: 0
+        });
+      });
+
+      // Wire up map events once (safe to add multiple times; Leaflet dedups handlers)
+      map.on("locationfound", function (e) {
+        updateUserPos(map, e.latlng, e.accuracy);
+        // Optional: show a small popup once
+        if (!userMarker.getPopup()) {
+          userMarker.bindPopup("You are here").openPopup();
+        }
+      });
+
+      map.on("locationerror", function (e) {
+        // Common on iOS if the user denies, or not served over HTTPS
+        console.warn("Location error:", e.message);
+        alert("Couldn’t get your location. Please allow location access and try again.");
+      });
+
+      return container;
+    },
+    onRemove: function () {}
+  });
+
+  // Add the control to your existing map
+  L.control.locateMe = function (opts) { return new L.Control.LocateMe(opts); };
+  L.control.locateMe({ position: "bottomleft" }).addTo(map);
+})();
 
 </script>
 

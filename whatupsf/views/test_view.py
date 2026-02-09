@@ -14,15 +14,20 @@ def test(request):
                  "url": venue.url,
                  "events": eData, 
                  "venue": venue.name}
-        b = Events.objects.filter(venue__id=venue.id, date = "2015-08-09")
+        #b = Events.objects.filter(venue__id=venue.id, date = "2015-08-19")
+        b = Events.objects.filter(venue__id=venue.id, date__lte = "2015-12-31")
+        eDict = {'eventName':'', 'eventPrice':'', 'eventUrl': '', 'eventTime': ''}
         for event in b:
-            eDict = {}
+            #eDict = {}
             print(venue.name)
             print(event.id)
             eDict['eventName'] = event.band.name
             eDict['eventPrice'] = '$'+str(event.price)
             eDict['eventUrl'] = event.band.media_url
             eDict['eventTime'] = str(event.time.strftime('%l:%M %p'))
+            eData.append(eDict)
+
+        if eData == []:
             eData.append(eDict)
                                                                     
         jData.append(jDict)

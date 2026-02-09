@@ -1,16 +1,15 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from django.views.generic import TemplateView
-import sys
 from django.contrib import admin
-#admin.autodiscover()
+from django.http import HttpResponse
+from django.urls import path
+
 
 from whatupsf.views import map_view, form_view, test_view
-urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'whatupsf.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
 
-    url(r'^admin/', include(admin.site.urls)),
+def health(_): return HttpResponse("ok")
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
     url(r'^$', map_view.default, name='default_view'),
     url(r'^mapper/', map_view.render_map, name='Event Map'),
     url(r'^json/', map_view.render_json, name='Event Data'),
@@ -19,4 +18,6 @@ urlpatterns = patterns('',
     url(r'^venue/', form_view.venue_information),
     url(r'^dates/', form_view.date_form),
     url(r'^test/', test_view.test),
-)
+]
+urlpatterns += [path("health/", health)]
+urlpatterns += [path("api/map-data.json", map_view.render_json, name="map_data")]
