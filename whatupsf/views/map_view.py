@@ -12,8 +12,12 @@ def default(request):
 
 def render_json(request):
 
-    #old method
-    with open('/home/kriram5/whatupsf.com/static/od-sat.json', 'r') as f:
+    #old method - od-sat.json has only 8 venues (Outside Lands specific)
+    #with open('/home/kriram5/whatupsf.com/static/od-sat.json', 'r') as f:
+    #    json_data = json.load(f)
+
+    # Use new_events.json with 59 SF venues
+    with open('/home/kriram5/whatupsf.com/static/new_events.json', 'r') as f:
         json_data = json.load(f)
 	#json_data = json.load(open('/home/kriram5/whatupsf.com/static','r'))
     #fire = firebase.FirebaseApplication('https://popping-fire-3129.firebaseio.com/')
