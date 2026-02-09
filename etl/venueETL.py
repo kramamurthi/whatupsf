@@ -3,6 +3,9 @@ from geopy import geocoders
 from collections import OrderedDict
 import json
 from firebase import firebase
+import datetime
+from time import strftime
+import sys
 
 def getListOfAddresses(dbName, tblName):
 
@@ -37,13 +40,78 @@ def setLatLng(dbName, tblName):
         place, (lat, lng) = googleEncoder.geocode(address)
         print "%s: %.5f, %.5f" % (place, lat, lng)
 
+def get_latest_info(dbName):
+
+    db = msq.connect("mysql.whatupsf.com", "kramamurthi", "dream2Win", dbName)
+    cursor = db.cursor()
+    sql = """SELECT V.name, V.latitude, V.longitude, V.url,
+                    E.event_price, E.event_date, E.event_time,
+                    B.name, B.media_url
+                    FROM venues V 
+                    LEFT JOIN events E ON V.id = E.venue_id 
+                    LEFT JOIN bands B on B.id = E.band_id 
+             WHERE (STR_TO_DATE(CONCAT(event_date, ' ', event_time), '%Y-%m-%d %H:%i:%s')
+                   = (SELECT max(STR_TO_DATE(CONCAT(event_date, ' ', event_time), '%Y-%m-%d %H:%i:%s'))
+             FROM events E2 WHERE E.venue_id=E2.venue_id)) OR E.event_date is NULL
+          """
+    try:
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        jsonList = []
+        for row in rows:
+            venue = row[0]
+            lat = row[1]
+            lng = row[2]
+            url = row[3]
+
+            if row[4]:
+                eventPrice = str(row[4])+'$'
+            else:
+                eventPrice = ''
+
+            if row[6]:
+                fmt =  '%I:%M %p'
+                print(row[6], type(row[6]))
+                eventTime = (datetime.datetime.min + row[6]).time() # row[6] is of time datetime.timedelta
+                eventTime = eventTime.strftime(fmt)
+            else:
+                eventTime = ''
+
+            if row[7]:
+                eventName = row[7]
+            else:
+                eventName = ''
+
+            if row[8]:    
+                eventUrl = row[8]
+            else:
+                eventUrl = ''
+
+            curDict = {'venue': venue,
+                       'lat': lat,
+                       'lng': lng,
+                       'url': url,
+                       'events': [{'eventName': eventName,
+                                   'eventTime': eventTime,
+                                   'eventPrice': eventPrice,
+                                   'eventUrl': eventUrl
+                                   }]
+                       }
+            jsonList.append(curDict)
+
+    except:
+        print "Error: unable to execute query or process it: ", sys.exc_info()[0]
+    else:
+        return jsonList
+    finally:
+        db.close()
+
 
 def get_json_data(dbName, tblName):
 
     db = msq.connect("mysql.whatupsf.com", "kramamurthi", "dream2Win", dbName)
     cursor = db.cursor()
     sql = "SELECT name, latitude, longitude, url FROM %s" %(tblName)
-    print sql
     try:
         cursor.execute(sql)
         rows = cursor.fetchall()
@@ -99,6 +167,15 @@ def dump_table_json(dbName, tblName):
     jData = get_table_json(dbName, tblName)
     jString = json.dumps(jData, sort_keys = False, indent=4)
     fH = open(tblName + ".json","w")
+    fH.write(jString)
+    fH.close()
+
+
+def dump_latest_info(dbName):
+
+    jData = get_latest_info(dbName)
+    jString = json.dumps(jData, sort_keys = False, indent=4)
+    fH = open("publish.json", "w")
     fH.write(jString)
     fH.close()
 

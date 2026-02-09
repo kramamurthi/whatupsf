@@ -1,9 +1,13 @@
 from django.conf.urls import include, url
 from django.views.generic import TemplateView
 from django.contrib import admin
+from django.http import HttpResponse
+from django.urls import path
+
 
 from whatupsf.views import map_view, form_view, test_view
 
+def health(_): return HttpResponse("ok")
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', map_view.default, name='default_view'),
@@ -15,4 +19,5 @@ urlpatterns = [
     url(r'^dates/', form_view.date_form),
     url(r'^test/', test_view.test),
 ]
-
+urlpatterns += [path("health/", health)]
+urlpatterns += [path("api/map-data.json", map_view.render_json, name="map_data")]
