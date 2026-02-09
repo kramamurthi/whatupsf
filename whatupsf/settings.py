@@ -73,6 +73,9 @@ USE_TZ = True
 # --- STATIC / MEDIA ---
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # required for collectstatic
+STATICFILES_DIRS = [
+    BASE_DIR / 'whatupsf' / 'static',
+]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 WHITENOISE_USE_FINDERS = True

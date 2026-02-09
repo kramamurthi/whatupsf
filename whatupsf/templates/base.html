@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>{% block title %}WhatUpSF - Discover Live Music & Events{% endblock %}</title>
+
+    <!-- Force dark mode immediately -->
+    <script>
+        document.documentElement.classList.add('dark');
+    </script>
+
+    <!-- Tailwind CSS via CDN with JIT -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: {
+                            900: '#0a0a0a',
+                            800: '#121212',
+                            700: '#1a1a1a',
+                            600: '#252525',
+                        },
+                        neon: {
+                            cyan: '#00f0ff',
+                            magenta: '#ff00ff',
+                            blue: '#0066ff',
+                            purple: '#9d00ff',
+                            green: '#00ff9d',
+                        }
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 20px rgba(0, 240, 255, 0.5)',
+                        'neon-magenta': '0 0 20px rgba(255, 0, 255, 0.5)',
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-in-out',
+                        'slide-in-right': 'slideInRight 0.3s ease-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-neon': 'pulseNeon 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(0)' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(100%)' },
+                            '100%': { transform: 'translateY(0)' },
+                        },
+                        pulseNeon: {
+                            '0%, 100%': { filter: 'drop-shadow(0 0 10px rgba(0, 240, 255, 0.7))' },
+                            '50%': { filter: 'drop-shadow(0 0 20px rgba(0, 240, 255, 1))' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00f0ff;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00d4e0;
+        }
+
+        /* Glassmorphism utilities */
+        .glass-card {
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .neon-border {
+            border: 1px solid #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-midnight-900 text-gray-100 min-h-screen">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-card border-b border-gray-800">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3">
+                <h1 class="text-2xl md:text-3xl font-bold">
+                    <span class="bg-gradient-to-r from-neon-cyan via-neon-magenta to-neon-blue bg-clip-text text-transparent animate-pulse-neon">
+                        WhatUpSF
+                    </span>
+                </h1>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="/" class="hover:text-neon-cyan transition-colors duration-300">Map</a>
+                <a href="/events/add" class="hover:text-neon-magenta transition-colors duration-300">Add Event</a>
+                <a href="/venues/add" class="hover:text-neon-blue transition-colors duration-300">Add Venue</a>
+
+                <!-- Dark Mode Toggle -->
+                <button id="theme-toggle" class="p-2 rounded-lg hover:bg-midnight-700 transition-all duration-300" aria-label="Toggle dark mode">
+                    <svg id="theme-icon-moon" class="w-6 h-6 text-neon-cyan hidden" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <svg id="theme-icon-sun" class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-midnight-700 transition-all duration-300" aria-label="Toggle menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden glass-card border-t border-gray-800 animate-slide-in-right">
+            <nav class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+                <a href="/" class="hover:text-neon-cyan transition-colors duration-300 py-2">Map</a>
+                <a href="/events/add" class="hover:text-neon-magenta transition-colors duration-300 py-2">Add Event</a>
+                <a href="/venues/add" class="hover:text-neon-blue transition-colors duration-300 py-2">Add Venue</a>
+                <button id="mobile-theme-toggle" class="flex items-center space-x-2 py-2 hover:text-neon-cyan transition-colors duration-300">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <span>Toggle Dark Mode</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-16">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Dark Mode Script -->
+    <script>
+        // Initialize dark mode from localStorage
+        const initDarkMode = () => {
+            const theme = localStorage.getItem('theme') || 'dark';
+            const html = document.documentElement;
+            const moonIcon = document.getElementById('theme-icon-moon');
+            const sunIcon = document.getElementById('theme-icon-sun');
+
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                moonIcon?.classList.add('hidden');
+                sunIcon?.classList.remove('hidden');
+            } else {
+                html.classList.remove('dark');
+                moonIcon?.classList.remove('hidden');
+                sunIcon?.classList.add('hidden');
+            }
+        };
+
+        // Toggle dark mode
+        const toggleDarkMode = () => {
+            const html = document.documentElement;
+            const moonIcon = document.getElementById('theme-icon-moon');
+            const sunIcon = document.getElementById('theme-icon-sun');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                moonIcon?.classList.remove('hidden');
+                sunIcon?.classList.add('hidden');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                moonIcon?.classList.add('hidden');
+                sunIcon?.classList.remove('hidden');
+            }
+        };
+
+        // Mobile menu toggle
+        const toggleMobileMenu = () => {
+            const menu = document.getElementById('mobile-menu');
+            menu?.classList.toggle('hidden');
+        };
+
+        // Initialize on page load
+        initDarkMode();
+
+        // Event listeners
+        document.getElementById('theme-toggle')?.addEventListener('click', toggleDarkMode);
+        document.getElementById('mobile-theme-toggle')?.addEventListener('click', toggleDarkMode);
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', toggleMobileMenu);
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
