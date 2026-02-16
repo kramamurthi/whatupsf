@@ -3,6 +3,13 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file if python-dotenv is installed
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    pass
+
 # --- SECURITY ---
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-insecure-key")  # replace in prod
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
@@ -24,7 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'whatupsf',
+    'config',
     'bootstrap3_datetime',
 ]
 
@@ -38,18 +45,18 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
 ]
 
-ROOT_URLCONF = 'whatupsf.urls'
-WSGI_APPLICATION = 'whatupsf.wsgi.application'
+ROOT_URLCONF = 'config.urls'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 # --- DATABASE (MySQL strict mode + utf8mb4) ---
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sfev',
-        'USER': 'kramamurthi',
-        'PASSWORD': 'dream2Win',          # move to env var in prod
-        'HOST': 'mysql.whatupsf.com',
-        'PORT': '3306',
+        'NAME': os.environ.get('WHATUPSF_DB_NAME', 'sfev'),
+        'USER': os.environ.get('WHATUPSF_DB_USER', 'kramamurthi'),
+        'PASSWORD': os.environ.get('WHATUPSF_DB_PASSWORD', ''),
+        'HOST': os.environ.get('WHATUPSF_DB_HOST', 'mysql.whatupsf.com'),
+        'PORT': os.environ.get('WHATUPSF_DB_PORT', '3306'),
         'OPTIONS': {
             # strict mode + sane defaults
             'init_command': (
@@ -74,7 +81,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # required for collectstatic
 STATICFILES_DIRS = [
-    BASE_DIR / 'whatupsf' / 'static',
+    BASE_DIR / 'config' / 'static',
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

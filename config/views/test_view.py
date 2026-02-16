@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from whatupsf.models import Bands
-from whatupsf.models import Events
-from whatupsf.models import Venues
+from config.models import Bands
+from config.models import Events
+from config.models import Venues
 import json
 
 
