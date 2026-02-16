@@ -6,10 +6,25 @@ from firebase import firebase
 import datetime
 from time import strftime
 import sys
+import os
+
+# Database configuration from environment variables
+DB_HOST = os.environ.get('WHATUPSF_DB_HOST', 'mysql.whatupsf.com')
+DB_USER = os.environ.get('WHATUPSF_DB_USER', 'kramamurthi')
+DB_PASSWORD = os.environ.get('WHATUPSF_DB_PASSWORD')
+DB_NAME = os.environ.get('WHATUPSF_DB_NAME', 'sfev')
+
+if not DB_PASSWORD:
+    raise ValueError("WHATUPSF_DB_PASSWORD environment variable must be set")
+
+def get_db_connection(dbName=None):
+    """Create and return a database connection"""
+    db_name = dbName or DB_NAME
+    return msq.connect(DB_HOST, DB_USER, DB_PASSWORD, db_name)
 
 def getListOfAddresses(dbName, tblName):
 
-    db = msq.connect("mysql.whatupsf.com", "kramamurthi", "dream2Win", dbName)
+    db = get_db_connection(dbName)
     cursor = db.cursor()
     sql = "SELECT address, city, state, zip FROM %s" %(tblName)
     print(sql)
@@ -42,7 +57,7 @@ def setLatLng(dbName, tblName):
 
 def get_latest_info(dbName):
 
-    db = msq.connect("mysql.whatupsf.com", "kramamurthi", "dream2Win", dbName)
+    db = get_db_connection(dbName)
     cursor = db.cursor()
     sql = """SELECT V.name, V.latitude, V.longitude, V.url,
                     E.event_price, E.event_date, E.event_time,
@@ -109,7 +124,7 @@ def get_latest_info(dbName):
 
 def get_json_data(dbName, tblName):
 
-    db = msq.connect("mysql.whatupsf.com", "kramamurthi", "dream2Win", dbName)
+    db = get_db_connection(dbName)
     cursor = db.cursor()
     sql = "SELECT name, latitude, longitude, url FROM %s" %(tblName)
     try:
@@ -148,7 +163,7 @@ def dictfetchall(cursor):
 
 def get_table_json(dbName, tblName):
 
-    db = msq.connect("mysql.whatupsf.com", "kramamurthi", "dream2Win", dbName)
+    db = get_db_connection(dbName)
     cursor = db.cursor()
     sql = "SELECT * from %s" %(tblName)
     try:
@@ -217,7 +232,7 @@ def updated_venues(dump=False):
 
 
 def ingest_bands(dbName, tblName):
-    db = msq.connect("mysql.whatupsf.com", "kramamurthi", "dream2Win", dbName)
+    db = get_db_connection(dbName)
     cursor = db.cursor()
     events_data = get_events()  #Today's existing events
 
