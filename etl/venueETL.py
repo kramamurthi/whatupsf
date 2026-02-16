@@ -1,4 +1,4 @@
-import MySQLdb as msq
+import MySQLdb as msq  # Note: For Python 3, install 'mysqlclient' package
 from geopy import geocoders
 from collections import OrderedDict
 import json
@@ -12,7 +12,7 @@ def getListOfAddresses(dbName, tblName):
     db = msq.connect("mysql.whatupsf.com", "kramamurthi", "dream2Win", dbName)
     cursor = db.cursor()
     sql = "SELECT address, city, state, zip FROM %s" %(tblName)
-    print sql
+    print(sql)
     try:
         cursor.execute(sql)
         rows = cursor.fetchall()
@@ -26,7 +26,7 @@ def getListOfAddresses(dbName, tblName):
             addressList.append(streetAddress)
 
     except:
-        print "Error: unable to execute query"
+        print("Error: unable to execute query")
     else:
         return addressList
     finally:
@@ -38,7 +38,7 @@ def setLatLng(dbName, tblName):
     googleEncoder = geocoders.GoogleV3()
     for address in addressList:
         place, (lat, lng) = googleEncoder.geocode(address)
-        print "%s: %.5f, %.5f" % (place, lat, lng)
+        print("%s: %.5f, %.5f" % (place, lat, lng))
 
 def get_latest_info(dbName):
 
@@ -100,7 +100,7 @@ def get_latest_info(dbName):
             jsonList.append(curDict)
 
     except:
-        print "Error: unable to execute query or process it: ", sys.exc_info()[0]
+        print("Error: unable to execute query or process it: ", sys.exc_info()[0])
     else:
         return jsonList
     finally:
@@ -134,7 +134,7 @@ def get_json_data(dbName, tblName):
             jsonList.append(curDict)
 
     except:
-        print "Error: unable to execute query"
+        print("Error: unable to execute query")
     else:
         return jsonList
     finally:
@@ -155,7 +155,7 @@ def get_table_json(dbName, tblName):
         cursor.execute(sql)
         jsonList = dictfetchall(cursor)
     except:
-        print "Error: unable to execute query"
+        print("Error: unable to execute query")
     else:
         return jsonList
     finally:
@@ -223,20 +223,20 @@ def ingest_bands(dbName, tblName):
 
     # Get Unique Existing Bands in Table
     sql = "SELECT * from %s" %(tblName)
-    print "Query: " + sql
+    print("Query: " + sql)
     try:
         cursor.execute(sql)
         rows = cursor.fetchall()
-        bandList = [] 
+        bandList = []
         for row in rows:
             bandList.append(row[1])
     except:
-        print "Error: unable to execute read query"
+        print("Error: unable to execute read query")
     else:
         for event in events_data:
-            if event[u'eventName'] not in bandList:
-                sql = """INSERT into %s(name, media_url) VALUES("%s", "%s")""" %(tblName,event[u'eventName'], event[u'eventUrl'])
-                print sql
+            if event['eventName'] not in bandList:
+                sql = """INSERT into %s(name, media_url) VALUES("%s", "%s")""" %(tblName, event['eventName'], event['eventUrl'])
+                print(sql)
                 cursor.execute(sql)
     finally:
         db.close()
