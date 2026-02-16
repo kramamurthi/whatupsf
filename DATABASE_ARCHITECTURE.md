@@ -350,7 +350,9 @@ def setLatLng(dbName, tblName):
 **Current (Static):**
 ```python
 def render_json(request):
-    with open('/static/new_events.json', 'r') as f:
+    # Load venue data from etl directory
+    data_path = settings.BASE_DIR / 'etl' / 'new_events.json'
+    with open(data_path, 'r') as f:
         json_data = json.load(f)
     return HttpResponse(json.dumps(json_data), content_type="application/json")
 ```
@@ -397,7 +399,7 @@ def render_json(request):
 ## 🚨 Issues with Current Implementation
 
 ### 1. **Static JSON instead of Dynamic Queries**
-**Problem:** Currently loading from static `new_events.json`
+**Problem:** Currently loading from ETL output file `etl/new_events.json`
 **Impact:**
 - Data gets stale
 - Manual ETL execution required

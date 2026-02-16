@@ -890,5 +890,135 @@
                 "eventPrice": ""
             }
         ]
+    },
+    {
+        "events": [
+            {
+                "eventName": "Gracie Abrams",
+                "eventPrice": "",
+                "eventTime": "6:55 pm",
+                "eventUrl": "1834217586"
+            },
+            {
+                "eventName": "Tyler The Creator",
+                "eventPrice": "",
+                "eventTime": "8:40 pm",
+                "eventUrl": "2133747822"
+            }
+        ],
+        "lat": 37.7676,
+        "lng": -122.495,
+        "url": "www.sfoutsidelands.com",
+        "venue": "Lands End Stage"
+    },
+    {
+        "events": [
+            {
+                "eventName": "Royel Otis",
+                "eventPrice": "",
+                "eventTime": "6:55 pm",
+                "eventUrl": "2131931628"
+            },
+            {
+                "eventName": "Vampire Weekend",
+                "eventPrice": "",
+                "eventTime": "8:35 pm",
+                "eventUrl": "1790057236"
+            }
+        ],
+        "lat": 37.7697,
+        "lng": -122.483,
+        "url": "www.sfoutsidelands.com",
+        "venue": "Twin Peaks Stage"
+    },
+    {
+        "events": [
+            {
+                "eventName": "2hollis",
+                "eventPrice": "",
+                "eventTime": "7:05 pm",
+                "eventUrl": "2147966751"
+            },
+            {
+                "eventName": "Gesaffelstein",
+                "eventPrice": "",
+                "eventTime": "8:40 pm",
+                "eventUrl": "1784014248"
+            }
+        ],
+        "lat": 37.7699,
+        "lng": -122.493,
+        "url": "www.sfoutsidelands.com",
+        "venue": "Sutro Stage"
+    },
+    {
+        "events": [
+            {
+                "eventName": "DJ Pee.Wee",
+                "eventPrice": "",
+                "eventTime": "7:45 pm",
+                "eventUrl": "1117536583"
+            }
+        ],
+        "lat": 37.7699,
+        "lng": -122.485,
+        "url": "www.sfoutsidelands.com",
+        "venue": "Panhandle Stage"
+    },
+    {
+        "events": [
+            {
+                "eventName": "Claude VonStroke",
+                "eventPrice": "",
+                "eventTime": "8:10 pm",
+                "eventUrl": "2087809167"
+            }
+        ],
+        "lat": 37.771311,
+        "lng": -122.4857189,
+        "url": "www.sfoutsidelands.com",
+        "venue": "SOMA"
+    },
+    {
+        "events": [
+            {
+                "eventName": "DJ Bella Spreads",
+                "eventPrice": "",
+                "eventTime": "7:45 pm",
+                "eventUrl": "2135578488"
+            }
+        ],
+        "lat": 37.76856142857672,
+        "lng": -122.49165697182515,
+        "url": "www.sfoutsidelands.com",
+        "venue": "OASIS ARTS @ Dolores\u2019"
+    },
+    {
+        "events": [
+            {
+                "eventName": "",
+                "eventPrice": "",
+                "eventTime": "",
+                "eventUrl": ""
+            }
+        ],
+        "lat": 37.770417,
+        "lng": -122.4906629,
+        "url": "www.sfoutsidelands.com",
+        "venue": "CASA BACARD\u00cd"
+    },
+    {
+        "events": [
+            {
+                "eventName": "DJ Mandy",
+                "eventPrice": "",
+                "eventTime": "7:55 pm",
+                "eventUrl": "2114861220"
+            }
+        ],
+        "lat": 37.769286,
+        "lng": -122.4905663,
+        "url": "www.sfoutsidelands.com",
+        "venue": "Duboce Triangle"
     }
 ]
