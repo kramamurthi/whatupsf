@@ -182,9 +182,9 @@
         transition: none !important;
     }
 
-    /* Red jewel blinking effect - smooth continuous pulsing */
+    /* Red jewel blinking effect - smooth sinusoidal pulsing */
     .leaflet-interactive.venue-jewel-blink {
-        animation: blinkRed 2s ease-in-out infinite;
+        animation: blinkRed 2s linear infinite;
     }
 
     /* Selected venue - no blinking */
@@ -208,20 +208,40 @@
             filter: drop-shadow(0 0 6px rgba(255, 0, 0, 1))
                     drop-shadow(0 0 10px rgba(255, 0, 0, 0.8));
         }
+        12.5% {
+            opacity: 0.93;
+            filter: drop-shadow(0 0 5.5px rgba(255, 0, 0, 0.93))
+                    drop-shadow(0 0 9px rgba(255, 0, 0, 0.74));
+        }
         25% {
-            opacity: 0.85;
-            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.85))
-                    drop-shadow(0 0 8px rgba(255, 0, 0, 0.65));
+            opacity: 0.8;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.8))
+                    drop-shadow(0 0 7px rgba(255, 0, 0, 0.6));
+        }
+        37.5% {
+            opacity: 0.67;
+            filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.67))
+                    drop-shadow(0 0 6px rgba(255, 0, 0, 0.5));
         }
         50% {
             opacity: 0.6;
             filter: drop-shadow(0 0 3px rgba(255, 0, 0, 0.6))
                     drop-shadow(0 0 5px rgba(255, 0, 0, 0.4));
         }
+        62.5% {
+            opacity: 0.67;
+            filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.67))
+                    drop-shadow(0 0 6px rgba(255, 0, 0, 0.5));
+        }
         75% {
-            opacity: 0.85;
-            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.85))
-                    drop-shadow(0 0 8px rgba(255, 0, 0, 0.65));
+            opacity: 0.8;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.8))
+                    drop-shadow(0 0 7px rgba(255, 0, 0, 0.6));
+        }
+        87.5% {
+            opacity: 0.93;
+            filter: drop-shadow(0 0 5.5px rgba(255, 0, 0, 0.93))
+                    drop-shadow(0 0 9px rgba(255, 0, 0, 0.74));
         }
         100% {
             opacity: 1;
