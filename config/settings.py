@@ -86,6 +86,10 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 WHITENOISE_USE_FINDERS = True
+# --- MAP VISUALIZATION SETTINGS ---
+# Use convex hull instead of circles for clusters
+USE_CONVEX_HULL = False  # Set to True to experiment with convex hulls
+
 # --- TEMPLATES (yours looked fine) ---
 TEMPLATES = [
     {

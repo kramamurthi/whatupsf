@@ -35,7 +35,8 @@ class WhatUpSFApp {
 
             // Initialize map
             console.log('🗺️ Loading Leaflet map with dark tiles...');
-            this.mapManager = new MapManager('map', this.stadiaApiKey);
+            const useConvexHull = window.MAP_CONFIG?.useConvexHull || false;
+            this.mapManager = new MapManager('map', this.stadiaApiKey, useConvexHull);
             this.mapManager.initialize();
             console.log('✅ Map initialized');
 

@@ -7,6 +7,7 @@ import json
 def default(request):
 	context = {
 	'name':'SFEventMapper',
+	'use_convex_hull': getattr(settings, 'USE_CONVEX_HULL', False),
 	}
 	return render(request,"whatupsf/index.html", context)
 

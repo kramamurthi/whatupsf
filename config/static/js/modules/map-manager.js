@@ -5,9 +5,10 @@ import { ClusteringEngine } from './clustering.js';
 import { MarkerFactory } from './markers.js';
 
 export class MapManager {
-    constructor(mapElementId, stadiaApiKey) {
+    constructor(mapElementId, stadiaApiKey, useConvexHull = false) {
         this.mapElementId = mapElementId;
         this.stadiaApiKey = stadiaApiKey;
+        this.useConvexHull = useConvexHull;
         this.map = null;
         this.clusteringEngine = new ClusteringEngine();
         this.markerFactory = new MarkerFactory();
@@ -288,13 +289,14 @@ export class MapManager {
                     }
                 });
 
-                // Then add cluster circle over them (opaque if closest)
+                // Then add cluster circle/hull over them (opaque if closest)
                 const clusterRadius = this.clusteringEngine.calculateClusterRadius(cluster, radius);
                 const clusterMarker = this.markerFactory.createClusterMarker(
                     cluster,
                     clusterRadius,
                     (e) => this.handleClusterClick(e),
-                    isClosest
+                    isClosest,
+                    this.useConvexHull
                 );
                 clusterMarker.addTo(this.map);
 
