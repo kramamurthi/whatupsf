@@ -17,6 +17,9 @@ export class MapManager {
         this.displayedMarkers = [];
         this.currentSelectedMarkerId = -1;
         this.rawVenueData = [];
+        this.clusterGroups = []; // Store cluster info for liquid glass effect
+        this.blinkInterval = null; // Interval for blinking effect
+        this.unusedMarkers = []; // For random without replacement
     }
 
     /**
@@ -34,9 +37,9 @@ export class MapManager {
 
         // Initialize map with dark tiles
         this.map = L.map(this.mapElementId, {
-            center: [37.769073, -122.489147], // OSL coordinates
-            zoom: 16,
-            minZoom: 12,
+            center: [37.7749, -122.4494], // San Francisco center (shifted west)
+            zoom: 11,
+            minZoom: 11,
             maxZoom: 17,
             zoomControl: false,
             layers: [darkTiles]
@@ -85,11 +88,17 @@ export class MapManager {
                 userMarker.setLatLng(latlng);
             }
 
-            if (!userCircle) {
-                userCircle = L.circle(latlng, { radius: accuracy || 25 }).addTo(this.map);
-            } else {
-                userCircle.setLatLng(latlng).setRadius(accuracy || 25);
+            // Remove and recreate circle to avoid animation glitches on zoom
+            if (userCircle) {
+                this.map.removeLayer(userCircle);
             }
+            userCircle = L.circle(latlng, {
+                radius: accuracy || 25,
+                color: '#136AEC',
+                fillColor: '#136AEC',
+                fillOpacity: 0.15,
+                weight: 2
+            }).addTo(this.map);
         };
 
         // Custom control
@@ -153,6 +162,9 @@ export class MapManager {
 
         // Handle map clicks for marker selection
         this.map.on('click', (e) => this.handleMapClick(e));
+
+        // Handle map pan/move for liquid glass effect
+        this.map.on('moveend', () => this.updateHighlightedCluster());
     }
 
     /**
@@ -161,14 +173,8 @@ export class MapManager {
     handleZoomChange() {
         const zoom = this.map.getZoom();
 
-        // Reset selected marker highlight
-        if (this.currentSelectedMarkerId !== -1) {
-            const marker = this.displayedMarkers[this.currentSelectedMarkerId];
-            if (marker) {
-                this.markerFactory.resetMarker(marker, this.clusteringEngine.getZoomRadius(zoom));
-            }
-            this.currentSelectedMarkerId = -1;
-        }
+        // Clear selection - markers will be redrawn with correct colors
+        this.currentSelectedMarkerId = -1;
 
         // Remove all displayed markers (including number markers for clusters)
         this.displayedMarkers.forEach(marker => {
@@ -179,6 +185,13 @@ export class MapManager {
             }
         });
         this.displayedMarkers = [];
+        this.clusterGroups = [];
+
+        // Clear blink interval
+        if (this.blinkInterval) {
+            clearInterval(this.blinkInterval);
+            this.blinkInterval = null;
+        }
 
         if (zoom > 16) {
             // Show individual markers at high zoom
@@ -196,8 +209,22 @@ export class MapManager {
         const radius = this.clusteringEngine.getZoomRadius(this.map.getZoom());
 
         this.rawMarkers.forEach(marker => {
-            marker.setRadius(radius);
+            marker.setRadius(radius * 0.2);
+            marker.setStyle({
+                color: this.markerFactory.venueColor,
+                weight: 1,
+                fillColor: this.markerFactory.venueColor,
+                fillOpacity: 1.0
+            });
+
             marker.addTo(this.map);
+
+            // Update classes immediately after adding
+            const element = marker.getElement();
+            if (element) {
+                element.classList.remove('venue-selected');
+                element.classList.add('venue-jewel-blink');
+            }
         });
 
         this.displayedMarkers = [...this.rawMarkers];
@@ -214,32 +241,200 @@ export class MapManager {
         // Cluster the raw markers
         const clusters = this.clusteringEngine.cluster(this.rawMarkers, clusterSize);
 
+        // Find cluster closest to screen center
+        const mapCenter = this.map.getCenter();
+        let closestCluster = null;
+        let minDistance = Infinity;
+
+        clusters.forEach(cluster => {
+            if (cluster.mlist.length >= 5) {
+                const clusterLatLng = L.latLng(cluster.center[0], cluster.center[1]);
+                const distance = mapCenter.distanceTo(clusterLatLng);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestCluster = cluster;
+                }
+            }
+        });
+
         // Create markers for each cluster
         clusters.forEach(cluster => {
-            if (cluster.mlist.length > 1) {
-                // Multiple venues - create cluster marker
+            if (cluster.mlist.length >= 5) {
+                // Check if this is the closest cluster to center
+                const isClosest = (cluster === closestCluster);
+
+                // Multiple venues - show individual markers WITH cluster circle over them
+
+                // First, add all individual venue markers (small red)
+                cluster.mlist.forEach(venueMarker => {
+                    venueMarker.setRadius(radius * 0.2);
+                    venueMarker.setStyle({
+                        color: this.markerFactory.venueColor,
+                        weight: 1,
+                        fillColor: this.markerFactory.venueColor,
+                        fillOpacity: 1.0
+                    });
+
+                    venueMarker.addTo(this.map);
+                    this.displayedMarkers.push(venueMarker);
+
+                    // Update classes - only blink if in closest cluster
+                    const element = venueMarker.getElement();
+                    if (element) {
+                        element.classList.remove('venue-selected', 'venue-jewel-blink');
+                        if (isClosest) {
+                            element.classList.add('venue-jewel-blink');
+                        }
+                    }
+                });
+
+                // Then add cluster circle over them (opaque if closest)
                 const clusterRadius = this.clusteringEngine.calculateClusterRadius(cluster, radius);
                 const clusterMarker = this.markerFactory.createClusterMarker(
                     cluster,
                     clusterRadius,
-                    (e) => this.handleClusterClick(e)
+                    (e) => this.handleClusterClick(e),
+                    isClosest
                 );
                 clusterMarker.addTo(this.map);
 
-                // Add number marker if it exists
+                // Add number marker on top
                 if (clusterMarker.numberMarker) {
                     clusterMarker.numberMarker.addTo(this.map);
                 }
 
                 this.displayedMarkers.push(clusterMarker);
+
+                // Store cluster group for liquid glass effect
+                this.clusterGroups.push({
+                    cluster: cluster,
+                    clusterMarker: clusterMarker,
+                    venueMarkers: cluster.mlist,
+                    isHighlighted: isClosest
+                });
             } else {
-                // Single venue - show individual marker
+                // Single venue - show as small red
                 const marker = cluster.mlist[0];
-                marker.setRadius(radius);
+
+                marker.setRadius(radius * 0.2);
+                marker.setStyle({
+                    color: this.markerFactory.venueColor,
+                    weight: 1,
+                    fillColor: this.markerFactory.venueColor,
+                    fillOpacity: 1.0
+                });
+
                 marker.addTo(this.map);
                 this.displayedMarkers.push(marker);
+
+                // Update classes immediately after adding
+                const element = marker.getElement();
+                if (element) {
+                    element.classList.remove('venue-selected');
+                    element.classList.add('venue-jewel-blink');
+                }
             }
         });
+
+        // Start blinking effect for highlighted cluster
+        this.startBlinking();
+    }
+
+    /**
+     * Start blinking effect for markers (one at a time, random without replacement)
+     */
+    startBlinking() {
+        // Clear any existing interval
+        if (this.blinkInterval) {
+            clearInterval(this.blinkInterval);
+        }
+
+        let currentBlinkingMarker = null;
+
+        this.blinkInterval = setInterval(() => {
+            // Reset previous blinking marker
+            if (currentBlinkingMarker) {
+                currentBlinkingMarker.setStyle({
+                    fillOpacity: 1.0,
+                    opacity: 1.0
+                });
+            }
+
+            // Find highlighted group
+            const highlightedGroup = this.clusterGroups.find(g => g.isHighlighted);
+            if (highlightedGroup && highlightedGroup.venueMarkers.length > 0) {
+                // Initialize unused markers pool if empty
+                if (this.unusedMarkers.length === 0) {
+                    this.unusedMarkers = [...highlightedGroup.venueMarkers];
+                }
+
+                // Pick random marker from unused pool (random without replacement)
+                const randomIndex = Math.floor(Math.random() * this.unusedMarkers.length);
+                currentBlinkingMarker = this.unusedMarkers[randomIndex];
+
+                // Remove from unused pool
+                this.unusedMarkers.splice(randomIndex, 1);
+
+                // Make it blink (dim it)
+                currentBlinkingMarker.setStyle({
+                    fillOpacity: 0.2,
+                    opacity: 0.2
+                });
+            }
+        }, 200); // Switch to new marker every 200ms
+    }
+
+    /**
+     * Update highlighted cluster based on current map center (liquid glass effect)
+     */
+    updateHighlightedCluster() {
+        if (this.clusterGroups.length === 0) return;
+
+        const mapCenter = this.map.getCenter();
+        const radius = this.clusteringEngine.getZoomRadius(this.map.getZoom());
+
+        // Find closest cluster to center
+        let closestGroup = null;
+        let minDistance = Infinity;
+
+        this.clusterGroups.forEach(group => {
+            const clusterLatLng = L.latLng(group.cluster.center[0], group.cluster.center[1]);
+            const distance = mapCenter.distanceTo(clusterLatLng);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestGroup = group;
+            }
+        });
+
+        // Update all cluster groups
+        this.clusterGroups.forEach(group => {
+            const isNowHighlighted = (group === closestGroup);
+
+            // Update cluster circle style
+            group.clusterMarker.setStyle({
+                color: isNowHighlighted ? '#00ffff' : '#00d4ff',
+                weight: isNowHighlighted ? 4 : 3,
+                fillOpacity: isNowHighlighted ? 0 : 0.35
+            });
+
+            // Reset markers to full opacity if not highlighted
+            if (!isNowHighlighted) {
+                group.venueMarkers.forEach(marker => {
+                    marker.setStyle({
+                        fillOpacity: 1.0,
+                        opacity: 1.0
+                    });
+                });
+            }
+
+            group.isHighlighted = isNowHighlighted;
+        });
+
+        // Reset unused markers pool for new cluster
+        this.unusedMarkers = [];
+
+        // Restart blinking with new highlighted cluster
+        this.startBlinking();
     }
 
     /**
@@ -249,6 +444,28 @@ export class MapManager {
     handleClusterClick(e) {
         const marker = e.target;
         this.map.setView(marker.getLatLng(), this.map.getZoom() + 2);
+    }
+
+    /**
+     * Select and highlight a marker
+     * @param {Object} marker - Marker to select
+     * @param {number} index - Index in displayedMarkers array
+     */
+    selectMarker(marker, index) {
+        const radius = this.clusteringEngine.getZoomRadius(this.map.getZoom());
+
+        // Reset previous selection
+        if (this.currentSelectedMarkerId !== -1 && this.currentSelectedMarkerId !== index) {
+            const prevMarker = this.displayedMarkers[this.currentSelectedMarkerId];
+            if (prevMarker && prevMarker !== marker && !prevMarker.isCluster) {
+                this.markerFactory.resetMarker(prevMarker, radius);
+            }
+        }
+
+        // Highlight new selection
+        this.markerFactory.highlightMarker(marker, radius);
+        marker.openPopup();
+        this.currentSelectedMarkerId = index;
     }
 
     /**
@@ -274,20 +491,8 @@ export class MapManager {
 
         if (!nearestMarker) return;
 
-        const radius = this.clusteringEngine.getZoomRadius(this.map.getZoom());
-
-        // Reset previous selection
-        if (this.currentSelectedMarkerId !== -1) {
-            const prevMarker = this.displayedMarkers[this.currentSelectedMarkerId];
-            if (prevMarker) {
-                this.markerFactory.resetMarker(prevMarker, radius);
-            }
-        }
-
-        // Highlight new selection
-        this.markerFactory.highlightMarker(nearestMarker, radius);
-        nearestMarker.openPopup();
-        this.currentSelectedMarkerId = nearestIndex;
+        // Use selectMarker method for consistent behavior
+        this.selectMarker(nearestMarker, nearestIndex);
     }
 
     /**
@@ -300,8 +505,19 @@ export class MapManager {
 
         const radius = this.clusteringEngine.getZoomRadius(this.map.getZoom());
 
-        venueData.forEach(venue => {
+        venueData.forEach((venue) => {
             const marker = this.markerFactory.createVenueMarker(venue, radius);
+
+            // Add click handler for direct marker selection
+            marker.on('click', (e) => {
+                L.DomEvent.stopPropagation(e);
+                // Find marker's index in displayedMarkers
+                const index = this.displayedMarkers.indexOf(marker);
+                if (index !== -1) {
+                    this.selectMarker(marker, index);
+                }
+            });
+
             this.rawMarkers.push(marker);
         });
 

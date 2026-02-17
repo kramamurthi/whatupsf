@@ -3,7 +3,8 @@
  */
 export class MarkerFactory {
     constructor() {
-        this.markerColor = '#f00'; // Default red color
+        this.venueColor = '#FF0000'; // Red for all unselected venues
+        this.selectedColor = '#FF00FF'; // Magenta for selected
     }
 
     /**
@@ -13,12 +14,15 @@ export class MarkerFactory {
      * @returns {Object} Leaflet circle marker
      */
     createVenueMarker(venue, radius) {
-        const marker = L.circle([venue.lat, venue.lng], radius, {
-            color: '#FFF',
-            weight: 0,
-            fillColor: this.markerColor,
-            fillOpacity: 0.8,
-            zIndexOffset: 0
+        const size = radius * 0.2; // Small red markers
+
+        const marker = L.circle([venue.lat, venue.lng], size, {
+            color: this.venueColor,
+            weight: 1,
+            fillColor: this.venueColor,
+            fillOpacity: 1.0,
+            zIndexOffset: 0,
+            className: 'venue-marker venue-jewel-blink'
         });
 
         // Build event list HTML
@@ -85,21 +89,22 @@ export class MarkerFactory {
      * @param {Object} cluster - Cluster data with center and mlist
      * @param {number} radius - Cluster radius
      * @param {Function} onClick - Click handler for zooming in
+     * @param {boolean} isHighlighted - Whether this is the highlighted cluster
      * @returns {Object} Leaflet circle marker
      */
-    createClusterMarker(cluster, radius, onClick) {
+    createClusterMarker(cluster, radius, onClick, isHighlighted = false) {
         const venueCount = cluster.mlist.length;
 
-        // Use circle marker for better control
+        // Use circle marker - transparent if highlighted, more opaque otherwise
         const marker = L.circle(
             [cluster.center[0], cluster.center[1]],
             radius,
             {
-                color: '#00f0ff',
-                weight: 2,
-                fillColor: '#0066ff', // Neon blue for clusters
-                fillOpacity: 0.6,
-                zIndexOffset: 0,
+                color: isHighlighted ? '#00ffff' : '#00d4ff',
+                weight: isHighlighted ? 4 : 3,
+                fillColor: '#0066ff',
+                fillOpacity: isHighlighted ? 0 : 0.35, // Completely transparent if highlighted
+                zIndexOffset: 100,
                 className: 'cluster-marker'
             }
         );
@@ -137,14 +142,21 @@ export class MarkerFactory {
      * @param {number} radius - New radius (larger than normal)
      */
     highlightMarker(marker, radius) {
-        marker.setRadius(radius * 1.33);
+        marker.setRadius(radius * 0.5); // Larger when selected
         marker.setStyle({
-            color: '#F00',
+            color: this.selectedColor,
             weight: 2,
-            fillColor: '#ffff4d',
-            fillOpacity: 0.9
+            fillColor: this.selectedColor,
+            fillOpacity: 1.0
         });
         marker.bringToFront();
+
+        // Update classes immediately (marker is already on map)
+        const element = marker.getElement();
+        if (element) {
+            element.classList.remove('venue-jewel-blink');
+            element.classList.add('venue-selected');
+        }
     }
 
     /**
@@ -153,13 +165,23 @@ export class MarkerFactory {
      * @param {number} radius - Normal radius
      */
     resetMarker(marker, radius) {
-        marker.setRadius(radius);
+        const size = radius * 0.2; // Small red marker
+
+        // Update marker style
+        marker.setRadius(size);
         marker.setStyle({
-            color: '#FFF',
-            weight: 0,
-            fillColor: this.markerColor,
-            fillOpacity: 0.8
+            color: this.venueColor,
+            weight: 1,
+            fillColor: this.venueColor,
+            fillOpacity: 1.0
         });
+
+        // Update classes immediately if element exists
+        const element = marker.getElement();
+        if (element) {
+            element.classList.remove('venue-selected');
+            element.classList.add('venue-jewel-blink');
+        }
     }
 
     /**
