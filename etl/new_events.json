@@ -1,9 +1,9 @@
 [
     {
         "lat": 37.76253, 
-        "url": "www.elbo.com", 
+        "url": "www.thevalenciaroom.com", 
         "lng": -122.42145, 
-        "venue": "The Elbo Room", 
+        "venue": "The Valencia Room", 
         "events": [
             {
                 "eventName": "Bombshell Betty", 
@@ -42,40 +42,6 @@
         ]
     }, 
     {
-        "lat": 37.7593, 
-        "url": "amnesiathebar.com", 
-        "lng": -122.421, 
-        "venue": "Amnesia", 
-        "events": [
-            {
-                "eventName": "Snowapple", 
-                "eventTime": "7pm", 
-                "eventUrl": "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/141412298", 
-                "eventPrice": "$7"
-            }, 
-            {
-                "eventName": "Hella Tight", 
-                "eventTime": "9pm", 
-                "eventUrl": "http://player.vimeo.com/video/16101483", 
-                "eventPrice": "$10"
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7555, 
-        "url": "revolutioncafesf.com", 
-        "lng": -122.42, 
-        "venue": "Revolution Cafe", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
         "lat": 37.7668, 
         "url": "cafedunord.com", 
         "lng": -122.43, 
@@ -86,20 +52,6 @@
                 "eventTime": "", 
                 "eventUrl": "", 
                 "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7821, 
-        "url": "yoshis.com/sanfrancisco", 
-        "lng": -122.432, 
-        "venue": "Yoshi's SF", 
-        "events": [
-            {
-                "eventName": "DWELE", 
-                "eventTime": "8pm and 10pm", 
-                "eventUrl": "http://www.youtube.com/embed/nXeXT6FGEls", 
-                "eventPrice": "$34"
             }
         ]
     }, 
@@ -144,20 +96,6 @@
         ]
     }, 
     {
-        "lat": 37.7621, 
-        "url": "sf-submission.com", 
-        "lng": -122.419, 
-        "venue": "Sub-Mission", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
         "lat": 37.7697, 
         "url": "brickandmortarmusic.com", 
         "lng": -122.42, 
@@ -176,48 +114,6 @@
         "url": "publicsf.com", 
         "lng": -122.419, 
         "venue": "Public Works", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7713, 
-        "url": "wishsf.com", 
-        "lng": -122.4145, 
-        "venue": "Wish", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.77142, 
-        "url": "theholycow.com", 
-        "lng": -122.4144, 
-        "venue": "Holy Cow Nightclub", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.77156, 
-        "url": "beatboxsf.com", 
-        "lng": -122.41387, 
-        "venue": "Beatbox", 
         "events": [
             {
                 "eventName": "", 
@@ -258,34 +154,6 @@
                 "eventTime": "9pm", 
                 "eventUrl": "http://www.youtube.com/embed/PEOsR0fj4dw", 
                 "eventPrice": "$15-$45"
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7589, 
-        "url": "brunosf.com", 
-        "lng": -122.419, 
-        "venue": "Bruno's", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.75, 
-        "url": "savanajazz.com", 
-        "lng": -122.418, 
-        "venue": "Savanna Jazz", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
             }
         ]
     }, 
@@ -346,38 +214,10 @@
         ]
     }, 
     {
-        "lat": 37.7753, 
-        "url": "iconloungesf.comPui", 
-        "lng": -122.41, 
-        "venue": "Icon Ultra Lounge", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
         "lat": 37.7772, 
         "url": "theendup.com", 
         "lng": -122.404, 
         "venue": "The Endup", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7876, 
-        "url": "rubyskye.com", 
-        "lng": -122.41, 
-        "venue": "Ruby Skye", 
         "events": [
             {
                 "eventName": "", 
@@ -510,20 +350,6 @@
         ]
     }, 
     {
-        "lat": 37.7675, 
-        "url": "mighty119.com", 
-        "lng": -122.407, 
-        "venue": "Mighty", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
         "lat": 37.7651, 
         "url": "theeparkside.com", 
         "lng": -122.4, 
@@ -620,52 +446,10 @@
         ]
     }, 
     {
-        "lat": 37.7825, 
-        "url": "mezzaninesf.com", 
-        "lng": -122.408, 
-        "venue": "Mezzanine", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7876, 
-        "url": "caferoyale-sf.com", 
-        "lng": -122.415, 
-        "venue": "Cafe Royale", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
         "lat": 37.7868, 
         "url": "swigbar.com", 
         "lng": -122.413, 
         "venue": "Swig", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7922, 
-        "url": "reddevillounge.com", 
-        "lng": -122.421, 
-        "venue": "Red Devil Lounge", 
         "events": [
             {
                 "eventName": "", 
@@ -718,26 +502,6 @@
         ]
     }, 
     {
-        "lat": 37.7715, 
-        "url": "slimspresents.com", 
-        "lng": -122.4134, 
-        "venue": "Slim's", 
-        "events": [
-            {
-                "eventName": "The Thurston Moore Band", 
-                "eventTime": "10pm", 
-                "eventUrl": "http://www.youtube.com/embed/JrueCma8IgE", 
-                "eventPrice": "$21"
-            }, 
-            {
-                "eventName": "Sebadoh", 
-                "eventTime": "8pm", 
-                "eventUrl": "http://www.youtube.com/embed/UBWWL0nh9kI", 
-                "eventPrice": "$21"
-            }
-        ]
-    }, 
-    {
         "lat": 37.77144, 
         "url": "www.audiosf.com", 
         "lng": -122.41366, 
@@ -764,261 +528,5 @@
                 "eventPrice": "$10"
             }
         ]
-    }, 
-    {
-        "lat": 37.7676, 
-        "url": "www.sfoutsidelands.com", 
-        "lng": -122.495, 
-        "venue": "Lands End Stage", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7699, 
-        "url": "www.sfoutsidelands.com", 
-        "lng": -122.493, 
-        "venue": "Sutro Stage", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7697, 
-        "url": "www.sfoutsidelands.com", 
-        "lng": -122.483, 
-        "venue": "Twin Peaks Stage", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7699, 
-        "url": "www.sfoutsidelands.com", 
-        "lng": -122.485, 
-        "venue": "Panhandle Stage", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7679, 
-        "url": "www.sfoutsidelands.com", 
-        "lng": -122.492, 
-        "venue": "The House by Heneiken", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7671, 
-        "url": "www.sfoutsidelands.com", 
-        "lng": -122.491, 
-        "venue": "The Barbary", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.769, 
-        "url": "www.sfoutsidelands.com", 
-        "lng": -122.49, 
-        "venue": "Gastro Magic", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7706, 
-        "url": "www.sfoutsidelands.com", 
-        "lng": -122.488, 
-        "venue": "Presidio Stage", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    }, 
-    {
-        "lat": 37.7694, 
-        "url": "milksf.com", 
-        "lng": -122.453, 
-        "venue": "Milk Bar", 
-        "events": [
-            {
-                "eventName": "", 
-                "eventTime": "", 
-                "eventUrl": "", 
-                "eventPrice": ""
-            }
-        ]
-    },
-    {
-        "events": [
-            {
-                "eventName": "Gracie Abrams",
-                "eventPrice": "",
-                "eventTime": "6:55 pm",
-                "eventUrl": "1834217586"
-            },
-            {
-                "eventName": "Tyler The Creator",
-                "eventPrice": "",
-                "eventTime": "8:40 pm",
-                "eventUrl": "2133747822"
-            }
-        ],
-        "lat": 37.7676,
-        "lng": -122.495,
-        "url": "www.sfoutsidelands.com",
-        "venue": "Lands End Stage"
-    },
-    {
-        "events": [
-            {
-                "eventName": "Royel Otis",
-                "eventPrice": "",
-                "eventTime": "6:55 pm",
-                "eventUrl": "2131931628"
-            },
-            {
-                "eventName": "Vampire Weekend",
-                "eventPrice": "",
-                "eventTime": "8:35 pm",
-                "eventUrl": "1790057236"
-            }
-        ],
-        "lat": 37.7697,
-        "lng": -122.483,
-        "url": "www.sfoutsidelands.com",
-        "venue": "Twin Peaks Stage"
-    },
-    {
-        "events": [
-            {
-                "eventName": "2hollis",
-                "eventPrice": "",
-                "eventTime": "7:05 pm",
-                "eventUrl": "2147966751"
-            },
-            {
-                "eventName": "Gesaffelstein",
-                "eventPrice": "",
-                "eventTime": "8:40 pm",
-                "eventUrl": "1784014248"
-            }
-        ],
-        "lat": 37.7699,
-        "lng": -122.493,
-        "url": "www.sfoutsidelands.com",
-        "venue": "Sutro Stage"
-    },
-    {
-        "events": [
-            {
-                "eventName": "DJ Pee.Wee",
-                "eventPrice": "",
-                "eventTime": "7:45 pm",
-                "eventUrl": "1117536583"
-            }
-        ],
-        "lat": 37.7699,
-        "lng": -122.485,
-        "url": "www.sfoutsidelands.com",
-        "venue": "Panhandle Stage"
-    },
-    {
-        "events": [
-            {
-                "eventName": "Claude VonStroke",
-                "eventPrice": "",
-                "eventTime": "8:10 pm",
-                "eventUrl": "2087809167"
-            }
-        ],
-        "lat": 37.771311,
-        "lng": -122.4857189,
-        "url": "www.sfoutsidelands.com",
-        "venue": "SOMA"
-    },
-    {
-        "events": [
-            {
-                "eventName": "DJ Bella Spreads",
-                "eventPrice": "",
-                "eventTime": "7:45 pm",
-                "eventUrl": "2135578488"
-            }
-        ],
-        "lat": 37.76856142857672,
-        "lng": -122.49165697182515,
-        "url": "www.sfoutsidelands.com",
-        "venue": "OASIS ARTS @ Dolores\u2019"
-    },
-    {
-        "events": [
-            {
-                "eventName": "",
-                "eventPrice": "",
-                "eventTime": "",
-                "eventUrl": ""
-            }
-        ],
-        "lat": 37.770417,
-        "lng": -122.4906629,
-        "url": "www.sfoutsidelands.com",
-        "venue": "CASA BACARD\u00cd"
-    },
-    {
-        "events": [
-            {
-                "eventName": "DJ Mandy",
-                "eventPrice": "",
-                "eventTime": "7:55 pm",
-                "eventUrl": "2114861220"
-            }
-        ],
-        "lat": 37.769286,
-        "lng": -122.4905663,
-        "url": "www.sfoutsidelands.com",
-        "venue": "Duboce Triangle"
     }
 ]
