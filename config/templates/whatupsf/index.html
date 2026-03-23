@@ -250,6 +250,42 @@
         }
     }
 
+    /* Staff pick venue marker - subtle gold */
+    .sponsored-venue-marker {
+        z-index: 2000 !important;
+    }
+
+    .staff-pick-star {
+        font-size: 36px;
+        line-height: 36px;
+        text-align: center;
+        color: #FFD700;
+        cursor: pointer;
+        filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.6));
+    }
+
+    .staff-pick-star:hover {
+        filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.8)) !important;
+        transform: scale(1.1) !important;
+    }
+
+    /* Sponsored popup styling */
+    .sponsored-popup .leaflet-popup-content-wrapper {
+        min-width: 360px;
+        max-width: 360px;
+        max-height: 700px;
+        overflow-y: auto;
+    }
+
+    /* Instagram embed styling in popup */
+    .sponsored-popup .instagram-media {
+        margin: 0 auto !important;
+    }
+
+    .sponsored-popup iframe.instagram-media-rendered {
+        border-radius: 8px !important;
+    }
+
     /* Keep animation only for popup markers (not circles) */
     .leaflet-marker-icon,
     .leaflet-marker-shadow {
@@ -483,5 +519,5 @@
 </script>
 
 <!-- Modern ES6+ JavaScript Modules with Dark Tiles -->
-<script type="module" src="/static/js/map-app.js?v=20260208b"></script>
+<script type="module" src="/static/js/map-app.js?v=20260216j"></script>
 {% endblock %}
