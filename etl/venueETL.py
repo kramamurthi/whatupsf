@@ -161,6 +161,7 @@ def dictfetchall(cursor):
     desc = cursor.description
     return [OrderedDict(zip([col[0] for col in desc], row)) for row in cursor.fetchall()]
 
+#TODO works
 def get_table_json(dbName, tblName):
 
     db = get_db_connection(dbName)
@@ -194,6 +195,7 @@ def dump_latest_info(dbName):
     fH.write(jString)
     fH.close()
 
+#TODO broken
 def get_events(dump=False):
 
     eventList = []
@@ -211,6 +213,7 @@ def get_events(dump=False):
 
     return eventList, jData
 
+#TODO broken
 def updated_venues(dump=False):
     E,D = get_events()
     V = get_json_data('sfev', 'venues')
