@@ -7,14 +7,14 @@ import json
 def default(request):
 	context = {
 	'name':'SFEventMapper',
-	'use_convex_hull': getattr(settings, 'USE_CONVEX_HULL', False),
+	'use_convex_hull': getattr(settings, 'USE_CONVEX_HULL', True),
 	}
 	return render(request,"whatupsf/index.html", context)
 
 
 def render_json(request):
     # Load venue data from etl directory (67 SF venues)
-    data_path = settings.BASE_DIR / 'etl' / 'new_events.json'
+    data_path = settings.BASE_DIR / 'etl' / 'publish.json'
     with open(data_path, 'r') as f:
         json_data = json.load(f)
 

@@ -17,16 +17,18 @@ DB_NAME = os.environ.get('WHATUPSF_DB_NAME', 'sfev')
 if not DB_PASSWORD:
     raise ValueError("WHATUPSF_DB_PASSWORD environment variable must be set")
 
+#works
 def get_db_connection(dbName=None):
     """Create and return a database connection"""
     db_name = dbName or DB_NAME
     return msq.connect(DB_HOST, DB_USER, DB_PASSWORD, db_name)
 
+#works
 def getListOfAddresses(dbName, tblName):
 
     db = get_db_connection(dbName)
     cursor = db.cursor()
-    sql = "SELECT address, city, state, zip FROM %s" %(tblName)
+    sql = "SELECT address, city, state, zipcode FROM %s" %(tblName)
     print(sql)
     try:
         cursor.execute(sql)
@@ -70,6 +72,7 @@ def get_latest_info(dbName):
              FROM events E2 WHERE E.venue_id=E2.venue_id)) OR E.event_date is NULL
           """
     try:
+        print(sql)
         cursor.execute(sql)
         rows = cursor.fetchall()
         jsonList = []
