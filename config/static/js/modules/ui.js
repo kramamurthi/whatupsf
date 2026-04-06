@@ -3,7 +3,6 @@
  */
 export class UIManager {
     constructor() {
-        this.filterDrawerOpen = false;
         this.bottomSheetOpen = false;
     }
 
@@ -11,80 +10,8 @@ export class UIManager {
      * Initialize UI event listeners
      */
     initialize() {
-        this.setupMobileFilterDrawer();
         this.setupBottomSheet();
         this.setupLoadingIndicator();
-    }
-
-    /**
-     * Setup mobile filter drawer toggle
-     */
-    setupMobileFilterDrawer() {
-        const mobileFilterBtn = document.getElementById('mobile-filter-btn');
-        const filterDrawer = document.getElementById('filter-drawer');
-        const closeDrawerBtn = document.getElementById('close-filter-drawer');
-
-        if (mobileFilterBtn && filterDrawer) {
-            mobileFilterBtn.addEventListener('click', () => {
-                this.toggleFilterDrawer();
-            });
-        }
-
-        if (closeDrawerBtn && filterDrawer) {
-            closeDrawerBtn.addEventListener('click', () => {
-                this.closeFilterDrawer();
-            });
-        }
-
-        // Close drawer when clicking outside
-        if (filterDrawer) {
-            document.addEventListener('click', (e) => {
-                if (this.filterDrawerOpen &&
-                    !filterDrawer.contains(e.target) &&
-                    !mobileFilterBtn?.contains(e.target)) {
-                    this.closeFilterDrawer();
-                }
-            });
-        }
-    }
-
-    /**
-     * Toggle mobile filter drawer
-     */
-    toggleFilterDrawer() {
-        const drawer = document.getElementById('filter-drawer');
-        if (!drawer) return;
-
-        if (this.filterDrawerOpen) {
-            this.closeFilterDrawer();
-        } else {
-            this.openFilterDrawer();
-        }
-    }
-
-    /**
-     * Open mobile filter drawer
-     */
-    openFilterDrawer() {
-        const drawer = document.getElementById('filter-drawer');
-        if (!drawer) return;
-
-        drawer.classList.add('open');
-        this.filterDrawerOpen = true;
-
-        // Add fade-in animation
-        drawer.style.animation = 'slideInRight 0.3s ease-out';
-    }
-
-    /**
-     * Close mobile filter drawer
-     */
-    closeFilterDrawer() {
-        const drawer = document.getElementById('filter-drawer');
-        if (!drawer) return;
-
-        drawer.classList.remove('open');
-        this.filterDrawerOpen = false;
     }
 
     /**
@@ -247,17 +174,6 @@ export class UIManager {
      * Setup responsive event listeners
      */
     setupResponsive() {
-        let resizeTimer;
-
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                // Close mobile drawer if switching to desktop
-                if (!this.isMobile() && this.filterDrawerOpen) {
-                    this.closeFilterDrawer();
-                }
-            }, 250);
-        });
     }
 }
 

@@ -3,7 +3,6 @@
  * Modern ES6+ JavaScript replacing jQuery 1.7.1
  */
 import { MapManager } from './modules/map-manager.js';
-import { FilterManager } from './modules/filters.js';
 import { UIManager } from './modules/ui.js';
 
 class WhatUpSFApp {
@@ -13,7 +12,6 @@ class WhatUpSFApp {
 
         // Initialize managers
         this.mapManager = null;
-        this.filterManager = null;
         this.uiManager = new UIManager();
 
         // State
@@ -39,10 +37,6 @@ class WhatUpSFApp {
             this.mapManager = new MapManager('map', this.stadiaApiKey, useConvexHull);
             this.mapManager.initialize();
             console.log('✅ Map initialized');
-
-            // Initialize filter manager
-            this.filterManager = new FilterManager(this.mapManager);
-            this.filterManager.initialize();
 
             // Load venue data
             await this.loadVenueData();
@@ -83,9 +77,6 @@ class WhatUpSFApp {
             // Load data into map
             this.mapManager.loadVenueData(data);
 
-            // Update event count
-            this.filterManager.updateEventCount(data);
-
             this.uiManager.showToast(`Loaded ${data.length} venues`, 'success');
 
         } catch (error) {
@@ -109,8 +100,7 @@ class WhatUpSFApp {
             version: this.getVersion(),
             initialized: this.isInitialized,
             venueCount: this.mapManager?.getRawVenueData()?.length || 0,
-            currentZoom: this.mapManager?.getZoom() || 0,
-            filters: this.filterManager?.filters || {}
+            currentZoom: this.mapManager?.getZoom() || 0
         };
     }
 }
