@@ -40,7 +40,7 @@ export class MapManager {
         // Initialize map with dark tiles
         this.map = L.map(this.mapElementId, {
             center: [37.7749, -122.4494], // San Francisco center (shifted west)
-            zoom: 11,
+            zoom: 14,
             minZoom: 11,
             maxZoom: 17,
             zoomControl: false,
@@ -216,7 +216,7 @@ export class MapManager {
         this.rawMarkers.forEach(marker => {
             // Skip circle methods for sponsored star markers
             if (!marker.isSponsored) {
-                marker.setRadius(radius * 0.2);
+                marker.setRadius(radius * 0.4);
                 marker.setStyle({
                     color: this.markerFactory.venueColor,
                     weight: 1,
@@ -282,7 +282,7 @@ export class MapManager {
                 cluster.mlist.forEach(venueMarker => {
                     // Skip circle methods for sponsored star markers
                     if (!venueMarker.isSponsored) {
-                        venueMarker.setRadius(radius * 0.2);
+                        venueMarker.setRadius(radius * 0.4);
                         venueMarker.setStyle({
                             color: this.markerFactory.venueColor,
                             weight: 1,
@@ -335,7 +335,7 @@ export class MapManager {
 
                 // Skip circle methods for sponsored star markers
                 if (!marker.isSponsored) {
-                    marker.setRadius(radius * 0.2);
+                    marker.setRadius(radius * 0.4);
                     marker.setStyle({
                         color: this.markerFactory.venueColor,
                         weight: 1,

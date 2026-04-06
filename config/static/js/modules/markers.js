@@ -87,7 +87,7 @@ export class MarkerFactory {
             return this.createSponsoredVenueMarker(venue, radius);
         }
 
-        const size = radius * 0.2; // Small red markers
+        const size = radius * 0.4; // Small red markers
 
         const marker = L.circle([venue.lat, venue.lng], size, {
             color: this.venueColor,
@@ -351,7 +351,7 @@ export class MarkerFactory {
             return;
         }
 
-        const size = radius * 0.2; // Small red marker
+        const size = radius * 0.4; // Small red marker
 
         // Update marker style
         marker.setRadius(size);
