@@ -12,3 +12,6 @@ requests==2.32.3
 sqlparse==0.5.3
 urllib3==2.4.0
 whitenoise==6.9.0
+openai
+beautifulsoup4
+lxml
