@@ -9,16 +9,21 @@
 <style>
     /* Custom Leaflet Dark Theme Styles */
     .leaflet-popup-content-wrapper {
-        background: rgba(18, 18, 18, 0.95);
-        backdrop-filter: blur(10px);
+        background: rgba(18, 18, 18, 0.55);
+        backdrop-filter: blur(3px);
         color: #f0f0f0;
         border-radius: 12px;
         border: 1px solid rgba(0, 240, 255, 0.3);
         box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        pointer-events: none;
+    }
+
+    .leaflet-popup-tip-container {
+        pointer-events: none;
     }
 
     .leaflet-popup-tip {
-        background: rgba(18, 18, 18, 0.95);
+        background: rgba(18, 18, 18, 0.55);
         border: 1px solid rgba(0, 240, 255, 0.3);
     }
 
@@ -40,6 +45,7 @@
         color: #00f0ff;
         text-decoration: none;
         transition: color 0.3s;
+        pointer-events: auto;
     }
 
     .leaflet-popup-content a:hover {
