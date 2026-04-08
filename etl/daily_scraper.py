@@ -46,7 +46,8 @@ def dbg(*args):
     if DEBUG:
         print('[DEBUG]', *args)
 
-CALENDAR_KEYWORDS = ['calendar', 'events', 'schedule', 'shows', 'gigs', 'live']
+CALENDAR_KEYWORDS = ['calendar', 'events', 'schedule', 'shows', 'gigs', 'live', 'music']
+CALENDAR_BLOCKLIST = ['private', 'corporate', 'rental', 'hire', 'wedding']
 
 HEADERS = {
     'User-Agent': (
@@ -162,6 +163,8 @@ def find_calendar_url_heuristic(homepage_html, base_url):
     for a in soup.find_all('a', href=True):
         href = a['href'].lower()
         text = a.get_text(strip=True).lower()
+        if any(bl in href for bl in CALENDAR_BLOCKLIST):
+            continue
         kw_in_href = any(kw in href for kw in CALENDAR_KEYWORDS)
         kw_in_text = any(kw in text for kw in CALENDAR_KEYWORDS)
         if kw_in_href and kw_in_text and both_match is None:
