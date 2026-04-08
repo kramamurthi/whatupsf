@@ -249,8 +249,20 @@ export class MapManager {
         const clusterSize = this.clusteringEngine.getClusterSize(zoom);
         const radius = this.clusteringEngine.getZoomRadius(zoom);
 
-        // Cluster the raw markers
-        const clusters = this.clusteringEngine.cluster(this.rawMarkers, clusterSize);
+        // Only cluster active venues; inactive ones always show individually
+        const activeMarkers = this.rawMarkers.filter(m => m._isActive);
+        const inactiveMarkers = this.rawMarkers.filter(m => !m._isActive);
+
+        // Add inactive markers individually (no clustering)
+        inactiveMarkers.forEach(marker => {
+            const color = marker._venueColor || this.markerFactory.venueColorInactive;
+            marker.setRadius(radius * 0.4);
+            marker.setStyle({ color, weight: 1, fillColor: color, fillOpacity: 1.0 });
+            marker.addTo(this.map);
+            this.displayedMarkers.push(marker);
+        });
+
+        const clusters = this.clusteringEngine.cluster(activeMarkers, clusterSize);
 
         // Find cluster closest to screen center
         const mapCenter = this.map.getCenter();
