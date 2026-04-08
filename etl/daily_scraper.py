@@ -113,6 +113,31 @@ def fetch_html(url, timeout=15):
         return None
 
 
+# Minimum cleaned-text length before we consider a page JS-rendered
+JS_RENDER_THRESHOLD = 1000
+
+
+def fetch_html_rendered(url, wait_ms=3000):
+    """
+    Fetch a page using headless Chromium (Playwright) to get JS-rendered HTML.
+    Falls back to None on failure.
+    """
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page(user_agent=HEADERS['User-Agent'])
+            page.goto(url, timeout=30000, wait_until='networkidle')
+            page.wait_for_timeout(wait_ms)
+            html = page.content()
+            browser.close()
+            dbg(f"PLAYWRIGHT {url} -> {len(html)} chars")
+            return html
+    except Exception as e:
+        print(f"    [PLAYWRIGHT ERROR] {url}: {e}")
+        return None
+
+
 def find_calendar_url_heuristic(homepage_html, base_url):
     """
     Search the homepage for a link that looks like a calendar/events page.
@@ -318,7 +343,17 @@ def run_phase2():
 
         # Step 3: clean and parse
         cal_text = clean_html(cal_html)
-        print(f"    Cleaned text: {len(cal_text)} chars — sending to OpenAI...")
+        if len(cal_text) < JS_RENDER_THRESHOLD:
+            print(f"    Cleaned text: {len(cal_text)} chars — JS-rendered, trying Playwright...")
+            rendered = fetch_html_rendered(cal_url)
+            if rendered:
+                cal_text = clean_html(rendered)
+                print(f"    Rendered text: {len(cal_text)} chars — sending to OpenAI...")
+            else:
+                print(f"    [SKIP] Playwright failed, skipping venue")
+                continue
+        else:
+            print(f"    Cleaned text: {len(cal_text)} chars — sending to OpenAI...")
         events = parse_events_with_ai(cal_text, venue_name)
 
         print(f"    Found {len(events)} upcoming events:")
@@ -745,7 +780,17 @@ if __name__ == '__main__':
             print("  [FAIL] Could not fetch calendar page")
             sys.exit(1)
         cal_text = clean_html(cal_html)
-        print(f"  Cleaned text: {len(cal_text)} chars — sending to OpenAI...\n")
+        if len(cal_text) < JS_RENDER_THRESHOLD:
+            print(f"  Cleaned text: {len(cal_text)} chars — JS-rendered, trying Playwright...")
+            rendered = fetch_html_rendered(cal_url)
+            if rendered:
+                cal_text = clean_html(rendered)
+                print(f"  Rendered text: {len(cal_text)} chars — sending to OpenAI...\n")
+            else:
+                print("  [FAIL] Playwright failed")
+                sys.exit(1)
+        else:
+            print(f"  Cleaned text: {len(cal_text)} chars — sending to OpenAI...\n")
         events = parse_events_with_ai(cal_text, vname)
         print(f"\n  Found {len(events)} upcoming events:")
         for e in events:
