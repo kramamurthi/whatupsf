@@ -64,10 +64,9 @@ def get_latest_info(dbName):
     sql = """SELECT V.name, V.latitude, V.longitude, V.url,
                     E.event_price, E.event_date, E.event_time,
                     B.name, B.media_url
-                    FROM venues V 
-                    LEFT JOIN events E ON V.id = E.venue_id 
-                    LEFT JOIN bands B on B.id = E.band_id 
-             WHERE E.event_date = CURDATE()
+                    FROM venues V
+                    LEFT JOIN events E ON V.id = E.venue_id AND E.event_date = CURDATE()
+                    LEFT JOIN bands B ON B.id = E.band_id
           """
     try:
         print(sql)

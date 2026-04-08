@@ -53,7 +53,8 @@ function isLeftTurn(p1, p2, p3) {
  */
 export class MarkerFactory {
     constructor() {
-        this.venueColor = '#FF0000'; // Red for all unselected venues
+        this.venueColorActive = '#FFD700';  // Yellow for venues with events today
+        this.venueColorInactive = '#808080'; // Gray for venues with no events today
         this.selectedColor = '#FF00FF'; // Magenta for selected
         this.sponsoredColor = '#FFD700'; // Gold for sponsored venues
     }
@@ -81,22 +82,29 @@ export class MarkerFactory {
      * @param {number} radius - Marker radius
      * @returns {Object} Leaflet circle marker
      */
+    hasEvents(venue) {
+        return venue.events && venue.events.length > 0 && venue.events[0].eventName !== '';
+    }
+
     createVenueMarker(venue, radius) {
         // Check if this is a sponsored venue
         if (this.isSponsoredVenue(venue)) {
             return this.createSponsoredVenueMarker(venue, radius);
         }
 
-        const size = radius * 0.4; // Small red markers
+        const active = this.hasEvents(venue);
+        const color = active ? this.venueColorActive : this.venueColorInactive;
+        const size = radius * 0.4;
 
         const marker = L.circle([venue.lat, venue.lng], size, {
-            color: this.venueColor,
+            color: color,
             weight: 1,
-            fillColor: this.venueColor,
+            fillColor: color,
             fillOpacity: 1.0,
             zIndexOffset: 0,
             className: 'venue-marker venue-jewel-blink'
         });
+        marker._venueColor = color; // store for reset
 
         // Build event list HTML
         const eventListHTML = this.buildEventList(venue.events);
@@ -126,8 +134,8 @@ export class MarkerFactory {
      * @returns {string} HTML string
      */
     buildEventList(events) {
-        if (!events || events.length === 0) {
-            return '<p class="text-gray-400">No events scheduled</p>';
+        if (!events || events.length === 0 || events[0].eventName === '') {
+            return '<p style="color:#808080">No Events Today</p>';
         }
 
         return events.map(event => {
@@ -351,14 +359,14 @@ export class MarkerFactory {
             return;
         }
 
-        const size = radius * 0.4; // Small red marker
+        const size = radius * 0.4;
+        const color = marker._venueColor || this.venueColorInactive;
 
-        // Update marker style
         marker.setRadius(size);
         marker.setStyle({
-            color: this.venueColor,
+            color: color,
             weight: 1,
-            fillColor: this.venueColor,
+            fillColor: color,
             fillOpacity: 1.0
         });
 

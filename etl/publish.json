@@ -1,5 +1,75 @@
 [
     {
+        "venue": "The Knockout",
+        "lat": 37.7452163,
+        "lng": -122.4199723,
+        "url": "theknockoutsf.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Brick & Mortar Music Hall",
+        "lat": 37.769718170166016,
+        "lng": -122.42037963867188,
+        "url": "brickandmortarmusic.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "The Chapel",
+        "lat": 37.76055908203125,
+        "lng": -122.42118835449219,
+        "url": "thechapelsf.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Kilowatt Bar",
+        "lat": 37.7650422,
+        "lng": -122.4232322,
+        "url": "kilowattbar.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Dawn Club",
+        "lat": 37.7877844,
+        "lng": -122.402534,
+        "url": "dawnclub.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
         "venue": "Bottom of the Hill",
         "lat": 37.765018463134766,
         "lng": -122.39643859863281,
@@ -9,7 +79,245 @@
                 "eventName": "The Lighting Section",
                 "eventTime": "08:00 PM",
                 "eventPrice": "13$",
-                "eventUrl": "https://www.youtube.com/watch?v=Q7GSCxVJyhQ"
+                "eventUrl": "https://www.youtube.com/watch?v=Crx3gwGSrcE"
+            }
+        ]
+    },
+    {
+        "venue": "Keys Jazz Bistro",
+        "lat": 37.798211,
+        "lng": -122.405179,
+        "url": "keysjazzbistro.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "The Savoy Tivoli",
+        "lat": 37.8003066,
+        "lng": -122.40744169,
+        "url": "savoytivoli.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Bimbo's 365 Club",
+        "lat": 37.8038834,
+        "lng": -122.4156976,
+        "url": "bimbos365club.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "The Independent",
+        "lat": 37.77553939819336,
+        "lng": -122.43760681152344,
+        "url": "theindependentsf.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Cafe Du Nord",
+        "lat": 37.76675033569336,
+        "lng": -122.43049621582031,
+        "url": "cafedunord.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "SFJAZZ Center",
+        "lat": 37.776329040527344,
+        "lng": -122.42153930664062,
+        "url": "sfjazz.org/calendar",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Rickshaw Stop",
+        "lat": 37.776119232177734,
+        "lng": -122.42047882080078,
+        "url": "rickshawstop.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Mr. Tipple's Jazz Club",
+        "lat": 37.7764293,
+        "lng": -122.4185665,
+        "url": "mrtipplessf.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Bill Graham Civic Auditorium",
+        "lat": 37.7785085,
+        "lng": -122.4173998,
+        "url": "billgrahamcivic.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "The Warfield",
+        "lat": 37.78266143798828,
+        "lng": -122.4101791381836,
+        "url": "thewarfieldtheatre.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "August Hall",
+        "lat": 37.7876349,
+        "lng": -122.409843,
+        "url": "augusthallsf.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Black Cat Jazz Supper Club",
+        "lat": 37.7838268,
+        "lng": -122.4144255,
+        "url": "blackcatsf.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Great American Music Hall",
+        "lat": 37.784759521484375,
+        "lng": -122.41883850097656,
+        "url": "gamh.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "The Regency Ballroom",
+        "lat": 37.7878652,
+        "lng": -122.4216065,
+        "url": "theregencyballroom.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Nob Hill Masonic Center",
+        "lat": 37.79117965698242,
+        "lng": -122.4129409790039,
+        "url": "www.sfmasonic.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "Boom Boom Room",
+        "lat": 37.784610748291016,
+        "lng": -122.43319702148438,
+        "url": "boomboomblues.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "The Fillmore",
+        "lat": 37.784128,
+        "lng": -122.433079,
+        "url": "livenation.com/venue/KovZpZAE6eeA/the-fillmore-eve",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
             }
         ]
     },
@@ -23,7 +331,21 @@
                 "eventName": "Karaoke Tuesday",
                 "eventTime": "09:00 PM",
                 "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=YtqK5W8JpcU"
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "The Riptide",
+        "lat": 37.7416169,
+        "lng": -122.505334,
+        "url": "riptidesf.com",
+        "events": [
+            {
+                "eventName": "",
+                "eventTime": "",
+                "eventPrice": "",
+                "eventUrl": ""
             }
         ]
     }
