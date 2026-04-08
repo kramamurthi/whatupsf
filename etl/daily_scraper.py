@@ -121,22 +121,163 @@ JS_RENDER_THRESHOLD = 1000
 def fetch_html_rendered(url, wait_ms=3000):
     """
     Fetch a page using headless Chromium (Playwright) to get JS-rendered HTML.
-    Falls back to None on failure.
+    Tries 'networkidle' first, falls back to 'load' on timeout.
+    Returns None on complete failure.
     """
     try:
         from playwright.sync_api import sync_playwright
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            page = browser.new_page(user_agent=HEADERS['User-Agent'])
-            page.goto(url, timeout=30000, wait_until='networkidle')
-            page.wait_for_timeout(wait_ms)
-            html = page.content()
-            browser.close()
-            dbg(f"PLAYWRIGHT {url} -> {len(html)} chars")
-            return html
+            try:
+                page = browser.new_page(user_agent=HEADERS['User-Agent'])
+                try:
+                    page.goto(url, timeout=30000, wait_until='networkidle')
+                except Exception:
+                    # networkidle timed out — retry with 'load'
+                    print(f"    [PLAYWRIGHT] networkidle timeout, retrying with wait_until=load...")
+                    page.goto(url, timeout=30000, wait_until='load')
+                page.wait_for_timeout(wait_ms)
+                html = page.content()
+                dbg(f"PLAYWRIGHT {url} -> {len(html)} chars")
+                return html
+            finally:
+                browser.close()
     except Exception as e:
         print(f"    [PLAYWRIGHT ERROR] {url}: {e}")
         return None
+
+
+def find_calendar_media_url(html, base_url):
+    """
+    Scan raw HTML for PDF or image URLs that might be a calendar.
+    Returns the first matching absolute URL, or None.
+    """
+    import re
+    if not html:
+        return None
+
+    def make_absolute(raw):
+        if raw.startswith('//'):
+            parsed = urlparse(base_url)
+            return f"{parsed.scheme}:{raw}"
+        if raw.startswith('http'):
+            return raw
+        if raw.startswith('/'):
+            parsed = urlparse(base_url)
+            return f"{parsed.scheme}://{parsed.netloc}{raw}"
+        parsed = urlparse(base_url)
+        return f"{parsed.scheme}://{parsed.netloc}/{raw}"
+
+    # Patterns: PDF links (any), images only if path contains calendar keyword
+    # Exclude small UI images like logos by requiring the URL to not come from a /images/calendarlogo/ path
+    patterns = [
+        r'href=["\']([^"\']*\.pdf)["\']',
+        r'src=["\']([^"\']*\.pdf)["\']',
+        r'content=["\']([^"\']+\.pdf)["\']',
+        r'href=["\']([^"\']+/(?:calendar|events|schedule)[^"/\']*\.(?:jpg|jpeg|png|webp))["\']',
+        r'src=["\']([^"\']+/(?:calendar|events|schedule)[^"/\']*\.(?:jpg|jpeg|png|webp))["\']',
+    ]
+    for pat in patterns:
+        m = re.search(pat, html, re.IGNORECASE)
+        if m:
+            url = make_absolute(m.group(1))
+            dbg(f"FIND_MEDIA_URL pattern={pat!r} -> {url}")
+            return url
+    return None
+
+
+def parse_events_from_image(media_url, venue_name):
+    """
+    Download a PDF or image, convert first page to PNG via PyMuPDF,
+    then send to GPT-4o Vision with a calendar-parsing prompt.
+    Returns list of event dicts (same shape as parse_events_with_ai).
+    """
+    import base64
+    import tempfile
+
+    today = datetime.date.today().isoformat()
+
+    # Download the file
+    try:
+        resp = requests.get(media_url, headers=HEADERS, timeout=30)
+        resp.raise_for_status()
+        raw_bytes = resp.content
+        print(f"    [VISION] Downloaded {len(raw_bytes):,} bytes from {media_url}")
+    except Exception as e:
+        print(f"    [VISION ERROR] download failed: {e}")
+        return []
+
+    # Convert to PNG
+    try:
+        import fitz  # PyMuPDF
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tf:
+            tf.write(raw_bytes)
+            tmp_path = tf.name
+        doc = fitz.open(tmp_path)
+        page = doc[0]
+        pix = page.get_pixmap(dpi=150)
+        png_bytes = pix.tobytes('png')
+        doc.close()
+        os.unlink(tmp_path)
+        print(f"    [VISION] Converted PDF page 1 to PNG ({len(png_bytes):,} bytes)")
+    except Exception:
+        # Not a PDF — treat raw bytes as image directly
+        png_bytes = raw_bytes
+        print(f"    [VISION] Using raw bytes as image ({len(png_bytes):,} bytes)")
+
+    # Encode as base64
+    b64 = base64.b64encode(png_bytes).decode()
+
+    # Detect MIME type
+    if png_bytes[:4] == b'\x89PNG':
+        mime = 'image/png'
+    elif png_bytes[:2] == b'\xff\xd8':
+        mime = 'image/jpeg'
+    else:
+        mime = 'image/png'
+
+    prompt = (
+        f"This is a calendar page for '{venue_name}', a music venue.\n"
+        f"Today's date is {today}. Extract all upcoming events (on or after today).\n\n"
+        f"Return ONLY a JSON array. Each element must have these exact keys:\n"
+        f"  band_name   : string\n"
+        f"  event_date  : string in YYYY-MM-DD format\n"
+        f"  event_time  : string in HH:MM:SS format (use 20:00:00 if unknown)\n"
+        f"  event_price : integer in dollars (0 if free or unknown)\n\n"
+        f"If there are no upcoming events, return an empty array [].\n"
+        f"Return only the JSON, no markdown fences."
+    )
+
+    client = get_openai_client()
+    try:
+        resp = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{'role': 'user', 'content': [
+                {'type': 'image_url', 'image_url': {'url': f'data:{mime};base64,{b64}'}},
+                {'type': 'text', 'text': prompt},
+            ]}],
+            temperature=0,
+            max_tokens=2048,
+        )
+        answer = resp.choices[0].message.content.strip()
+        dbg(f"VISION RAW RESPONSE:\n{answer}\n")
+        if answer.startswith('```'):
+            answer = '\n'.join(answer.splitlines()[1:])
+        if answer.endswith('```'):
+            answer = '\n'.join(answer.splitlines()[:-1])
+        events = json.loads(answer)
+        if not isinstance(events, list):
+            print(f"    [VISION PARSE ERROR] Expected list, got {type(events)}")
+            return []
+        valid = [e for e in events if all(k in e for k in ('band_name', 'event_date', 'event_time', 'event_price'))]
+        print(f"    [VISION] Parsed {len(valid)} events from image")
+        return valid
+    except json.JSONDecodeError as e:
+        print(f"    [VISION JSON ERROR] {e}\n    Raw: {answer[:200]}")
+        return []
+    except Exception as e:
+        print(f"    [VISION ERROR] GPT-4o call failed: {e}")
+        return []
 
 
 def find_calendar_url_heuristic(homepage_html, base_url):
@@ -155,6 +296,12 @@ def find_calendar_url_heuristic(homepage_html, base_url):
         else:
             return base_url.rstrip('/') + '/' + raw
 
+    base_netloc = urlparse(base_url).netloc
+
+    def is_same_domain(url):
+        netloc = urlparse(url).netloc
+        return not netloc or netloc == base_netloc or netloc.endswith('.' + base_netloc)
+
     soup = BeautifulSoup(homepage_html, 'lxml')
     both_match = None   # best: keyword in href AND text (nav link to listing page)
     href_match = None   # ok: keyword in href only
@@ -165,14 +312,17 @@ def find_calendar_url_heuristic(homepage_html, base_url):
         text = a.get_text(strip=True).lower()
         if any(bl in href for bl in CALENDAR_BLOCKLIST):
             continue
+        abs_href = make_absolute(a['href'])
+        if not is_same_domain(abs_href):
+            continue  # skip external domains (e.g. google.com/calendar)
         kw_in_href = any(kw in href for kw in CALENDAR_KEYWORDS)
         kw_in_text = any(kw in text for kw in CALENDAR_KEYWORDS)
         if kw_in_href and kw_in_text and both_match is None:
-            both_match = make_absolute(a['href'])
+            both_match = abs_href
         elif kw_in_href and not kw_in_text and href_match is None:
-            href_match = make_absolute(a['href'])
+            href_match = abs_href
         elif kw_in_text and not kw_in_href and text_match is None:
-            text_match = make_absolute(a['href'])
+            text_match = abs_href
 
     result = both_match or href_match or text_match
     dbg(f"HEURISTIC best_match={result}  (both={both_match} href={href_match} text={text_match})")
@@ -224,7 +374,9 @@ def find_calendar_url_ai(homepage_html, base_url):
 def discover_calendar_url(venue_id, venue_name, venue_url):
     """
     For a given venue, return (calendar_url, method) where method is
-    'heuristic', 'ai_fallback', or None if discovery failed.
+    'heuristic', 'ai_fallback', 'homepage', or None if discovery failed.
+    If the homepage is JS-rendered, Playwright-renders it before discovery.
+    Falls back to the homepage URL itself if no separate calendar page is found.
     """
     if not venue_url.startswith('http'):
         venue_url = 'https://' + venue_url
@@ -233,6 +385,13 @@ def discover_calendar_url(venue_id, venue_name, venue_url):
     html = fetch_html(venue_url)
     if not html:
         return None, None
+
+    # If homepage itself is JS-rendered, render it before discovery
+    if len(html) < JS_RENDER_THRESHOLD * 2:
+        print(f"    Homepage looks JS-rendered ({len(html)} chars), using Playwright for discovery...")
+        rendered = fetch_html_rendered(venue_url)
+        if rendered:
+            html = rendered
 
     # Try heuristic first (no AI cost)
     cal_url = find_calendar_url_heuristic(html, venue_url)
@@ -245,7 +404,9 @@ def discover_calendar_url(venue_id, venue_name, venue_url):
     if cal_url:
         return cal_url, 'ai_fallback'
 
-    return None, None
+    # Last resort: treat the homepage itself as the calendar page
+    print(f"    [INFO] No calendar link found — treating homepage as calendar")
+    return venue_url, 'homepage'
 
 
 # ---------------------------------------------------------------------------
@@ -346,18 +507,33 @@ def run_phase2():
 
         # Step 3: clean and parse
         cal_text = clean_html(cal_html)
+        events = []
         if len(cal_text) < JS_RENDER_THRESHOLD:
             print(f"    Cleaned text: {len(cal_text)} chars — JS-rendered, trying Playwright...")
             rendered = fetch_html_rendered(cal_url)
-            if rendered:
-                cal_text = clean_html(rendered)
+            rendered_text = clean_html(rendered) if rendered else ''
+            if rendered and len(rendered_text) >= JS_RENDER_THRESHOLD:
+                cal_text = rendered_text
                 print(f"    Rendered text: {len(cal_text)} chars — sending to OpenAI...")
+                events = parse_events_with_ai(cal_text, venue_name)
             else:
-                print(f"    [SKIP] Playwright failed, skipping venue")
-                continue
+                # Playwright failed or rendered page is still content-empty — check for PDF/image
+                if rendered:
+                    print(f"    Rendered text: {len(rendered_text)} chars — still too short, scanning for PDF/image...")
+                    scan_html = rendered  # prefer rendered HTML for better link coverage
+                else:
+                    print(f"    [FALLBACK] Playwright failed — scanning for PDF/image calendar...")
+                    scan_html = cal_html
+                media_url = find_calendar_media_url(scan_html, cal_url)
+                if media_url:
+                    print(f"    [FALLBACK] Found media URL: {media_url} — using GPT-4o Vision...")
+                    events = parse_events_from_image(media_url, venue_name)
+                else:
+                    print(f"    [SKIP] No PDF/image found, skipping venue")
+                    continue
         else:
             print(f"    Cleaned text: {len(cal_text)} chars — sending to OpenAI...")
-        events = parse_events_with_ai(cal_text, venue_name)
+            events = parse_events_with_ai(cal_text, venue_name)
 
         print(f"    Found {len(events)} upcoming events:")
         for e in events:
@@ -785,18 +961,32 @@ if __name__ == '__main__':
             print("  [FAIL] Could not fetch calendar page")
             sys.exit(1)
         cal_text = clean_html(cal_html)
+        events = []
         if len(cal_text) < JS_RENDER_THRESHOLD:
             print(f"  Cleaned text: {len(cal_text)} chars — JS-rendered, trying Playwright...")
             rendered = fetch_html_rendered(cal_url)
-            if rendered:
-                cal_text = clean_html(rendered)
+            rendered_text = clean_html(rendered) if rendered else ''
+            if rendered and len(rendered_text) >= JS_RENDER_THRESHOLD:
+                cal_text = rendered_text
                 print(f"  Rendered text: {len(cal_text)} chars — sending to OpenAI...\n")
+                events = parse_events_with_ai(cal_text, vname)
             else:
-                print("  [FAIL] Playwright failed")
-                sys.exit(1)
+                if rendered:
+                    print(f"  Rendered text: {len(rendered_text)} chars — still too short, scanning for PDF/image...")
+                    scan_html = rendered
+                else:
+                    print(f"  [FALLBACK] Playwright failed — scanning for PDF/image calendar...")
+                    scan_html = cal_html
+                media_url = find_calendar_media_url(scan_html, cal_url)
+                if media_url:
+                    print(f"  [FALLBACK] Found media URL: {media_url} — using GPT-4o Vision...")
+                    events = parse_events_from_image(media_url, vname)
+                else:
+                    print("  [FAIL] No PDF/image found")
+                    sys.exit(1)
         else:
             print(f"  Cleaned text: {len(cal_text)} chars — sending to OpenAI...\n")
-        events = parse_events_with_ai(cal_text, vname)
+            events = parse_events_with_ai(cal_text, vname)
         print(f"\n  Found {len(events)} upcoming events:")
         for e in events:
             print(f"    {e['event_date']} {e['event_time']}  {e['band_name']}  ${e['event_price']}")
