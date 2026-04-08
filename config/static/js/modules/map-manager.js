@@ -85,9 +85,16 @@ export class MapManager {
         let userMarker = null;
         let userCircle = null;
 
+        const userIcon = L.divIcon({
+            className: '',
+            html: `<div class="user-location-dot"></div>`,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+        });
+
         const updateUserPos = (latlng, accuracy) => {
             if (!userMarker) {
-                userMarker = L.marker(latlng, { title: "You are here" }).addTo(this.map);
+                userMarker = L.marker(latlng, { icon: userIcon, title: "You are here" }).addTo(this.map);
             } else {
                 userMarker.setLatLng(latlng);
             }
@@ -112,8 +119,15 @@ export class MapManager {
                 const container = L.DomUtil.create("div", "leaflet-bar");
                 const btn = L.DomUtil.create("a", "locate-btn", container);
                 btn.href = "#";
-                btn.title = "Locate me";
-                btn.innerHTML = "📍";
+                btn.title = "Find my location";
+                btn.setAttribute("style", "display:flex;align-items:center;justify-content:center;width:34px;height:34px;");
+                btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#39FF14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <line x1="12" y1="2" x2="12" y2="6"/>
+                    <line x1="12" y1="18" x2="12" y2="22"/>
+                    <line x1="2" y1="12" x2="6" y2="12"/>
+                    <line x1="18" y1="12" x2="22" y2="12"/>
+                </svg>`;
 
                 L.DomEvent.disableClickPropagation(container);
                 L.DomEvent.on(btn, "click", (e) => {
