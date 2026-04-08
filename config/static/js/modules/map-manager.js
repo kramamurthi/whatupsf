@@ -156,9 +156,6 @@ export class MapManager {
         // Handle location events
         this.map.on("locationfound", (e) => {
             updateUserPos(e.latlng, e.accuracy);
-            if (!userMarker.getPopup()) {
-                userMarker.bindPopup("You are here").openPopup();
-            }
         });
 
         this.map.on("locationerror", (e) => {
