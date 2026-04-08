@@ -69,55 +69,36 @@ def get_latest_info(dbName):
                     LEFT JOIN bands B ON B.id = E.band_id
           """
     try:
-        print(sql)
         cursor.execute(sql)
         rows = cursor.fetchall()
-        jsonList = []
+
+        # Group events by venue (ORDER BY V.name stable within SQL result)
+        venue_map = {}
         for row in rows:
-            venue = row[0]
-            lat = row[1]
-            lng = row[2]
-            url = row[3]
+            venue_name = row[0]
+            if venue_name not in venue_map:
+                venue_map[venue_name] = {
+                    'venue': venue_name,
+                    'lat': row[1],
+                    'lng': row[2],
+                    'url': row[3],
+                    'events': []
+                }
 
-            if row[4]:
-                eventPrice = str(row[4])+'$'
-            else:
-                eventPrice = ''
+            if row[7]:  # band name — real event row
+                fmt = '%I:%M %p'
+                event_time = (datetime.datetime.min + row[6]).time() if row[6] else None
+                venue_map[venue_name]['events'].append({
+                    'eventName': row[7],
+                    'eventTime': event_time.strftime(fmt) if event_time else '',
+                    'eventPrice': str(row[4]) + '$' if row[4] else '',
+                    'eventUrl': row[8] or ''
+                })
 
-            if row[6]:
-                fmt =  '%I:%M %p'
-                print(row[6], type(row[6]))
-                eventTime = (datetime.datetime.min + row[6]).time() # row[6] is of time datetime.timedelta
-                eventTime = eventTime.strftime(fmt)
-            else:
-                eventTime = ''
-
-            if row[7]:
-                eventName = row[7]
-            else:
-                eventName = ''
-
-            if row[8]:    
-                eventUrl = row[8]
-            else:
-                eventUrl = ''
-
-            curDict = {'venue': venue,
-                       'lat': lat,
-                       'lng': lng,
-                       'url': url,
-                       'events': [{'eventName': eventName,
-                                   'eventTime': eventTime,
-                                   'eventPrice': eventPrice,
-                                   'eventUrl': eventUrl
-                                   }]
-                       }
-            jsonList.append(curDict)
+        return list(venue_map.values())
 
     except:
         print("Error: unable to execute query or process it: ", sys.exc_info()[0])
-    else:
-        return jsonList
     finally:
         db.close()
 

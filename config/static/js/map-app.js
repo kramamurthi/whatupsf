@@ -72,12 +72,14 @@ class WhatUpSFApp {
 
             const data = await response.json();
 
-            console.log(`Loaded ${data.length} venues with events`);
+            const liveVenues = data.filter(v => v.events && v.events.length > 0 && v.events[0].eventName);
+            const totalEvents = liveVenues.reduce((sum, v) => sum + v.events.length, 0);
+            console.log(`Loaded ${data.length} venues (${liveVenues.length} live, ${totalEvents} events today)`);
 
             // Load data into map
             this.mapManager.loadVenueData(data);
 
-            this.uiManager.showToast(`Loaded ${data.length} venues`, 'success');
+            this.uiManager.showToast(`${liveVenues.length} live venues · ${totalEvents} events today`, 'success');
 
         } catch (error) {
             console.error('Failed to load venue data:', error);
