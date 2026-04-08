@@ -105,6 +105,7 @@ export class MarkerFactory {
             className: 'venue-marker venue-jewel-blink'
         });
         marker._venueColor = color; // store for reset
+        marker._isActive = active;  // store for sizing
 
         // Build event list HTML
         const eventListHTML = this.buildEventList(venue.events);
@@ -139,27 +140,17 @@ export class MarkerFactory {
         }
 
         return events.map(event => {
-            // Only create SoundCloud embed if eventUrl exists
-            let embedHTML = '';
-            if (event.eventUrl) {
-                embedHTML = `
-                    <div style="position:relative;width:300px;padding-top:56.25%;overflow:hidden;margin-bottom:12px;">
-                        <iframe
-                            src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${event.eventUrl}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
-                            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
-                            allowfullscreen
-                        ></iframe>
-                    </div>
-                `;
-            }
+            const mediaLink = event.eventUrl
+                ? `<a href="${event.eventUrl}" target="_blank" rel="noopener" style="font-size:11px;color:#aaa;">▶ Media</a>`
+                : '';
 
             return `
-                ${embedHTML}
                 <h2>
                     ${event.eventName || 'Untitled Event'}
-                    ${event.eventTime || ''}
+                    ${event.eventTime ? `· ${event.eventTime}` : ''}
                     ${event.eventPrice || ''}
                 </h2>
+                ${mediaLink}
                 <hr style="border-color: rgba(255,255,255,0.2); margin: 8px 0;">
             `;
         }).join('');
@@ -359,7 +350,7 @@ export class MarkerFactory {
             return;
         }
 
-        const size = radius * 0.4;
+        const size = marker._isActive ? radius * 0.6 : radius * 0.4;
         const color = marker._venueColor || this.venueColorInactive;
 
         marker.setRadius(size);

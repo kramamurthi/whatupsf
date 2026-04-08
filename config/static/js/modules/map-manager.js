@@ -13,6 +13,9 @@ export class MapManager {
         this.clusteringEngine = new ClusteringEngine();
         this.markerFactory = new MarkerFactory();
 
+        // Config
+        this.blinkEnabled = false; // Set true to re-enable blink animation
+
         // State
         this.rawMarkers = [];
         this.displayedMarkers = [];
@@ -214,25 +217,20 @@ export class MapManager {
         const radius = this.clusteringEngine.getZoomRadius(this.map.getZoom());
 
         this.rawMarkers.forEach(marker => {
-            // Skip circle methods for sponsored star markers
             if (!marker.isSponsored) {
-                marker.setRadius(radius * 0.4);
-                marker.setStyle({
-                    color: this.markerFactory.venueColor,
-                    weight: 1,
-                    fillColor: this.markerFactory.venueColor,
-                    fillOpacity: 1.0
-                });
+                const color = marker._venueColor || this.markerFactory.venueColorInactive;
+                const r = marker._isActive ? radius * 0.6 : radius * 0.4;
+                marker.setRadius(r);
+                marker.setStyle({ color, weight: 1, fillColor: color, fillOpacity: 1.0 });
             }
 
             marker.addTo(this.map);
 
-            // Update classes immediately after adding
             if (!marker.isSponsored) {
                 const element = marker.getElement();
                 if (element) {
-                    element.classList.remove('venue-selected');
-                    element.classList.add('venue-jewel-blink');
+                    element.classList.remove('venue-selected', 'venue-jewel-blink');
+                    if (this.blinkEnabled) element.classList.add('venue-jewel-blink');
                 }
             }
         });
@@ -278,28 +276,21 @@ export class MapManager {
 
                 // Multiple venues - show individual markers WITH cluster circle over them
 
-                // First, add all individual venue markers (small red)
+                // First, add all individual venue markers
                 cluster.mlist.forEach(venueMarker => {
-                    // Skip circle methods for sponsored star markers
                     if (!venueMarker.isSponsored) {
-                        venueMarker.setRadius(radius * 0.4);
-                        venueMarker.setStyle({
-                            color: this.markerFactory.venueColor,
-                            weight: 1,
-                            fillColor: this.markerFactory.venueColor,
-                            fillOpacity: 1.0
-                        });
+                        const color = venueMarker._venueColor || this.markerFactory.venueColorInactive;
+                        const r = venueMarker._isActive ? radius * 0.6 : radius * 0.4;
+                        venueMarker.setRadius(r);
+                        venueMarker.setStyle({ color, weight: 1, fillColor: color, fillOpacity: 1.0 });
 
                         venueMarker.addTo(this.map);
                         this.displayedMarkers.push(venueMarker);
 
-                        // Update classes - only blink if in closest cluster
                         const element = venueMarker.getElement();
                         if (element) {
                             element.classList.remove('venue-selected', 'venue-jewel-blink');
-                            if (isClosest) {
-                                element.classList.add('venue-jewel-blink');
-                            }
+                            if (this.blinkEnabled && isClosest) element.classList.add('venue-jewel-blink');
                         }
                     }
                 });
@@ -330,29 +321,24 @@ export class MapManager {
                     isHighlighted: isClosest
                 });
             } else {
-                // Single venue - show as small red
+                // Single venue
                 const marker = cluster.mlist[0];
 
-                // Skip circle methods for sponsored star markers
                 if (!marker.isSponsored) {
-                    marker.setRadius(radius * 0.4);
-                    marker.setStyle({
-                        color: this.markerFactory.venueColor,
-                        weight: 1,
-                        fillColor: this.markerFactory.venueColor,
-                        fillOpacity: 1.0
-                    });
+                    const color = marker._venueColor || this.markerFactory.venueColorInactive;
+                    const r = marker._isActive ? radius * 0.6 : radius * 0.4;
+                    marker.setRadius(r);
+                    marker.setStyle({ color, weight: 1, fillColor: color, fillOpacity: 1.0 });
                 }
 
                 marker.addTo(this.map);
                 this.displayedMarkers.push(marker);
 
-                // Update classes immediately after adding
                 if (!marker.isSponsored) {
                     const element = marker.getElement();
                     if (element) {
-                        element.classList.remove('venue-selected');
-                        element.classList.add('venue-jewel-blink');
+                        element.classList.remove('venue-selected', 'venue-jewel-blink');
+                        if (this.blinkEnabled) element.classList.add('venue-jewel-blink');
                     }
                 }
             }
