@@ -747,7 +747,9 @@ if __name__ == '__main__':
     parser.add_argument('--phase', type=int, choices=[1, 2, 3, 4], default=None,
                         help='Run only up to this phase (default: run all)')
     parser.add_argument('--venue', type=int, default=None,
-                        help='Debug a single venue by ID: runs Phase 1+2 for that venue only')
+                        help='Run against a single venue by ID (Phase 1+2 diagnostic by default)')
+    parser.add_argument('--full', action='store_true',
+                        help='With --venue: run all 4 phases with DB writes for that venue')
     parser.add_argument('--debug', action='store_true',
                         help='Enable verbose debug logging')
     parser.add_argument('--backfill-media', action='store_true',
@@ -795,6 +797,21 @@ if __name__ == '__main__':
         print(f"\n  Found {len(events)} upcoming events:")
         for e in events:
             print(f"    {e['event_date']} {e['event_time']}  {e['band_name']}  ${e['event_price']}")
+
+        if args.full:
+            if not events:
+                print("\n  No events to insert.")
+            else:
+                venue_result = [{'venue_id': vid, 'venue_name': vname, 'calendar_url': cal_url, 'events': events}]
+                band_cache, new_band_ids = {}, set()
+                for event in events:
+                    band_name = event.get('band_name', '').strip()
+                    if band_name:
+                        event['band_id'] = lookup_or_create_band(band_name, band_cache, new_band_ids)
+                print(f"\n  Bands: {len(new_band_ids)} new, {len(band_cache) - len(new_band_ids)} existing")
+                run_phase4(venue_result)
+        else:
+            print("\n  (dry run — use --full to write to DB)")
     elif args.backfill_media_all:
         backfill_media_urls(redo_all=True)
     elif args.backfill_media:
