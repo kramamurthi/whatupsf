@@ -329,28 +329,82 @@ def run_phase2():
 # Phase 3: Band Lookup & AI Enrichment
 # ---------------------------------------------------------------------------
 
+def search_instagram(band_name):
+    """Search Instagram topsearch API. Returns profile URL or empty string."""
+    from urllib.parse import quote_plus
+    query = quote_plus(band_name)
+    url = f"https://www.instagram.com/web/search/topsearch/?query={query}&context=blended"
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=10)
+        if resp.status_code == 200:
+            users = resp.json().get('users', [])
+            if users:
+                username = users[0]['user']['username']
+                return f"https://www.instagram.com/{username}/"
+    except Exception as e:
+        print(f"    [IG ERROR] search for '{band_name}': {e}")
+    return ''
+
+
 def search_youtube(band_name):
-    """
-    Search YouTube for the band and return the first video URL, or empty string.
-    Parses the ytInitialData JSON blob embedded in the search results page.
-    """
+    """Search YouTube, return the first non-ad videoId URL or empty string."""
     import re
     from urllib.parse import quote_plus
-    query = quote_plus(f"{band_name} official")
+    query = quote_plus(band_name)
     url = f"https://www.youtube.com/results?search_query={query}"
     try:
         html = fetch_html(url)
         if not html:
             return ''
-        # YouTube embeds search results as a JSON blob in a script tag
-        # Extract all videoIds from the page, try each until we find a playable one.
+        # First videoId in search results HTML is the top organic result
         video_ids = list(dict.fromkeys(re.findall(r'"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"', html)))
-        for vid in video_ids[:5]:
-            check = fetch_html(f"https://www.youtube.com/watch?v={vid}")
-            if check and '"status":"OK"' in check:
-                return f"https://www.youtube.com/watch?v={vid}"
+        if video_ids:
+            return f"https://www.youtube.com/watch?v={video_ids[0]}"
     except Exception as e:
         print(f"    [YT ERROR] search for '{band_name}': {e}")
+    return ''
+
+
+def search_soundcloud(band_name):
+    """Search SoundCloud, return the first track or artist URL or empty string."""
+    import re
+    from urllib.parse import quote_plus
+    query = quote_plus(band_name)
+    url = f"https://soundcloud.com/search?q={query}"
+    try:
+        html = fetch_html(url)
+        if not html:
+            return ''
+        # SoundCloud embeds canonical URLs in og:url or link tags before JS renders
+        match = re.search(r'<link rel="canonical" href="(https://soundcloud\.com/[^"]+)"', html)
+        if match:
+            return match.group(1)
+        # Fallback: grab first soundcloud.com/{user}/{track} href in page
+        links = re.findall(r'href="(https://soundcloud\.com/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+)"', html)
+        if links:
+            return links[0]
+    except Exception as e:
+        print(f"    [SC ERROR] search for '{band_name}': {e}")
+    return ''
+
+
+def search_media_url(band_name):
+    """Try Instagram, then YouTube, then SoundCloud. Return first result found."""
+    if 'karaoke' in band_name.lower():
+        return ''
+    url = search_instagram(band_name)
+    if url:
+        print(f"    [MEDIA] Instagram: {url}")
+        return url
+    url = search_youtube(band_name)
+    if url:
+        print(f"    [MEDIA] YouTube: {url}")
+        return url
+    url = search_soundcloud(band_name)
+    if url:
+        print(f"    [MEDIA] SoundCloud: {url}")
+        return url
+    print(f"    [MEDIA] No result found")
     return ''
 
 
@@ -380,7 +434,7 @@ def enrich_band_with_ai(band_name):
         print(f"    [AI ERROR] band enrichment for '{band_name}': {e}")
         data = {}
 
-    media_url = search_youtube(band_name)
+    media_url = search_media_url(band_name)
     return {
         'description': data.get('description', ''),
         'media_url': media_url,
@@ -604,7 +658,7 @@ def backfill_media_urls(redo_all=False):
     print(f"Backfilling media_url for {len(bands)} bands...")
     updated = 0
     for band_id, band_name in bands:
-        media_url = search_youtube(band_name)
+        media_url = search_media_url(band_name)
         if not media_url:
             print(f"  [SKIP] No YouTube result for '{band_name}'")
             continue
