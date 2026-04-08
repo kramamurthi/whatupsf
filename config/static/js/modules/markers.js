@@ -56,42 +56,13 @@ export class MarkerFactory {
         this.venueColorActive = '#FFD700';  // Yellow for venues with events today
         this.venueColorInactive = '#808080'; // Gray for venues with no events today
         this.selectedColor = '#FF00FF'; // Magenta for selected
-        this.sponsoredColor = '#FFD700'; // Gold for sponsored venues
     }
 
-    /**
-     * Check if a venue is sponsored
-     * @param {Object} venue - Venue data
-     * @returns {boolean} True if venue is sponsored
-     */
-    isSponsoredVenue(venue) {
-        // Check by name (immediate solution)
-        if (venue.venue === "The Chapel") {
-            return true;
-        }
-        // Future: check venue.sponsored === true
-        if (venue.sponsored === true) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Create a venue marker with popup
-     * @param {Object} venue - Venue data with lat, lng, venue name, url, events
-     * @param {number} radius - Marker radius
-     * @returns {Object} Leaflet circle marker
-     */
     hasEvents(venue) {
         return venue.events && venue.events.length > 0 && venue.events[0].eventName !== '';
     }
 
     createVenueMarker(venue, radius) {
-        // Check if this is a sponsored venue
-        if (this.isSponsoredVenue(venue)) {
-            return this.createSponsoredVenueMarker(venue, radius);
-        }
-
         const active = this.hasEvents(venue);
         const color = active ? this.venueColorActive : this.venueColorInactive;
         const size = radius * 0.4;
@@ -102,7 +73,7 @@ export class MarkerFactory {
             fillColor: color,
             fillOpacity: 1.0,
             zIndexOffset: 0,
-            className: 'venue-marker venue-jewel-blink'
+            className: 'venue-marker'
         });
         marker._venueColor = color; // store for reset
         marker._isActive = active;  // store for sizing
@@ -154,73 +125,6 @@ export class MarkerFactory {
                 <hr style="border-color: rgba(255,255,255,0.2); margin: 8px 0;">
             `;
         }).join('');
-    }
-
-    /**
-     * Create a sponsored venue marker with gold styling and special popup
-     * @param {Object} venue - Venue data
-     * @param {number} radius - Marker radius
-     * @returns {Object} Leaflet circle marker
-     */
-    createSponsoredVenueMarker(venue, radius) {
-        // Create a neon star marker matching WhatUpSF design
-        const marker = L.marker([venue.lat, venue.lng], {
-            icon: L.divIcon({
-                html: '<div class="staff-pick-star">★</div>',
-                className: 'sponsored-venue-marker',
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
-            }),
-            zIndexOffset: 2000
-        });
-
-        // Simple play button matching WhatUpSF style
-        const instagramReelHTML = `
-            <a href="https://www.instagram.com/reel/DTNs5L9jUvI/"
-               target="_blank"
-               rel="noopener"
-               style="display: block; text-decoration: none; margin-bottom: 12px;">
-                <div style="background: rgba(18, 18, 18, 0.9);
-                            border: 1px solid rgba(0, 240, 255, 0.3);
-                            border-radius: 12px;
-                            padding: 20px;
-                            text-align: center;
-                            transition: all 0.3s;
-                            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);">
-                    <div style="font-size: 48px; filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.5));">▶</div>
-                </div>
-            </a>
-        `;
-
-        const popupContent = `
-            <div style="background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.1));
-                        padding: 8px;
-                        margin: -12px -12px 8px -12px;
-                        border-radius: 8px 8px 0 0;
-                        border-bottom: 2px solid #FFD700;">
-                <span style="color: #FFD700;
-                             font-weight: bold;
-                             font-size: 0.75rem;
-                             text-transform: uppercase;
-                             letter-spacing: 1px;">
-                    ⭐ STAFF PICK
-                </span>
-            </div>
-            <a href="http://${venue.url}" target="_blank" rel="noopener">
-                <h1 style="color: #FFD700 !important;">${venue.venue}</h1>
-            </a>
-            ${instagramReelHTML}
-        `;
-
-        marker.bindPopup(popupContent, {
-            maxWidth: 320,
-            className: 'dark-popup sponsored-popup'
-        });
-
-        marker.venueData = venue;
-        marker.isSponsored = true;
-
-        return marker;
     }
 
     /**
@@ -301,20 +205,7 @@ export class MarkerFactory {
      * @param {number} radius - New radius (larger than normal)
      */
     highlightMarker(marker, radius) {
-        if (marker.isSponsored) {
-            // For star icon markers, just update the styling
-            const icon = marker.getElement();
-            if (icon) {
-                const starDiv = icon.querySelector('.staff-pick-star');
-                if (starDiv) {
-                    starDiv.style.filter = 'drop-shadow(0 0 5px rgba(255, 215, 0, 0.9))';
-                    starDiv.style.transform = 'scale(1.15)';
-                }
-            }
-            return;
-        }
-
-        marker.setRadius(radius * 0.5); // Larger when selected
+        marker.setRadius(radius * 0.5);
         marker.setStyle({
             color: this.selectedColor,
             weight: 2,
@@ -323,10 +214,8 @@ export class MarkerFactory {
         });
         marker.bringToFront();
 
-        // Update classes immediately (marker is already on map)
         const element = marker.getElement();
         if (element) {
-            element.classList.remove('venue-jewel-blink');
             element.classList.add('venue-selected');
         }
     }
@@ -337,19 +226,6 @@ export class MarkerFactory {
      * @param {number} radius - Normal radius
      */
     resetMarker(marker, radius) {
-        if (marker.isSponsored) {
-            // For star icon markers, reset the styling
-            const icon = marker.getElement();
-            if (icon) {
-                const starDiv = icon.querySelector('.staff-pick-star');
-                if (starDiv) {
-                    starDiv.style.filter = '';
-                    starDiv.style.transform = '';
-                }
-            }
-            return;
-        }
-
         const size = marker._isActive ? radius * 0.6 : radius * 0.4;
         const color = marker._venueColor || this.venueColorInactive;
 
@@ -361,11 +237,9 @@ export class MarkerFactory {
             fillOpacity: 1.0
         });
 
-        // Update classes immediately if element exists
         const element = marker.getElement();
         if (element) {
             element.classList.remove('venue-selected');
-            element.classList.add('venue-jewel-blink');
         }
     }
 

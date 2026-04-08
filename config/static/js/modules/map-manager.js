@@ -24,7 +24,6 @@ export class MapManager {
         this.clusterGroups = []; // Store cluster info for liquid glass effect
         this.blinkInterval = null; // Interval for blinking effect
         this.unusedMarkers = []; // For random without replacement
-        this.sponsoredMarkers = []; // Track sponsored markers separately
     }
 
     /**
@@ -198,8 +197,6 @@ export class MapManager {
             this.blinkInterval = null;
         }
 
-        // Clear sponsored markers tracking
-        this.sponsoredMarkers = [];
 
         if (zoom > 16) {
             // Show individual markers at high zoom
@@ -217,28 +214,20 @@ export class MapManager {
         const radius = this.clusteringEngine.getZoomRadius(this.map.getZoom());
 
         this.rawMarkers.forEach(marker => {
-            if (!marker.isSponsored) {
-                const color = marker._venueColor || this.markerFactory.venueColorInactive;
-                const r = marker._isActive ? radius * 0.6 : radius * 0.4;
-                marker.setRadius(r);
-                marker.setStyle({ color, weight: 1, fillColor: color, fillOpacity: 1.0 });
-            }
-
+            const color = marker._venueColor || this.markerFactory.venueColorInactive;
+            const r = marker._isActive ? radius * 0.6 : radius * 0.4;
+            marker.setRadius(r);
+            marker.setStyle({ color, weight: 1, fillColor: color, fillOpacity: 1.0 });
             marker.addTo(this.map);
 
-            if (!marker.isSponsored) {
-                const element = marker.getElement();
-                if (element) {
-                    element.classList.remove('venue-selected', 'venue-jewel-blink');
-                    if (this.blinkEnabled) element.classList.add('venue-jewel-blink');
-                }
+            const element = marker.getElement();
+            if (element) {
+                element.classList.remove('venue-selected', 'venue-jewel-blink');
+                if (this.blinkEnabled) element.classList.add('venue-jewel-blink');
             }
         });
 
         this.displayedMarkers = [...this.rawMarkers];
-
-        // Ensure sponsored markers are on top
-        this.sponsoredMarkers.forEach(marker => marker.bringToFront());
     }
 
     /**
@@ -276,22 +265,19 @@ export class MapManager {
 
                 // Multiple venues - show individual markers WITH cluster circle over them
 
-                // First, add all individual venue markers
+                // Add all individual venue markers
                 cluster.mlist.forEach(venueMarker => {
-                    if (!venueMarker.isSponsored) {
-                        const color = venueMarker._venueColor || this.markerFactory.venueColorInactive;
-                        const r = venueMarker._isActive ? radius * 0.6 : radius * 0.4;
-                        venueMarker.setRadius(r);
-                        venueMarker.setStyle({ color, weight: 1, fillColor: color, fillOpacity: 1.0 });
+                    const color = venueMarker._venueColor || this.markerFactory.venueColorInactive;
+                    const r = venueMarker._isActive ? radius * 0.6 : radius * 0.4;
+                    venueMarker.setRadius(r);
+                    venueMarker.setStyle({ color, weight: 1, fillColor: color, fillOpacity: 1.0 });
+                    venueMarker.addTo(this.map);
+                    this.displayedMarkers.push(venueMarker);
 
-                        venueMarker.addTo(this.map);
-                        this.displayedMarkers.push(venueMarker);
-
-                        const element = venueMarker.getElement();
-                        if (element) {
-                            element.classList.remove('venue-selected', 'venue-jewel-blink');
-                            if (this.blinkEnabled && isClosest) element.classList.add('venue-jewel-blink');
-                        }
+                    const element = venueMarker.getElement();
+                    if (element) {
+                        element.classList.remove('venue-selected', 'venue-jewel-blink');
+                        if (this.blinkEnabled && isClosest) element.classList.add('venue-jewel-blink');
                     }
                 });
 
@@ -321,64 +307,26 @@ export class MapManager {
                     isHighlighted: isClosest
                 });
             } else {
-                // Single venue
-                const marker = cluster.mlist[0];
-
-                if (!marker.isSponsored) {
+                // Small cluster (1-4 venues) — show all individually, no cluster circle
+                cluster.mlist.forEach(marker => {
                     const color = marker._venueColor || this.markerFactory.venueColorInactive;
                     const r = marker._isActive ? radius * 0.6 : radius * 0.4;
                     marker.setRadius(r);
                     marker.setStyle({ color, weight: 1, fillColor: color, fillOpacity: 1.0 });
-                }
+                    marker.addTo(this.map);
+                    this.displayedMarkers.push(marker);
 
-                marker.addTo(this.map);
-                this.displayedMarkers.push(marker);
-
-                if (!marker.isSponsored) {
                     const element = marker.getElement();
                     if (element) {
                         element.classList.remove('venue-selected', 'venue-jewel-blink');
                         if (this.blinkEnabled) element.classList.add('venue-jewel-blink');
                     }
-                }
+                });
             }
         });
 
         // Start blinking effect for highlighted cluster
         this.startBlinking();
-
-        // Add sponsored venues on top of everything
-        this.addSponsoredVenuesOnTop();
-    }
-
-    /**
-     * Add sponsored venues on top of clusters
-     */
-    addSponsoredVenuesOnTop() {
-        // Clear previous sponsored markers from map
-        this.sponsoredMarkers.forEach(marker => {
-            this.map.removeLayer(marker);
-        });
-        this.sponsoredMarkers = [];
-
-        // Find and add sponsored venues on top
-        this.rawMarkers.forEach(marker => {
-            if (marker.isSponsored) {
-                // Star markers don't need radius adjustments
-                marker.addTo(this.map);
-
-                this.sponsoredMarkers.push(marker);
-
-                if (!this.displayedMarkers.includes(marker)) {
-                    this.displayedMarkers.push(marker);
-                }
-
-                const element = marker.getElement();
-                if (element) {
-                    element.classList.add('sponsored-venue-marker');
-                }
-            }
-        });
     }
 
     /**
@@ -394,38 +342,21 @@ export class MapManager {
 
         this.blinkInterval = setInterval(() => {
             // Reset previous blinking marker
-            if (currentBlinkingMarker && !currentBlinkingMarker.isSponsored) {
-                currentBlinkingMarker.setStyle({
-                    fillOpacity: 1.0,
-                    opacity: 1.0
-                });
+            if (currentBlinkingMarker) {
+                currentBlinkingMarker.setStyle({ fillOpacity: 1.0, opacity: 1.0 });
             }
 
             // Find highlighted group
             const highlightedGroup = this.clusterGroups.find(g => g.isHighlighted);
             if (highlightedGroup && highlightedGroup.venueMarkers.length > 0) {
-                // Initialize unused markers pool if empty (exclude sponsored markers)
                 if (this.unusedMarkers.length === 0) {
-                    this.unusedMarkers = highlightedGroup.venueMarkers.filter(m => !m.isSponsored);
+                    this.unusedMarkers = [...highlightedGroup.venueMarkers];
                 }
 
-                // Skip if no regular markers to blink
-                if (this.unusedMarkers.length === 0) return;
-
-                // Pick random marker from unused pool (random without replacement)
                 const randomIndex = Math.floor(Math.random() * this.unusedMarkers.length);
-                currentBlinkingMarker = this.unusedMarkers[randomIndex];
+                currentBlinkingMarker = this.unusedMarkers.splice(randomIndex, 1)[0];
 
-                // Remove from unused pool
-                this.unusedMarkers.splice(randomIndex, 1);
-
-                // Make it blink (dim it) - only for non-sponsored markers
-                if (!currentBlinkingMarker.isSponsored) {
-                    currentBlinkingMarker.setStyle({
-                        fillOpacity: 0.2,
-                        opacity: 0.2
-                    });
-                }
+                currentBlinkingMarker.setStyle({ fillOpacity: 0.2, opacity: 0.2 });
             }
         }, 200); // Switch to new marker every 200ms
     }
@@ -463,16 +394,9 @@ export class MapManager {
                 fillOpacity: isNowHighlighted ? 0 : 0.35
             });
 
-            // Reset markers to full opacity if not highlighted
             if (!isNowHighlighted) {
                 group.venueMarkers.forEach(marker => {
-                    // Skip circle methods for sponsored star markers
-                    if (!marker.isSponsored) {
-                        marker.setStyle({
-                            fillOpacity: 1.0,
-                            opacity: 1.0
-                        });
-                    }
+                    marker.setStyle({ fillOpacity: 1.0, opacity: 1.0 });
                 });
             }
 
@@ -557,32 +481,10 @@ export class MapManager {
         venueData.forEach((venue) => {
             const marker = this.markerFactory.createVenueMarker(venue, radius);
 
-            // Add click handler for direct marker selection
             marker.on('click', (e) => {
                 L.DomEvent.stopPropagation(e);
-
-                // Special behavior for sponsored markers: zoom first, then popup
-                if (marker.isSponsored) {
-                    const currentZoom = this.map.getZoom();
-                    const targetZoom = Math.min(currentZoom + 2, this.map.getMaxZoom());
-
-                    // Center on marker and zoom in
-                    this.map.setView(marker.getLatLng(), targetZoom);
-
-                    // Wait for zoom animation to complete, then show popup
-                    this.map.once('zoomend', () => {
-                        const index = this.displayedMarkers.indexOf(marker);
-                        if (index !== -1) {
-                            this.selectMarker(marker, index);
-                        }
-                    });
-                } else {
-                    // Regular markers: immediate selection
-                    const index = this.displayedMarkers.indexOf(marker);
-                    if (index !== -1) {
-                        this.selectMarker(marker, index);
-                    }
-                }
+                const index = this.displayedMarkers.indexOf(marker);
+                if (index !== -1) this.selectMarker(marker, index);
             });
 
             this.rawMarkers.push(marker);
