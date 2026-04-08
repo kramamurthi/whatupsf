@@ -140,7 +140,7 @@ export class MapManager {
 
                     map.locate({
                         setView: true,
-                        maxZoom: 16,
+                        maxZoom: 14,
                         watch: false,
                         enableHighAccuracy: true,
                         timeout: 8000,
