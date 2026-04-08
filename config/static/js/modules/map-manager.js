@@ -333,10 +333,11 @@ export class MapManager {
      * Start blinking effect for markers (one at a time, random without replacement)
      */
     startBlinking() {
-        // Clear any existing interval
         if (this.blinkInterval) {
             clearInterval(this.blinkInterval);
+            this.blinkInterval = null;
         }
+        if (!this.blinkEnabled) return;
 
         let currentBlinkingMarker = null;
 

@@ -53,8 +53,8 @@ function isLeftTurn(p1, p2, p3) {
  */
 export class MarkerFactory {
     constructor() {
-        this.venueColorActive = '#FFD700';  // Yellow for venues with events today
-        this.venueColorInactive = '#808080'; // Gray for venues with no events today
+        this.venueColorActive = '#39FF14';   // Neon green for venues with events today
+        this.venueColorInactive = '#2D3748'; // Charcoal for venues with no events today
         this.selectedColor = '#FF00FF'; // Magenta for selected
     }
 
