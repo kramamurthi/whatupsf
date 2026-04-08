@@ -40,6 +40,12 @@ OPENAI_MODEL = 'gpt-4o'  # swap to gpt-4.5 or gpt-5.4 when available
 DB_NAME = os.environ.get('WHATUPSF_DB_NAME', 'sfev')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
+DEBUG = False  # set via --debug flag
+
+def dbg(*args):
+    if DEBUG:
+        print('[DEBUG]', *args)
+
 CALENDAR_KEYWORDS = ['calendar', 'events', 'schedule', 'shows', 'gigs', 'live']
 
 HEADERS = {
@@ -100,6 +106,7 @@ def fetch_html(url, timeout=15):
     try:
         resp = requests.get(url, headers=HEADERS, timeout=timeout)
         resp.raise_for_status()
+        dbg(f"FETCH {url} -> {resp.status_code} ({len(resp.text)} chars)")
         return resp.text
     except Exception as e:
         print(f"    [FETCH ERROR] {url}: {e}")
@@ -139,7 +146,9 @@ def find_calendar_url_heuristic(homepage_html, base_url):
         elif kw_in_text and not kw_in_href and text_match is None:
             text_match = make_absolute(a['href'])
 
-    return both_match or href_match or text_match
+    result = both_match or href_match or text_match
+    dbg(f"HEURISTIC best_match={result}  (both={both_match} href={href_match} text={text_match})")
+    return result
 
 
 def find_calendar_url_ai(homepage_html, base_url):
@@ -164,8 +173,10 @@ def find_calendar_url_ai(homepage_html, base_url):
         "Reply with ONLY the URL (absolute or relative). "
         "If none look like a calendar page, reply with NONE."
     )
+    dbg(f"AI CALENDAR URL PROMPT:\n{prompt}\n")
     try:
         answer = ask_openai(prompt)
+        dbg(f"AI CALENDAR URL RESPONSE: {answer}")
         answer = answer.strip().strip('"').strip("'")
         if answer.upper() == 'NONE' or not answer:
             return None
@@ -232,6 +243,7 @@ def parse_events_with_ai(calendar_text, venue_name):
     """
     today = datetime.date.today().isoformat()
     truncated = calendar_text[:MAX_HTML_CHARS]
+    dbg(f"CALENDAR TEXT ({len(calendar_text)} chars, truncated to {len(truncated)}):\n{truncated[:2000]}\n...")
 
     prompt = (
         f"You are parsing the events calendar for '{venue_name}', a music venue.\n"
@@ -244,8 +256,10 @@ def parse_events_with_ai(calendar_text, venue_name):
         f"If there are no upcoming events, return an empty array [].\n\n"
         f"Calendar content:\n{truncated}"
     )
+    dbg(f"PARSE EVENTS PROMPT:\n{prompt}\n")
     try:
         answer = ask_openai(prompt)
+        dbg(f"PARSE EVENTS RAW RESPONSE:\n{answer}\n")
         # Strip markdown code fences if present
         answer = answer.strip()
         if answer.startswith('```'):
@@ -660,7 +674,18 @@ def backfill_media_urls(redo_all=False):
     for band_id, band_name in bands:
         media_url = search_media_url(band_name)
         if not media_url:
-            print(f"  [SKIP] No YouTube result for '{band_name}'")
+            if 'karaoke' in band_name.lower():
+                # Explicitly clear any existing media_url
+                db = get_db_connection(DB_NAME)
+                cursor = db.cursor()
+                try:
+                    cursor.execute("UPDATE bands SET media_url=NULL WHERE id=%s", (band_id,))
+                    db.commit()
+                    print(f"  [CLEARED] {band_name}")
+                finally:
+                    db.close()
+            else:
+                print(f"  [SKIP] No result for '{band_name}'")
             continue
         db = get_db_connection(DB_NAME)
         cursor = db.cursor()
@@ -686,15 +711,46 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='WhatUpSF daily scraper')
     parser.add_argument('--phase', type=int, choices=[1, 2, 3, 4], default=None,
                         help='Run only up to this phase (default: run all)')
+    parser.add_argument('--venue', type=int, default=None,
+                        help='Debug a single venue by ID: runs Phase 1+2 for that venue only')
+    parser.add_argument('--debug', action='store_true',
+                        help='Enable verbose debug logging')
     parser.add_argument('--backfill-media', action='store_true',
                         help='Fill in missing media_url for bands in DB via YouTube search')
     parser.add_argument('--backfill-media-all', action='store_true',
                         help='Redo media_url for ALL bands via YouTube search (overwrites existing)')
     args = parser.parse_args()
 
+    if args.debug:
+        globals()['DEBUG'] = True
+
     phase = args.phase  # None means run all phases
 
-    if args.backfill_media_all:
+    if args.venue:
+        venue_id = args.venue
+        venues = get_venues()
+        match = [(vid, vname, vurl) for vid, vname, vurl in venues if vid == venue_id]
+        if not match:
+            print(f"No venue found with id={venue_id}")
+            sys.exit(1)
+        vid, vname, vurl = match[0]
+        print(f"[{vid}] {vname}  ({vurl})\n")
+        cal_url, method = discover_calendar_url(vid, vname, vurl)
+        if not cal_url:
+            print("  [FAIL] Could not discover calendar URL")
+            sys.exit(1)
+        print(f"  Calendar URL ({method}): {cal_url}\n")
+        cal_html = fetch_html(cal_url)
+        if not cal_html:
+            print("  [FAIL] Could not fetch calendar page")
+            sys.exit(1)
+        cal_text = clean_html(cal_html)
+        print(f"  Cleaned text: {len(cal_text)} chars — sending to OpenAI...\n")
+        events = parse_events_with_ai(cal_text, vname)
+        print(f"\n  Found {len(events)} upcoming events:")
+        for e in events:
+            print(f"    {e['event_date']} {e['event_time']}  {e['band_name']}  ${e['event_price']}")
+    elif args.backfill_media_all:
         backfill_media_urls(redo_all=True)
     elif args.backfill_media:
         backfill_media_urls()
