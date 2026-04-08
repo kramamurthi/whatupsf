@@ -67,9 +67,7 @@ def get_latest_info(dbName):
                     FROM venues V 
                     LEFT JOIN events E ON V.id = E.venue_id 
                     LEFT JOIN bands B on B.id = E.band_id 
-             WHERE (STR_TO_DATE(CONCAT(event_date, ' ', event_time), '%Y-%m-%d %H:%i:%s')
-                   = (SELECT max(STR_TO_DATE(CONCAT(event_date, ' ', event_time), '%Y-%m-%d %H:%i:%s'))
-             FROM events E2 WHERE E.venue_id=E2.venue_id)) OR E.event_date is NULL
+             WHERE E.event_date = CURDATE()
           """
     try:
         print(sql)
