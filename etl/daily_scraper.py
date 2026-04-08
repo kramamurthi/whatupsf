@@ -4,9 +4,9 @@ Runs nightly at 3am to discover events at SF venues and update the database.
 
 Phases:
   1. Venue fetch & calendar discovery  ✓
-  2. AI calendar parsing               (current)
-  3. Band lookup & AI enrichment
-  4. Event insert & publish.json regeneration
+  2. AI calendar parsing               ✓
+  3. Band lookup & AI enrichment       ✓
+  4. Event insert & publish.json regeneration  (current)
   5. Scheduling & hardening
 """
 
@@ -31,7 +31,7 @@ if os.path.exists(_env_path):
 
 # Add etl directory to path so we can import venueETL
 sys.path.insert(0, os.path.dirname(__file__))
-from venueETL import get_db_connection
+from venueETL import get_db_connection, dump_latest_info
 
 # ---------------------------------------------------------------------------
 # Config
@@ -109,22 +109,37 @@ def fetch_html(url, timeout=15):
 def find_calendar_url_heuristic(homepage_html, base_url):
     """
     Search the homepage for a link that looks like a calendar/events page.
+    Prefers links where the href itself contains a keyword (stronger signal)
+    over links where only the anchor text matches.
     Returns the absolute URL string or None.
     """
+    def make_absolute(raw):
+        if raw.startswith('http'):
+            return raw
+        elif raw.startswith('/'):
+            parsed = urlparse(base_url)
+            return f"{parsed.scheme}://{parsed.netloc}{raw}"
+        else:
+            return base_url.rstrip('/') + '/' + raw
+
     soup = BeautifulSoup(homepage_html, 'lxml')
+    both_match = None   # best: keyword in href AND text (nav link to listing page)
+    href_match = None   # ok: keyword in href only
+    text_match = None   # fallback: keyword only in anchor text
+
     for a in soup.find_all('a', href=True):
         href = a['href'].lower()
         text = a.get_text(strip=True).lower()
-        if any(kw in href or kw in text for kw in CALENDAR_KEYWORDS):
-            raw = a['href']
-            if raw.startswith('http'):
-                return raw
-            elif raw.startswith('/'):
-                parsed = urlparse(base_url)
-                return f"{parsed.scheme}://{parsed.netloc}{raw}"
-            else:
-                return base_url.rstrip('/') + '/' + raw
-    return None
+        kw_in_href = any(kw in href for kw in CALENDAR_KEYWORDS)
+        kw_in_text = any(kw in text for kw in CALENDAR_KEYWORDS)
+        if kw_in_href and kw_in_text and both_match is None:
+            both_match = make_absolute(a['href'])
+        elif kw_in_href and not kw_in_text and href_match is None:
+            href_match = make_absolute(a['href'])
+        elif kw_in_text and not kw_in_href and text_match is None:
+            text_match = make_absolute(a['href'])
+
+    return both_match or href_match or text_match
 
 
 def find_calendar_url_ai(homepage_html, base_url):
@@ -311,8 +326,342 @@ def run_phase2():
 
 
 # ---------------------------------------------------------------------------
+# Phase 3: Band Lookup & AI Enrichment
+# ---------------------------------------------------------------------------
+
+def search_youtube(band_name):
+    """
+    Search YouTube for the band and return the first video URL, or empty string.
+    Parses the ytInitialData JSON blob embedded in the search results page.
+    """
+    import re
+    from urllib.parse import quote_plus
+    query = quote_plus(f"{band_name} official")
+    url = f"https://www.youtube.com/results?search_query={query}"
+    try:
+        html = fetch_html(url)
+        if not html:
+            return ''
+        # YouTube embeds search results as a JSON blob in a script tag
+        # Extract all videoIds from the page, try each until we find a playable one.
+        video_ids = list(dict.fromkeys(re.findall(r'"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"', html)))
+        for vid in video_ids[:5]:
+            check = fetch_html(f"https://www.youtube.com/watch?v={vid}")
+            if check and '"status":"OK"' in check:
+                return f"https://www.youtube.com/watch?v={vid}"
+    except Exception as e:
+        print(f"    [YT ERROR] search for '{band_name}': {e}")
+    return ''
+
+
+def enrich_band_with_ai(band_name):
+    """
+    Ask OpenAI for a band description + image URL, and search YouTube for media_url.
+    Returns dict with description, media_url, image_url.
+    """
+    prompt = (
+        f"You are a music research assistant. For the band or artist named '{band_name}':\n"
+        f"1. Write a 1-2 sentence description of the act and their genre.\n"
+        f"2. Provide an image URL (band photo or album cover) from a reputable source (or empty string if unknown).\n\n"
+        f"Return ONLY a JSON object with exactly these keys:\n"
+        f"  description : string\n"
+        f"  image_url   : string (image URL or empty string)\n\n"
+        f"Return only the JSON, no markdown fences."
+    )
+    try:
+        answer = ask_openai(prompt)
+        answer = answer.strip()
+        if answer.startswith('```'):
+            answer = '\n'.join(answer.splitlines()[1:])
+        if answer.endswith('```'):
+            answer = '\n'.join(answer.splitlines()[:-1])
+        data = json.loads(answer)
+    except Exception as e:
+        print(f"    [AI ERROR] band enrichment for '{band_name}': {e}")
+        data = {}
+
+    media_url = search_youtube(band_name)
+    return {
+        'description': data.get('description', ''),
+        'media_url': media_url,
+        'image_url': data.get('image_url', ''),
+    }
+
+
+def lookup_or_create_band(band_name, band_cache, new_band_ids):
+    """
+    Look up a band by name (case-insensitive). If not found, enrich with AI and insert.
+    band_cache  : dict {name_lower: band_id} shared across the run to avoid redundant DB hits.
+    new_band_ids: set of band_ids inserted this run (for summary reporting).
+    Returns band_id (int) or None on failure.
+    """
+    key = band_name.strip().lower()
+    if key in band_cache:
+        return band_cache[key]
+
+    db = get_db_connection(DB_NAME)
+    cursor = db.cursor()
+    try:
+        cursor.execute("SELECT id FROM bands WHERE LOWER(name) = %s", (key,))
+        row = cursor.fetchone()
+        if row:
+            band_id = row[0]
+            band_cache[key] = band_id
+            return band_id
+
+        # New band — enrich with AI then insert
+        print(f"    [NEW BAND] '{band_name}' — enriching with AI...")
+        enrichment = enrich_band_with_ai(band_name)
+        cursor.execute(
+            "INSERT INTO bands (name, media_url, image_url, descriptions) VALUES (%s, %s, %s, %s)",
+            (band_name, enrichment['media_url'], enrichment['image_url'], enrichment['description']),
+        )
+        db.commit()
+        band_id = cursor.lastrowid
+        band_cache[key] = band_id
+        new_band_ids.add(band_id)
+        print(f"    [INSERTED] bands.id={band_id}  media={enrichment['media_url'] or '(none)'}")
+        return band_id
+    except Exception as e:
+        print(f"    [DB ERROR] lookup_or_create_band '{band_name}': {e}")
+        return None
+    finally:
+        db.close()
+
+
+CACHE_FILE = os.path.join(os.path.dirname(__file__), '.scraper_cache.json')
+
+
+def save_cache(results):
+    with open(CACHE_FILE, 'w') as f:
+        json.dump(results, f, indent=2)
+    print(f"  [CACHE] Saved to {CACHE_FILE}")
+
+
+def load_cache():
+    if not os.path.exists(CACHE_FILE):
+        raise FileNotFoundError(f"No cache file found at {CACHE_FILE}. Run without --phase 4 first.")
+    with open(CACHE_FILE) as f:
+        return json.load(f)
+
+
+def run_phase3(phase2_results):
+    """
+    Phase 3 entry point.
+    Takes Phase 2 results and resolves/inserts each band.
+    Attaches band_id to every event dict in-place.
+    Saves results to cache file so Phase 4 can run independently.
+    Returns the same list (mutated) with band_id populated.
+    """
+    print("=" * 60)
+    print("PHASE 3: Band Lookup & AI Enrichment")
+    print("=" * 60)
+
+    band_cache = {}   # {name_lower: band_id} — shared across all venues this run
+    new_band_ids = set()  # band_ids inserted this run
+    total_events = 0
+    total_failed = 0
+
+    for venue_result in phase2_results:
+        events = venue_result['events']
+        if not events:
+            continue
+
+        print(f"\n[{venue_result['venue_id']}] {venue_result['venue_name']} — {len(events)} events")
+        for event in events:
+            band_name = event.get('band_name', '').strip()
+            if not band_name:
+                event['band_id'] = None
+                total_failed += 1
+                continue
+
+            band_id = lookup_or_create_band(band_name, band_cache, new_band_ids)
+            event['band_id'] = band_id
+            total_events += 1
+            if band_id is None:
+                total_failed += 1
+
+    existing_count = len(band_cache) - len(new_band_ids)
+    print(f"\nPhase 3 Summary:")
+    print(f"  Events processed  : {total_events}")
+    print(f"  Unique bands       : {len(band_cache)}")
+    print(f"    New (inserted)   : {len(new_band_ids)}")
+    print(f"    Existing (reused): {existing_count}")
+    print(f"  Failed (no name)   : {total_failed}")
+
+    save_cache(phase2_results)
+    return phase2_results
+
+
+# ---------------------------------------------------------------------------
+# Phase 4: Event Insert & publish.json Regeneration
+# ---------------------------------------------------------------------------
+
+def insert_events(phase3_results):
+    """
+    Insert events into the events table, skipping duplicates.
+    Dedup key: (venue_id, band_id, event_date).
+    Returns (inserted_count, skipped_count).
+    """
+    db = get_db_connection(DB_NAME)
+    cursor = db.cursor()
+    inserted = 0
+    skipped = 0
+    failed = 0
+
+    try:
+        for venue_result in phase3_results:
+            venue_id = venue_result['venue_id']
+            venue_name = venue_result['venue_name']
+            events = venue_result.get('events', [])
+            if not events:
+                continue
+
+            for event in events:
+                band_id = event.get('band_id')
+                if band_id is None:
+                    failed += 1
+                    continue
+
+                event_date = event.get('event_date', '')
+                event_time = event.get('event_time', '20:00:00')
+                event_price = event.get('event_price', 0)
+
+                # Dedup check
+                cursor.execute(
+                    "SELECT id FROM events WHERE venue_id=%s AND band_id=%s AND event_date=%s",
+                    (venue_id, band_id, event_date),
+                )
+                if cursor.fetchone():
+                    skipped += 1
+                    continue
+
+                cursor.execute(
+                    "INSERT INTO events (venue_id, band_id, event_date, event_time, event_price) "
+                    "VALUES (%s, %s, %s, %s, %s)",
+                    (venue_id, band_id, event_date, event_time, int(event_price or 0)),
+                )
+                inserted += 1
+
+        db.commit()
+    except Exception as e:
+        print(f"  [DB ERROR] insert_events: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+    return inserted, skipped, failed
+
+
+def run_phase4(phase3_results):
+    """
+    Phase 4 entry point.
+    Inserts events into DB then regenerates publish.json.
+    """
+    print("=" * 60)
+    print("PHASE 4: Event Insert & publish.json Regeneration")
+    print("=" * 60)
+
+    inserted, skipped, failed = insert_events(phase3_results)
+    print(f"\nEvent inserts:")
+    print(f"  Inserted : {inserted}")
+    print(f"  Skipped  : {skipped}  (already in DB)")
+    print(f"  Failed   : {failed}  (missing band_id)")
+
+    # Regenerate publish.json
+    publish_path = os.path.join(os.path.dirname(__file__), 'publish.json')
+    orig_dir = os.getcwd()
+    os.chdir(os.path.dirname(__file__))
+    try:
+        print(f"\nRegenerating publish.json...")
+        dump_latest_info(DB_NAME)
+        print(f"  Written: {publish_path}")
+    finally:
+        os.chdir(orig_dir)
+
+
+# ---------------------------------------------------------------------------
+# Backfill: missing media_url
+# ---------------------------------------------------------------------------
+
+def backfill_media_urls(redo_all=False):
+    """
+    Fill in media_url for bands via YouTube search.
+    redo_all=False: only bands with empty/NULL media_url.
+    redo_all=True:  all bands, overwriting existing values.
+    """
+    db = get_db_connection(DB_NAME)
+    cursor = db.cursor()
+    try:
+        if redo_all:
+            cursor.execute("SELECT id, name FROM bands")
+        else:
+            cursor.execute("SELECT id, name FROM bands WHERE media_url IS NULL OR media_url = ''")
+        bands = cursor.fetchall()
+    finally:
+        db.close()
+
+    print(f"Backfilling media_url for {len(bands)} bands...")
+    updated = 0
+    for band_id, band_name in bands:
+        media_url = search_youtube(band_name)
+        if not media_url:
+            print(f"  [SKIP] No YouTube result for '{band_name}'")
+            continue
+        db = get_db_connection(DB_NAME)
+        cursor = db.cursor()
+        try:
+            cursor.execute("UPDATE bands SET media_url=%s WHERE id=%s", (media_url, band_id))
+            db.commit()
+            updated += 1
+            print(f"  [{band_id}] {band_name} -> {media_url}")
+        except Exception as e:
+            print(f"  [DB ERROR] '{band_name}': {e}")
+        finally:
+            db.close()
+
+    print(f"\nDone. Updated {updated}/{len(bands)} bands.")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    run_phase2()
+    import argparse
+    parser = argparse.ArgumentParser(description='WhatUpSF daily scraper')
+    parser.add_argument('--phase', type=int, choices=[1, 2, 3, 4], default=None,
+                        help='Run only up to this phase (default: run all)')
+    parser.add_argument('--backfill-media', action='store_true',
+                        help='Fill in missing media_url for bands in DB via YouTube search')
+    parser.add_argument('--backfill-media-all', action='store_true',
+                        help='Redo media_url for ALL bands via YouTube search (overwrites existing)')
+    args = parser.parse_args()
+
+    phase = args.phase  # None means run all phases
+
+    if args.backfill_media_all:
+        backfill_media_urls(redo_all=True)
+    elif args.backfill_media:
+        backfill_media_urls()
+    elif phase == 1:
+        venues = get_venues()
+        print(f"Loaded {len(venues)} venues\n")
+        for venue_id, venue_name, venue_url in venues:
+            print(f"[{venue_id}] {venue_name}")
+            cal_url, method = discover_calendar_url(venue_id, venue_name, venue_url)
+            print(f"    -> {cal_url}  ({method})\n")
+    elif phase == 2:
+        run_phase2()
+    elif phase == 3:
+        phase2_results = run_phase2()
+        run_phase3(phase2_results)
+    elif phase == 4:
+        # Load from cache — no need to re-scrape
+        results = load_cache()
+        run_phase4(results)
+    else:
+        # No --phase specified: run full pipeline
+        phase2_results = run_phase2()
+        phase3_results = run_phase3(phase2_results)
+        run_phase4(phase3_results)
