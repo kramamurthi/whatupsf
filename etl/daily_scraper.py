@@ -36,7 +36,8 @@ from venueETL import get_db_connection, dump_latest_info
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-OPENAI_MODEL = 'gpt-4o'  # swap to gpt-4.5 or gpt-5.4 when available
+OPENAI_MODEL = 'gpt-5.4'
+OPENAI_VISION_MODEL = 'gpt-5.4'
 DB_NAME = os.environ.get('WHATUPSF_DB_NAME', 'sfev')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
@@ -251,13 +252,13 @@ def parse_events_from_image(media_url, venue_name):
     client = get_openai_client()
     try:
         resp = client.chat.completions.create(
-            model=OPENAI_MODEL,
+            model=OPENAI_VISION_MODEL,
             messages=[{'role': 'user', 'content': [
                 {'type': 'image_url', 'image_url': {'url': f'data:{mime};base64,{b64}'}},
                 {'type': 'text', 'text': prompt},
             ]}],
             temperature=0,
-            max_tokens=2048,
+            max_completion_tokens=2048,
         )
         answer = resp.choices[0].message.content.strip()
         dbg(f"VISION RAW RESPONSE:\n{answer}\n")

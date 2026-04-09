@@ -206,6 +206,27 @@
         "lat": 37.7416169,
         "lng": -122.505334,
         "url": "riptidesf.com",
-        "events": []
+        "events": [
+            {
+                "eventName": "Eileen's Punk Rock and Schlock Karaoke",
+                "eventTime": "08:30 PM",
+                "eventPrice": "",
+                "eventUrl": ""
+            }
+        ]
+    },
+    {
+        "venue": "The Saloon",
+        "lat": 37.79853554362175,
+        "lng": -122.40711857218636,
+        "url": "thesaloonsf.com",
+        "events": [
+            {
+                "eventName": "CG & 3 Hand Band",
+                "eventTime": "08:00 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=6AIC0ZB1Jao"
+            }
+        ]
     }
 ]
