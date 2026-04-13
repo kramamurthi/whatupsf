@@ -190,6 +190,17 @@ def get_venues():
         db.close()
 
 
+def save_calendar_url(venue_id, cal_url):
+    """Persist a discovered calendar URL to venues.calendar_url so future runs skip discovery."""
+    db = get_db_connection(DB_NAME)
+    cursor = db.cursor()
+    try:
+        cursor.execute("UPDATE venues SET calendar_url=%s WHERE id=%s", (cal_url, venue_id))
+        db.commit()
+    finally:
+        db.close()
+
+
 def fetch_html(url, timeout=15):
     """Fetch a URL and return the response text. Returns None on failure (3 tries)."""
     def _do():
@@ -709,6 +720,8 @@ def run_phase2():
                 print(f"    [SKIP] No calendar URL found\n")
                 continue
             print(f"    Calendar URL ({method}): {cal_url}")
+            if not preset_cal_url:
+                save_calendar_url(venue_id, cal_url)
 
             # Step 2: fetch calendar page
             cal_html = fetch_html(cal_url)
@@ -1334,7 +1347,11 @@ if __name__ == '__main__':
         if not cal_url:
             print("  [FAIL] Could not discover calendar URL")
             sys.exit(1)
-        print(f"  Calendar URL ({method}): {cal_url}\n")
+        print(f"  Calendar URL ({method}): {cal_url}")
+        if cal_url and not vcal:
+            save_calendar_url(vid, cal_url)
+            print(f"  [SAVED] calendar_url updated in DB")
+        print()
         if phase == 1:
             sys.exit(0)
         cal_html = fetch_html(cal_url)
@@ -1411,7 +1428,11 @@ if __name__ == '__main__':
         for venue_id, venue_name, venue_url, preset_cal_url in venues:
             print(f"[{venue_id}] {venue_name}")
             cal_url, method = discover_calendar_url(venue_id, venue_name, venue_url, preset_cal_url)
-            print(f"    -> {cal_url}  ({method})\n")
+            print(f"    -> {cal_url}  ({method})")
+            if cal_url and not preset_cal_url:
+                save_calendar_url(venue_id, cal_url)
+                print(f"    [SAVED] calendar_url updated in DB")
+            print()
     elif phase == 2:
         run_phase2()
     elif phase == 3:
