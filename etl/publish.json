@@ -28,6 +28,32 @@
         "events": []
     },
     {
+        "venue": "Blondie's",
+        "lat": 37.76421748637254,
+        "lng": -122.42209381096488,
+        "url": "blondiesbarsf.com",
+        "events": [
+            {
+                "eventName": "Happy Hour",
+                "eventTime": "04:00 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=8UQu8VAmIbg"
+            },
+            {
+                "eventName": "Open bluegrass jam",
+                "eventTime": "06:30 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=Sz7_cYpgshM"
+            },
+            {
+                "eventName": "The Jimmy Touzel Bluegrass Explosion",
+                "eventTime": "08:30 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=Es656u7cEeU"
+            }
+        ]
+    },
+    {
         "venue": "Boom Boom Room",
         "lat": 37.784610748291016,
         "lng": -122.43319702148438,

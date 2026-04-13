@@ -180,11 +180,11 @@ def _retry(fn, attempts=3, delay=5, label=''):
 # ---------------------------------------------------------------------------
 
 def get_venues():
-    """Read all venues from MySQL. Returns list of (id, name, url) tuples."""
+    """Read all venues from MySQL. Returns list of (id, name, url, calendar_url) tuples."""
     db = get_db_connection(DB_NAME)
     cursor = db.cursor()
     try:
-        cursor.execute("SELECT id, name, url FROM venues WHERE url != ''")
+        cursor.execute("SELECT id, name, url, calendar_url FROM venues WHERE url != ''")
         return cursor.fetchall()
     finally:
         db.close()
@@ -332,13 +332,14 @@ def parse_events_from_image(media_url, venue_name):
         f"Return ONLY a JSON array. Each element must have these exact keys:\n"
         f"  band_name   : string  — exactly ONE artist or band name\n"
         f"  event_date  : string in YYYY-MM-DD format\n"
-        f"  event_time  : string in HH:MM:SS format (use 20:00:00 if unknown)\n"
+        f"  event_time  : string in 24-hour HH:MM:SS format (e.g. 8:30 PM = 20:30:00, 10 PM = 22:00:00). Use 20:00:00 if unknown.\n"
         f"  event_price : integer in dollars (0 if free or unknown)\n\n"
         f"IMPORTANT rules:\n"
         f"1. MULTI-BAND EVENTS: If multiple acts share one date (separated by '/', '&', 'and', 'with', '+'),\n"
         f"   create ONE separate JSON entry per act. The first act listed is the headliner (plays last),\n"
         f"   the last act listed is the opener (plays first). Assign the listed event time to the opener\n"
         f"   (last in the list) and add 1 hour per slot toward the headliner (first in the list).\n"
+        f"   All times must remain in 24-hour format even after adding hours.\n"
         f"2. For non-music events (karaoke nights, trivia, open mic, bingo, pub quiz, comedy shows,\n"
         f"   book readings, game nights, private/corporate events), still include them but use the\n"
         f"   event type as the band_name (e.g. 'Karaoke Night', 'Trivia Night').\n"
@@ -471,13 +472,18 @@ def find_calendar_url_ai(homepage_html, base_url):
         return None
 
 
-def discover_calendar_url(venue_id, venue_name, venue_url):
+def discover_calendar_url(venue_id, venue_name, venue_url, preset_calendar_url=None):
     """
     For a given venue, return (calendar_url, method) where method is
-    'heuristic', 'ai_fallback', 'homepage', or None if discovery failed.
+    'preset', 'heuristic', 'ai_fallback', 'homepage', or None if discovery failed.
+    If preset_calendar_url is set (from venues.calendar_url), skip all discovery.
     If the homepage is JS-rendered, Playwright-renders it before discovery.
     Falls back to the homepage URL itself if no separate calendar page is found.
     """
+    if preset_calendar_url:
+        cal_url = preset_calendar_url if preset_calendar_url.startswith('http') else 'https://' + preset_calendar_url
+        return cal_url, 'preset'
+
     if not venue_url.startswith('http'):
         venue_url = 'https://' + venue_url
 
@@ -630,7 +636,7 @@ def parse_events_with_ai(calendar_text, venue_name):
         f"Return ONLY a JSON array. Each element must have these exact keys:\n"
         f"  band_name   : string  — exactly ONE artist or band name\n"
         f"  event_date  : string in YYYY-MM-DD format\n"
-        f"  event_time  : string in HH:MM:SS format (use 20:00:00 if unknown)\n"
+        f"  event_time  : string in 24-hour HH:MM:SS format (e.g. 8:30 PM = 20:30:00, 10 PM = 22:00:00). Use 20:00:00 if unknown.\n"
         f"  event_price : integer in dollars (0 if free or unknown)\n\n"
         f"IMPORTANT rules:\n"
         f"1. MULTI-BAND EVENTS: If multiple acts share one date (separated by '/', '&', 'and', 'with', '+'),\n"
@@ -638,11 +644,12 @@ def parse_events_with_ai(calendar_text, venue_name):
         f"   the last act listed is the opener (plays first). Assign the listed event time to the opener\n"
         f"   (last in the list) and add 1 hour per slot toward the headliner (first in the list).\n"
         f"   Example: 'Grimmer / Stouper / Hearing Loss' at 20:00 →\n"
-        f"     Hearing Loss 20:00, Stouper 21:00, Grimmer 22:00.\n"
+        f"     Hearing Loss 20:00:00, Stouper 21:00:00, Grimmer 22:00:00.\n"
+        f"   All times must remain in 24-hour format even after adding hours.\n"
         f"2. For non-music events (karaoke nights, trivia, open mic, bingo, pub quiz, comedy shows,\n"
         f"   book readings, game nights, wine tastings, private/corporate events), still include them\n"
         f"   but use the event type as the band_name (e.g. 'Karaoke Night', 'Trivia Night').\n"
-        f"   Skip only events with no useful name at all.\n"
+        f"   Skip only entries with no useful name at all.\n"
         f"3. Each band_name must contain exactly ONE act or event name — no descriptions like '(headliner)'.\n\n"
         f"If there are no upcoming events, return an empty array [].\n\n"
         f"Calendar content:\n{truncated}"
@@ -693,11 +700,11 @@ def run_phase2():
     all_results = []
     venue_errors = []   # [(venue_id, venue_name, error_message)]
 
-    for venue_id, venue_name, venue_url in venues:
+    for venue_id, venue_name, venue_url, preset_cal_url in venues:
         print(f"[{venue_id}] {venue_name}")
         try:
             # Step 1: find calendar URL
-            cal_url, method = discover_calendar_url(venue_id, venue_name, venue_url)
+            cal_url, method = discover_calendar_url(venue_id, venue_name, venue_url, preset_cal_url)
             if not cal_url:
                 print(f"    [SKIP] No calendar URL found\n")
                 continue
@@ -1317,13 +1324,13 @@ if __name__ == '__main__':
     if args.venue:
         venue_id = args.venue
         venues = get_venues()
-        match = [(vid, vname, vurl) for vid, vname, vurl in venues if vid == venue_id]
+        match = [(vid, vname, vurl, vcal) for vid, vname, vurl, vcal in venues if vid == venue_id]
         if not match:
             print(f"No venue found with id={venue_id}")
             sys.exit(1)
-        vid, vname, vurl = match[0]
+        vid, vname, vurl, vcal = match[0]
         print(f"[{vid}] {vname}  ({vurl})\n")
-        cal_url, method = discover_calendar_url(vid, vname, vurl)
+        cal_url, method = discover_calendar_url(vid, vname, vurl, vcal)
         if not cal_url:
             print("  [FAIL] Could not discover calendar URL")
             sys.exit(1)
@@ -1401,9 +1408,9 @@ if __name__ == '__main__':
     elif phase == 1:
         venues = get_venues()
         print(f"Loaded {len(venues)} venues\n")
-        for venue_id, venue_name, venue_url in venues:
+        for venue_id, venue_name, venue_url, preset_cal_url in venues:
             print(f"[{venue_id}] {venue_name}")
-            cal_url, method = discover_calendar_url(venue_id, venue_name, venue_url)
+            cal_url, method = discover_calendar_url(venue_id, venue_name, venue_url, preset_cal_url)
             print(f"    -> {cal_url}  ({method})\n")
     elif phase == 2:
         run_phase2()
