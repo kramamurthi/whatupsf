@@ -1,91 +1,16 @@
 [
     {
-        "venue": "The Knockout",
-        "lat": 37.7452163,
-        "lng": -122.4199723,
-        "url": "theknockoutsf.com",
-        "events": [
-            {
-                "eventName": "CHULITA VINYL CLUB DANCE PARTY!",
-                "eventTime": "10:00 PM",
-                "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=nZ6fN_zqo0Q"
-            },
-            {
-                "eventName": "MATINEE SHOW : THE PRETTY FLOWERS (LOS ANGELES) + THE GOODS + TRUE COMPANION",
-                "eventTime": "05:00 PM",
-                "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=cVpc-3_IC04"
-            },
-            {
-                "eventName": "CHAMPION SUNDAY DANCEHALL PARTY",
-                "eventTime": "09:00 PM",
-                "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=9kDVPMZaBeM"
-            }
-        ]
-    },
-    {
-        "venue": "Brick & Mortar Music Hall",
-        "lat": 37.769718170166016,
-        "lng": -122.42037963867188,
-        "url": "brickandmortarmusic.com",
+        "venue": "August Hall",
+        "lat": 37.7876349,
+        "lng": -122.409843,
+        "url": "augusthallsf.com",
         "events": []
     },
     {
-        "venue": "The Chapel",
-        "lat": 37.76055908203125,
-        "lng": -122.42118835449219,
-        "url": "thechapelsf.com",
-        "events": []
-    },
-    {
-        "venue": "Kilowatt Bar",
-        "lat": 37.7650422,
-        "lng": -122.4232322,
-        "url": "kilowattbar.com",
-        "events": []
-    },
-    {
-        "venue": "Dawn Club",
-        "lat": 37.7877844,
-        "lng": -122.402534,
-        "url": "dawnclub.com",
-        "events": []
-    },
-    {
-        "venue": "Bottom of the Hill",
-        "lat": 37.765018463134766,
-        "lng": -122.39643859863281,
-        "url": "bottomofthehill.com",
-        "events": [
-            {
-                "eventName": "Dangerous Dames: An Evening of Dark Cabaret, Blues & Jazz",
-                "eventTime": "07:00 PM",
-                "eventPrice": "15$",
-                "eventUrl": "https://www.youtube.com/watch?v=DUbA6BWD5II"
-            }
-        ]
-    },
-    {
-        "venue": "Keys Jazz Bistro",
-        "lat": 37.798211,
-        "lng": -122.405179,
-        "url": "keysjazzbistro.com",
-        "events": [
-            {
-                "eventName": "Clairdee Sings Gershwin, Porter, and Berlin",
-                "eventTime": "05:00 PM",
-                "eventPrice": "40$",
-                "eventUrl": "https://www.youtube.com/watch?v=jlNnJ3LPYXY"
-            }
-        ]
-    },
-    {
-        "venue": "The Savoy Tivoli",
-        "lat": 37.8003066,
-        "lng": -122.40744169,
-        "url": "savoytivoli.com",
+        "venue": "Bill Graham Civic Auditorium",
+        "lat": 37.7785085,
+        "lng": -122.4173998,
+        "url": "billgrahamcivic.com",
         "events": []
     },
     {
@@ -96,108 +21,10 @@
         "events": []
     },
     {
-        "venue": "The Independent",
-        "lat": 37.77553939819336,
-        "lng": -122.43760681152344,
-        "url": "theindependentsf.com",
-        "events": []
-    },
-    {
-        "venue": "Cafe Du Nord",
-        "lat": 37.76675033569336,
-        "lng": -122.43049621582031,
-        "url": "cafedunord.com",
-        "events": [
-            {
-                "eventName": "Kyle Hume, Jude Barclay",
-                "eventTime": "08:00 PM",
-                "eventPrice": "33$",
-                "eventUrl": "https://www.youtube.com/watch?v=8fxeYVH7H3Y"
-            }
-        ]
-    },
-    {
-        "venue": "SFJAZZ Center",
-        "lat": 37.776329040527344,
-        "lng": -122.42153930664062,
-        "url": "sfjazz.org/calendar",
-        "events": []
-    },
-    {
-        "venue": "Rickshaw Stop",
-        "lat": 37.776119232177734,
-        "lng": -122.42047882080078,
-        "url": "rickshawstop.com",
-        "events": []
-    },
-    {
-        "venue": "Mr. Tipple's Jazz Club",
-        "lat": 37.7764293,
-        "lng": -122.4185665,
-        "url": "mrtipplessf.com",
-        "events": [
-            {
-                "eventName": "Benny Amon Trio",
-                "eventTime": "06:00 PM",
-                "eventPrice": "15$",
-                "eventUrl": "https://www.youtube.com/watch?v=Zp3GBqQRZh0"
-            }
-        ]
-    },
-    {
-        "venue": "Bill Graham Civic Auditorium",
-        "lat": 37.7785085,
-        "lng": -122.4173998,
-        "url": "billgrahamcivic.com",
-        "events": []
-    },
-    {
-        "venue": "The Warfield",
-        "lat": 37.78266143798828,
-        "lng": -122.4101791381836,
-        "url": "thewarfieldtheatre.com",
-        "events": []
-    },
-    {
-        "venue": "August Hall",
-        "lat": 37.7876349,
-        "lng": -122.409843,
-        "url": "augusthallsf.com",
-        "events": [
-            {
-                "eventName": "Thursday \u2013 Full City Devolucion",
-                "eventTime": "08:00 PM",
-                "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=kFKVvxhzVyQ"
-            }
-        ]
-    },
-    {
         "venue": "Black Cat Jazz Supper Club",
         "lat": 37.7838268,
         "lng": -122.4144255,
         "url": "blackcatsf.com",
-        "events": []
-    },
-    {
-        "venue": "Great American Music Hall",
-        "lat": 37.784759521484375,
-        "lng": -122.41883850097656,
-        "url": "gamh.com",
-        "events": []
-    },
-    {
-        "venue": "The Regency Ballroom",
-        "lat": 37.7878652,
-        "lng": -122.4216065,
-        "url": "theregencyballroom.com",
-        "events": []
-    },
-    {
-        "venue": "Nob Hill Masonic Center",
-        "lat": 37.79117965698242,
-        "lng": -122.4129409790039,
-        "url": "www.sfmasonic.com",
         "events": []
     },
     {
@@ -208,10 +35,66 @@
         "events": []
     },
     {
-        "venue": "The Fillmore",
-        "lat": 37.784128,
-        "lng": -122.433079,
-        "url": "livenation.com/venue/KovZpZAE6eeA/the-fillmore-eve",
+        "venue": "Bottom of the Hill",
+        "lat": 37.765018463134766,
+        "lng": -122.39643859863281,
+        "url": "bottomofthehill.com",
+        "events": []
+    },
+    {
+        "venue": "Brick & Mortar Music Hall",
+        "lat": 37.769718170166016,
+        "lng": -122.42037963867188,
+        "url": "brickandmortarmusic.com",
+        "events": []
+    },
+    {
+        "venue": "Cafe Du Nord",
+        "lat": 37.76675033569336,
+        "lng": -122.43049621582031,
+        "url": "cafedunord.com",
+        "events": []
+    },
+    {
+        "venue": "Dawn Club",
+        "lat": 37.7877844,
+        "lng": -122.402534,
+        "url": "dawnclub.com",
+        "events": [
+            {
+                "eventName": "Fault Line Trio",
+                "eventTime": "08:00 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=2te_aaK2h38"
+            }
+        ]
+    },
+    {
+        "venue": "Great American Music Hall",
+        "lat": 37.784759521484375,
+        "lng": -122.41883850097656,
+        "url": "gamh.com",
+        "events": []
+    },
+    {
+        "venue": "Keys Jazz Bistro",
+        "lat": 37.798211,
+        "lng": -122.405179,
+        "url": "keysjazzbistro.com",
+        "events": []
+    },
+    {
+        "venue": "Kilowatt Bar",
+        "lat": 37.7650422,
+        "lng": -122.4232322,
+        "url": "kilowattbar.com",
+        "events": []
+    },
+    {
+        "venue": "Mr. Tipple's Jazz Club",
+        "lat": 37.7764293,
+        "lng": -122.4185665,
+        "url": "mrtipplessf.com",
         "events": []
     },
     {
@@ -221,26 +104,107 @@
         "url": "neckofthewoodssf.com",
         "events": [
             {
-                "eventName": "Grimmer/ Stouper/ Hearing Loss",
-                "eventTime": "07:30 PM",
-                "eventPrice": "14$",
-                "eventUrl": "https://www.youtube.com/watch?v=jVVfdfJT_xc"
+                "eventName": "Scorpio Moon",
+                "eventTime": "08:00 PM",
+                "eventPrice": "19$",
+                "eventUrl": "https://www.youtube.com/watch?v=llesMKkrn7Y"
+            },
+            {
+                "eventName": "Jaded Justice",
+                "eventTime": "09:00 PM",
+                "eventPrice": "19$",
+                "eventUrl": "https://www.youtube.com/watch?v=ci6IS-lBMes"
+            },
+            {
+                "eventName": "Mayday Mae!",
+                "eventTime": "10:00 PM",
+                "eventPrice": "19$",
+                "eventUrl": "https://www.youtube.com/watch?v=8-yFWj6oXqc"
             }
         ]
+    },
+    {
+        "venue": "Nob Hill Masonic Center",
+        "lat": 37.79117965698242,
+        "lng": -122.4129409790039,
+        "url": "www.sfmasonic.com",
+        "events": []
+    },
+    {
+        "venue": "Rickshaw Stop",
+        "lat": 37.776119232177734,
+        "lng": -122.42047882080078,
+        "url": "rickshawstop.com",
+        "events": []
+    },
+    {
+        "venue": "SFJAZZ Center",
+        "lat": 37.776329040527344,
+        "lng": -122.42153930664062,
+        "url": "sfjazz.org/calendar",
+        "events": []
+    },
+    {
+        "venue": "The Chapel",
+        "lat": 37.76055908203125,
+        "lng": -122.42118835449219,
+        "url": "thechapelsf.com",
+        "events": []
+    },
+    {
+        "venue": "The Fillmore",
+        "lat": 37.784128,
+        "lng": -122.433079,
+        "url": "livenation.com/venue/KovZpZAE6eeA/the-fillmore-eve",
+        "events": []
+    },
+    {
+        "venue": "The Independent",
+        "lat": 37.77553939819336,
+        "lng": -122.43760681152344,
+        "url": "theindependentsf.com",
+        "events": [
+            {
+                "eventName": "Die Spitz",
+                "eventTime": "08:00 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=VB01l-V_vAE"
+            }
+        ]
+    },
+    {
+        "venue": "The Knockout",
+        "lat": 37.7452163,
+        "lng": -122.4199723,
+        "url": "theknockoutsf.com",
+        "events": [
+            {
+                "eventName": "KRAZY FOR KARAOKE!",
+                "eventTime": "09:00 PM",
+                "eventPrice": "",
+                "eventUrl": ""
+            },
+            {
+                "eventName": "CHAMPION SUNDAY DANCEHALL PARTY",
+                "eventTime": "09:00 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=9kDVPMZaBeM"
+            }
+        ]
+    },
+    {
+        "venue": "The Regency Ballroom",
+        "lat": 37.7878652,
+        "lng": -122.4216065,
+        "url": "theregencyballroom.com",
+        "events": []
     },
     {
         "venue": "The Riptide",
         "lat": 37.7416169,
         "lng": -122.505334,
         "url": "riptidesf.com",
-        "events": [
-            {
-                "eventName": "Gayle Lynn & The Hired Hands",
-                "eventTime": "07:30 PM",
-                "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=SAHwtN_-vYg"
-            }
-        ]
+        "events": []
     },
     {
         "venue": "The Saloon",
@@ -248,5 +212,26 @@
         "lng": -122.40711857218636,
         "url": "thesaloonsf.com",
         "events": []
+    },
+    {
+        "venue": "The Savoy Tivoli",
+        "lat": 37.8003066,
+        "lng": -122.40744169,
+        "url": "savoytivoli.com",
+        "events": []
+    },
+    {
+        "venue": "The Warfield",
+        "lat": 37.78266143798828,
+        "lng": -122.4101791381836,
+        "url": "thewarfieldtheatre.com",
+        "events": [
+            {
+                "eventName": "Joost Klein",
+                "eventTime": "08:00 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=IiHFnmI8pxg"
+            }
+        ]
     }
 ]

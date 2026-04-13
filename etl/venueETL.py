@@ -67,6 +67,7 @@ def get_latest_info(dbName):
                     FROM venues V
                     LEFT JOIN events E ON V.id = E.venue_id AND E.event_date = CURDATE()
                     LEFT JOIN bands B ON B.id = E.band_id
+                    ORDER BY V.name, E.event_time
           """
     try:
         cursor.execute(sql)

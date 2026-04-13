@@ -90,8 +90,18 @@ export class MarkerFactory {
         `;
 
         marker.bindPopup(popupContent, {
-            maxWidth: 320,
+            maxWidth: 480,
             className: 'dark-popup'
+        });
+
+        // Prevent Leaflet from swallowing clicks/scrolls inside the popup,
+        // which would block interaction with embedded iframes.
+        marker.on('popupopen', function () {
+            const el = this.getPopup().getElement();
+            if (el) {
+                L.DomEvent.disableClickPropagation(el);
+                L.DomEvent.disableScrollPropagation(el);
+            }
         });
 
         // Store venue data on marker for filtering
@@ -101,30 +111,81 @@ export class MarkerFactory {
     }
 
     /**
-     * Build HTML for event list with SoundCloud embeds
-     * @param {Array} events - Array of event objects
-     * @returns {string} HTML string
+     * Return an embedded player iframe for a YouTube or SoundCloud URL.
+     * size: 'small' uses a thumbnail (YouTube too narrow to play inline),
+     *       'normal' / 'large' use a full iframe.
+     */
+    buildMediaEmbed(url, size = 'normal') {
+        if (!url) return '';
+
+        const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/);
+        if (ytMatch) {
+            const videoId = ytMatch[1];
+            const height = size === 'large' ? 170 : size === 'small' ? 120 : 150;
+            return `<iframe
+                src="https://www.youtube.com/embed/${videoId}?rel=0&start=60"
+                width="100%" height="${height}"
+                frameborder="0"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                style="border-radius:4px;margin-top:4px;display:block;">
+            </iframe>`;
+        }
+
+        if (url.includes('soundcloud.com')) {
+            const height = size === 'small' ? 60 : 80;
+            return `<iframe
+                src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%2339FF14&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false"
+                width="100%" height="${height}"
+                frameborder="0" allow="autoplay"
+                style="border-radius:4px;margin-top:4px;display:block;">
+            </iframe>`;
+        }
+
+        return '';
+    }
+
+    /** One event card: name + time + price + embed */
+    buildEventCard(event, size = 'normal') {
+        const fontSize = size === 'small' ? '0.8rem' : '1rem';
+        return `
+            <h2 style="font-size:${fontSize};margin:4px 0 0;">
+                ${event.eventName || 'Untitled'}
+                ${event.eventTime ? `· ${event.eventTime}` : ''}
+                ${event.eventPrice || ''}
+            </h2>
+            ${this.buildMediaEmbed(event.eventUrl, size)}
+        `;
+    }
+
+    /**
+     * Build HTML for event list with embedded media players.
+     * 3-band nights: 2 openers side-by-side (small) on top, headliner full-width (large) on bottom.
+     * All other counts: vertical stack.
      */
     buildEventList(events) {
         if (!events || events.length === 0 || events[0].eventName === '') {
             return '<p style="color:#808080">No Events Today</p>';
         }
 
-        return events.map(event => {
-            const mediaLink = event.eventUrl
-                ? `<a href="${event.eventUrl}" target="_blank" rel="noopener" style="font-size:11px;color:#aaa;">▶ Media</a>`
-                : '';
+        const hr = `<hr style="border-color:rgba(255,255,255,0.2);margin:8px 0;">`;
 
+        if (events.length === 3) {
+            const [o1, o2, headliner] = events;
             return `
-                <h2>
-                    ${event.eventName || 'Untitled Event'}
-                    ${event.eventTime ? `· ${event.eventTime}` : ''}
-                    ${event.eventPrice || ''}
-                </h2>
-                ${mediaLink}
-                <hr style="border-color: rgba(255,255,255,0.2); margin: 8px 0;">
+                <div style="display:flex;gap:6px;align-items:flex-start;">
+                    <div style="flex:1;min-width:0;">${this.buildEventCard(o1, 'small')}</div>
+                    <div style="flex:1;min-width:0;">${this.buildEventCard(o2, 'small')}</div>
+                </div>
+                ${this.buildEventCard(headliner, 'large')}
+                ${hr}
             `;
-        }).join('');
+        }
+
+        return events.map(event => `
+            ${this.buildEventCard(event)}
+            ${hr}
+        `).join('');
     }
 
     /**
