@@ -339,10 +339,10 @@ def parse_events_from_image(media_url, venue_name):
         f"   create ONE separate JSON entry per act. The first act listed is the headliner (plays last),\n"
         f"   the last act listed is the opener (plays first). Assign the listed event time to the opener\n"
         f"   (last in the list) and add 1 hour per slot toward the headliner (first in the list).\n"
-        f"2. SKIP non-music events entirely: karaoke nights, trivia nights, open mics (unless a specific\n"
-        f"   headliner is named), book readings, comedy shows, *palooza festivals without a named headliner,\n"
-        f"   private/corporate events, bingo, pub quiz, game nights.\n"
-        f"3. Each band_name must contain exactly ONE act name — no descriptions like '(headliner)'.\n\n"
+        f"2. For non-music events (karaoke nights, trivia, open mic, bingo, pub quiz, comedy shows,\n"
+        f"   book readings, game nights, private/corporate events), still include them but use the\n"
+        f"   event type as the band_name (e.g. 'Karaoke Night', 'Trivia Night').\n"
+        f"3. Each band_name must contain exactly ONE act or event name — no descriptions like '(headliner)'.\n\n"
         f"If there are no upcoming events, return an empty array [].\n"
         f"Return only the JSON, no markdown fences."
     )
@@ -590,14 +590,7 @@ def expand_multi_band_events(events: list) -> list:
         if not parts:
             continue
 
-        # Filter non-music acts before computing stagger
-        music_parts = []
-        for p in parts:
-            if is_non_music_act(p):
-                print(f"    [SKIP] Non-music act filtered: '{p}'")
-            else:
-                music_parts.append(p)
-
+        music_parts = [p for p in parts if p]
         if not music_parts:
             continue
 
@@ -646,11 +639,11 @@ def parse_events_with_ai(calendar_text, venue_name):
         f"   (last in the list) and add 1 hour per slot toward the headliner (first in the list).\n"
         f"   Example: 'Grimmer / Stouper / Hearing Loss' at 20:00 →\n"
         f"     Hearing Loss 20:00, Stouper 21:00, Grimmer 22:00.\n"
-        f"2. SKIP non-music events entirely (return no entry): karaoke nights, trivia nights,\n"
-        f"   open mics (unless a specific headliner is named), book readings, comedy shows,\n"
-        f"   *palooza festivals (unless a specific headliner is listed), private/corporate events,\n"
-        f"   bingo, pub quiz, drag shows without a named musical act, wine tastings, game nights.\n"
-        f"3. Each band_name must contain exactly ONE act name — no descriptions like '(headliner)'.\n\n"
+        f"2. For non-music events (karaoke nights, trivia, open mic, bingo, pub quiz, comedy shows,\n"
+        f"   book readings, game nights, wine tastings, private/corporate events), still include them\n"
+        f"   but use the event type as the band_name (e.g. 'Karaoke Night', 'Trivia Night').\n"
+        f"   Skip only events with no useful name at all.\n"
+        f"3. Each band_name must contain exactly ONE act or event name — no descriptions like '(headliner)'.\n\n"
         f"If there are no upcoming events, return an empty array [].\n\n"
         f"Calendar content:\n{truncated}"
     )
@@ -857,8 +850,14 @@ def search_media_url(band_name):
 def enrich_band_with_ai(band_name):
     """
     Ask OpenAI for a band description + image URL, and search YouTube for media_url.
+    Skips enrichment for non-music acts (karaoke nights, trivia, etc.) — they get
+    inserted into the DB but with empty enrichment fields.
     Returns dict with description, media_url, image_url.
     """
+    if is_non_music_act(band_name):
+        print(f"    [SKIP ENRICHMENT] Non-music act: '{band_name}'")
+        return {'description': '', 'media_url': '', 'image_url': ''}
+
     prompt = (
         f"You are a music research assistant. '{band_name}' is a MUSIC ACT (band or solo artist)\n"
         f"currently performing at live music venues in San Francisco, CA.\n"
@@ -978,12 +977,6 @@ def run_phase3(phase2_results):
         for event in events:
             band_name = event.get('band_name', '').strip()
             if not band_name:
-                event['band_id'] = None
-                total_failed += 1
-                continue
-
-            if is_non_music_act(band_name):
-                print(f"    [SKIP] Non-music act: '{band_name}'")
                 event['band_id'] = None
                 total_failed += 1
                 continue
@@ -1383,7 +1376,7 @@ if __name__ == '__main__':
         band_cache, new_band_ids = {}, set()
         for event in events:
             band_name = event.get('band_name', '').strip()
-            if band_name and not is_non_music_act(band_name):
+            if band_name:
                 event['band_id'] = lookup_or_create_band(band_name, band_cache, new_band_ids)
         print(f"\n  Bands: {len(new_band_ids)} new, {len(band_cache) - len(new_band_ids)} existing")
         save_cache(venue_result, suffix=f'_{vid}')

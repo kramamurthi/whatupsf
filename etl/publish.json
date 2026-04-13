@@ -102,26 +102,7 @@
         "lat": 37.7831065,
         "lng": -122.4637138,
         "url": "neckofthewoodssf.com",
-        "events": [
-            {
-                "eventName": "Scorpio Moon",
-                "eventTime": "08:00 PM",
-                "eventPrice": "19$",
-                "eventUrl": "https://www.youtube.com/watch?v=llesMKkrn7Y"
-            },
-            {
-                "eventName": "Jaded Justice",
-                "eventTime": "09:00 PM",
-                "eventPrice": "19$",
-                "eventUrl": "https://www.youtube.com/watch?v=ci6IS-lBMes"
-            },
-            {
-                "eventName": "Mayday Mae!",
-                "eventTime": "10:00 PM",
-                "eventPrice": "19$",
-                "eventUrl": "https://www.youtube.com/watch?v=8-yFWj6oXqc"
-            }
-        ]
+        "events": []
     },
     {
         "venue": "Nob Hill Masonic Center",
@@ -179,16 +160,10 @@
         "url": "theknockoutsf.com",
         "events": [
             {
-                "eventName": "KRAZY FOR KARAOKE!",
+                "eventName": "Krazy for Karaoke",
                 "eventTime": "09:00 PM",
                 "eventPrice": "",
                 "eventUrl": ""
-            },
-            {
-                "eventName": "CHAMPION SUNDAY DANCEHALL PARTY",
-                "eventTime": "09:00 PM",
-                "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=9kDVPMZaBeM"
             }
         ]
     },
