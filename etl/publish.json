@@ -6,16 +6,22 @@
         "url": "theknockoutsf.com",
         "events": [
             {
-                "eventName": "KRAZY FOR KARAOKE!",
-                "eventTime": "09:00 PM",
+                "eventName": "CHULITA VINYL CLUB DANCE PARTY!",
+                "eventTime": "10:00 PM",
                 "eventPrice": "",
-                "eventUrl": ""
+                "eventUrl": "https://www.youtube.com/watch?v=nZ6fN_zqo0Q"
             },
             {
-                "eventName": "AMOEBAPALOOZA 2026 RETURNS TO THE KNOCKOUT!",
-                "eventTime": "07:00 PM",
+                "eventName": "MATINEE SHOW : THE PRETTY FLOWERS (LOS ANGELES) + THE GOODS + TRUE COMPANION",
+                "eventTime": "05:00 PM",
                 "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=Qnxjt43QDck"
+                "eventUrl": "https://www.youtube.com/watch?v=cVpc-3_IC04"
+            },
+            {
+                "eventName": "CHAMPION SUNDAY DANCEHALL PARTY",
+                "eventTime": "09:00 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=9kDVPMZaBeM"
             }
         ]
     },
@@ -45,14 +51,7 @@
         "lat": 37.7877844,
         "lng": -122.402534,
         "url": "dawnclub.com",
-        "events": [
-            {
-                "eventName": "Joe Warner",
-                "eventTime": "08:00 PM",
-                "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=MwNRf1-B-Fo"
-            }
-        ]
+        "events": []
     },
     {
         "venue": "Bottom of the Hill",
@@ -61,10 +60,10 @@
         "url": "bottomofthehill.com",
         "events": [
             {
-                "eventName": "The Lighting Section",
-                "eventTime": "08:00 PM",
-                "eventPrice": "13$",
-                "eventUrl": "https://www.youtube.com/watch?v=Crx3gwGSrcE"
+                "eventName": "Dangerous Dames: An Evening of Dark Cabaret, Blues & Jazz",
+                "eventTime": "07:00 PM",
+                "eventPrice": "15$",
+                "eventUrl": "https://www.youtube.com/watch?v=DUbA6BWD5II"
             }
         ]
     },
@@ -73,7 +72,14 @@
         "lat": 37.798211,
         "lng": -122.405179,
         "url": "keysjazzbistro.com",
-        "events": []
+        "events": [
+            {
+                "eventName": "Clairdee Sings Gershwin, Porter, and Berlin",
+                "eventTime": "05:00 PM",
+                "eventPrice": "40$",
+                "eventUrl": "https://www.youtube.com/watch?v=jlNnJ3LPYXY"
+            }
+        ]
     },
     {
         "venue": "The Savoy Tivoli",
@@ -101,7 +107,14 @@
         "lat": 37.76675033569336,
         "lng": -122.43049621582031,
         "url": "cafedunord.com",
-        "events": []
+        "events": [
+            {
+                "eventName": "Kyle Hume, Jude Barclay",
+                "eventTime": "08:00 PM",
+                "eventPrice": "33$",
+                "eventUrl": "https://www.youtube.com/watch?v=8fxeYVH7H3Y"
+            }
+        ]
     },
     {
         "venue": "SFJAZZ Center",
@@ -122,7 +135,14 @@
         "lat": 37.7764293,
         "lng": -122.4185665,
         "url": "mrtipplessf.com",
-        "events": []
+        "events": [
+            {
+                "eventName": "Benny Amon Trio",
+                "eventTime": "06:00 PM",
+                "eventPrice": "15$",
+                "eventUrl": "https://www.youtube.com/watch?v=Zp3GBqQRZh0"
+            }
+        ]
     },
     {
         "venue": "Bill Graham Civic Auditorium",
@@ -143,7 +163,14 @@
         "lat": 37.7876349,
         "lng": -122.409843,
         "url": "augusthallsf.com",
-        "events": []
+        "events": [
+            {
+                "eventName": "Thursday \u2013 Full City Devolucion",
+                "eventTime": "08:00 PM",
+                "eventPrice": "",
+                "eventUrl": "https://www.youtube.com/watch?v=kFKVvxhzVyQ"
+            }
+        ]
     },
     {
         "venue": "Black Cat Jazz Supper Club",
@@ -194,10 +221,10 @@
         "url": "neckofthewoodssf.com",
         "events": [
             {
-                "eventName": "Karaoke Tuesday",
-                "eventTime": "09:00 PM",
-                "eventPrice": "",
-                "eventUrl": ""
+                "eventName": "Grimmer/ Stouper/ Hearing Loss",
+                "eventTime": "07:30 PM",
+                "eventPrice": "14$",
+                "eventUrl": "https://www.youtube.com/watch?v=jVVfdfJT_xc"
             }
         ]
     },
@@ -208,10 +235,10 @@
         "url": "riptidesf.com",
         "events": [
             {
-                "eventName": "Eileen's Punk Rock and Schlock Karaoke",
-                "eventTime": "08:30 PM",
+                "eventName": "Gayle Lynn & The Hired Hands",
+                "eventTime": "07:30 PM",
                 "eventPrice": "",
-                "eventUrl": ""
+                "eventUrl": "https://www.youtube.com/watch?v=SAHwtN_-vYg"
             }
         ]
     },
@@ -220,13 +247,6 @@
         "lat": 37.79853554362175,
         "lng": -122.40711857218636,
         "url": "thesaloonsf.com",
-        "events": [
-            {
-                "eventName": "CG & 3 Hand Band",
-                "eventTime": "08:00 PM",
-                "eventPrice": "",
-                "eventUrl": "https://www.youtube.com/watch?v=6AIC0ZB1Jao"
-            }
-        ]
+        "events": []
     }
 ]

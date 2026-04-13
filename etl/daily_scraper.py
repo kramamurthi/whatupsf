@@ -936,6 +936,8 @@ if __name__ == '__main__':
                         help='Fill in missing media_url for bands in DB via YouTube search')
     parser.add_argument('--backfill-media-all', action='store_true',
                         help='Redo media_url for ALL bands via YouTube search (overwrites existing)')
+    parser.add_argument('--dump-only', action='store_true',
+                        help='Just regenerate publish.json from current DB state (no scraping)')
     args = parser.parse_args()
 
     if args.debug:
@@ -1006,6 +1008,15 @@ if __name__ == '__main__':
                 run_phase4(venue_result)
         else:
             print("\n  (dry run — use --full to write to DB)")
+    elif args.dump_only:
+        publish_path = os.path.join(os.path.dirname(__file__), 'publish.json')
+        orig_dir = os.getcwd()
+        os.chdir(os.path.dirname(__file__))
+        try:
+            dump_latest_info(DB_NAME)
+            print(f"publish.json regenerated: {publish_path}")
+        finally:
+            os.chdir(orig_dir)
     elif args.backfill_media_all:
         backfill_media_urls(redo_all=True)
     elif args.backfill_media:
