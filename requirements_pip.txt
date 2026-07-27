@@ -15,3 +15,9 @@ whitenoise==6.9.0
 openai
 beautifulsoup4
 lxml
+
+# Terrain / elevation for apps.marina_views. These wheels bundle their own
+# GDAL and PROJ, so no system geospatial libraries (and no root) are required.
+numpy==2.2.6
+rasterio==1.4.4
+pyproj==3.7.1

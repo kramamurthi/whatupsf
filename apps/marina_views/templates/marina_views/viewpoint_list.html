@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Marina Views - What can you see from here?{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+
+    <header class="mb-10">
+        <h1 class="text-4xl font-bold mb-3">Marina Views</h1>
+        <p class="text-gray-400 max-w-2xl">
+            Stand somewhere along the northern waterfront and find out which San
+            Francisco landmarks are in view &mdash; and which ones are hidden behind
+            you or lost below the curve of the earth.
+        </p>
+    </header>
+
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {% for viewpoint in viewpoints %}
+        <a href="{% url 'marina_views:viewpoint_detail' viewpoint.slug %}"
+           class="block p-5 rounded-xl bg-midnight-800 border border-midnight-600
+                  hover:border-neon-cyan transition-all duration-300">
+            <h2 class="text-xl font-semibold mb-2">{{ viewpoint.name }}</h2>
+            {% if viewpoint.description %}
+            <p class="text-sm text-gray-400 mb-4">{{ viewpoint.description }}</p>
+            {% endif %}
+            <dl class="text-xs text-gray-500 space-y-1">
+                <div class="flex justify-between">
+                    <dt>Eye elevation</dt>
+                    <dd class="text-gray-300">{{ viewpoint.eye_elevation_m|floatformat:1 }} m</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Facing</dt>
+                    <dd class="text-gray-300">{{ viewpoint.facing_bearing_deg|floatformat:0 }}&deg;</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Field of view</dt>
+                    <dd class="text-gray-300">{{ viewpoint.field_of_view_deg|floatformat:0 }}&deg;</dd>
+                </div>
+            </dl>
+        </a>
+        {% empty %}
+        <p class="text-gray-400">No viewpoints have been added yet.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

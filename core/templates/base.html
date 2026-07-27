@@ -121,6 +121,7 @@
 
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex items-center space-x-6">
+                <a href="{% url 'marina_views:picker' %}" class="hover:text-neon-cyan transition-colors duration-300">Marina Views</a>
                 <!-- Dark Mode Toggle -->
                 <button id="theme-toggle" class="p-2 rounded-lg hover:bg-midnight-700 transition-all duration-300" aria-label="Toggle dark mode">
                     <svg id="theme-icon-moon" class="w-6 h-6 text-neon-cyan hidden" fill="currentColor" viewBox="0 0 20 20">
@@ -143,6 +144,7 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden glass-card border-t border-gray-800 animate-slide-in-right">
             <nav class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+                <a href="{% url 'marina_views:picker' %}" class="py-2 hover:text-neon-cyan transition-colors duration-300">Marina Views</a>
                 <button id="mobile-theme-toggle" class="flex items-center space-x-2 py-2 hover:text-neon-cyan transition-colors duration-300">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>

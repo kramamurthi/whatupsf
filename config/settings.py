@@ -91,6 +91,12 @@ WHITENOISE_USE_FINDERS = True
 # Use convex hull instead of circles for clusters
 USE_CONVEX_HULL = True  # Set to True to experiment with convex hulls
 
+# --- TERRAIN (apps.marina_views) ---
+# Directory holding the USGS 3DEP 1/3 arc-second GeoTIFF tiles. Kept outside
+# the repository because the tiles run to hundreds of megabytes each.
+MARINA_DEM_DIR = os.environ.get(
+    'MARINA_DEM_DIR', str(Path.home() / 'geodata' / '3dep'))
+
 # --- TEMPLATES (yours looked fine) ---
 TEMPLATES = [
     {

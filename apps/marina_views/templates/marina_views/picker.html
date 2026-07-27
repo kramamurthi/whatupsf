@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Marina Views - Pick a camera position{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+    /* Matches the events map: full viewport below the 64px fixed header. */
+    #marina-map {
+        height: calc(100vh - 64px);
+        width: 100%;
+    }
+    #marina-panel {
+        position: absolute;
+        z-index: 1000;
+        top: 1rem;
+        left: 1rem;
+        width: 20rem;
+        max-width: calc(100vw - 2rem);
+    }
+    input[type="range"] {
+        accent-color: #00f0ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative">
+    <div id="marina-map"></div>
+
+    <div id="marina-panel" class="bg-midnight-800/95 border border-midnight-600 rounded-xl p-5 backdrop-blur">
+        <h1 class="text-lg font-semibold mb-1">Camera position</h1>
+        <p id="marina-hint" class="text-xs text-gray-500 mb-4">
+            Click anywhere on the map to place the camera.
+        </p>
+
+        <div id="marina-readout" class="hidden">
+            <dl class="text-sm space-y-2 mb-4">
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Coordinates</dt>
+                    <dd id="marina-coords" class="text-gray-300 tabular-nums">&mdash;</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Ground elevation</dt>
+                    <dd id="marina-ground" class="text-gray-300 tabular-nums">&mdash;</dd>
+                </div>
+            </dl>
+
+            <label for="marina-height" class="block text-xs text-gray-500 mb-2">
+                Additional structure height
+                <span id="marina-height-label" class="text-neon-cyan font-semibold">0 m</span>
+            </label>
+            <input type="range" id="marina-height" min="0" max="300" step="1" value="0"
+                   class="w-full mb-4">
+
+            <div class="flex justify-between items-baseline pt-3 border-t border-midnight-600">
+                <span class="text-sm text-gray-400">Camera altitude</span>
+                <span id="marina-total" class="text-2xl font-bold text-neon-green tabular-nums">&mdash;</span>
+            </div>
+
+            <button id="marina-open" disabled
+                    class="mt-4 w-full py-2 rounded-lg bg-midnight-700 text-gray-500 cursor-not-allowed text-sm">
+                Open camera view
+            </button>
+            <p class="mt-2 text-[11px] text-gray-600">
+                The rendered view arrives in the next milestone.
+            </p>
+        </div>
+
+        <p id="marina-error" class="hidden text-sm text-red-400"></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Same Stadia Maps key the events map uses. Worth moving to settings and
+    // an environment variable once a second page needs it.
+    window.MARINA_CONFIG = {
+        stadiaApiKey: '1ce6d341-6ad2-4e0e-a58f-9948f9f8d224',
+        elevationUrl: '{% url "marina_views:api_elevation" %}'
+    };
+</script>
+<script type="module" src="/static/marina_views/js/picker.js?v=1"></script>
+{% endblock %}

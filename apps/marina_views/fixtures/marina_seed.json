@@ -1,0 +1,220 @@
+[
+  {
+    "model": "marina_views.landmark",
+    "pk": 1,
+    "fields": {
+      "name": "Golden Gate Bridge",
+      "slug": "golden-gate-bridge",
+      "latitude": 37.8199,
+      "longitude": -122.4783,
+      "height_m": 227.0,
+      "description": "North tower top, 227m above the water.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 2,
+    "fields": {
+      "name": "Alcatraz Island",
+      "slug": "alcatraz-island",
+      "latitude": 37.8267,
+      "longitude": -122.4230,
+      "height_m": 41.0,
+      "description": "Island high point.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 3,
+    "fields": {
+      "name": "Angel Island",
+      "slug": "angel-island",
+      "latitude": 37.8609,
+      "longitude": -122.4326,
+      "height_m": 240.0,
+      "description": "Mount Caroline Livermore, the island summit.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 4,
+    "fields": {
+      "name": "Coit Tower",
+      "slug": "coit-tower",
+      "latitude": 37.8024,
+      "longitude": -122.4058,
+      "height_m": 148.0,
+      "description": "Telegraph Hill plus the tower itself.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 5,
+    "fields": {
+      "name": "Sutro Tower",
+      "slug": "sutro-tower",
+      "latitude": 37.7552,
+      "longitude": -122.4528,
+      "height_m": 552.0,
+      "description": "Antenna top, the highest structure in the city.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 6,
+    "fields": {
+      "name": "Bay Bridge West Tower",
+      "slug": "bay-bridge-west-tower",
+      "latitude": 37.7983,
+      "longitude": -122.3778,
+      "height_m": 160.0,
+      "description": "Western suspension tower.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 7,
+    "fields": {
+      "name": "Mount Tamalpais",
+      "slug": "mount-tamalpais",
+      "latitude": 37.9296,
+      "longitude": -122.5797,
+      "height_m": 784.0,
+      "description": "East Peak, across the bay in Marin.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 8,
+    "fields": {
+      "name": "Transamerica Pyramid",
+      "slug": "transamerica-pyramid",
+      "latitude": 37.7952,
+      "longitude": -122.4028,
+      "height_m": 260.0,
+      "description": "Spire tip.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 9,
+    "fields": {
+      "name": "Salesforce Tower",
+      "slug": "salesforce-tower",
+      "latitude": 37.7897,
+      "longitude": -122.3972,
+      "height_m": 326.0,
+      "description": "Roof crown.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 10,
+    "fields": {
+      "name": "Sausalito Waterfront",
+      "slug": "sausalito-waterfront",
+      "latitude": 37.8591,
+      "longitude": -122.4853,
+      "height_m": 10.0,
+      "description": "Low shoreline directly across the Golden Gate strait.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.landmark",
+    "pk": 11,
+    "fields": {
+      "name": "Point Reyes Lighthouse",
+      "slug": "point-reyes-lighthouse",
+      "latitude": 37.9958,
+      "longitude": -123.0217,
+      "height_m": 81.0,
+      "description": "Far up the coast - included to show the horizon rule biting.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.viewpoint",
+    "pk": 1,
+    "fields": {
+      "name": "Marina Green",
+      "slug": "marina-green",
+      "latitude": 37.8060,
+      "longitude": -122.4420,
+      "eye_elevation_m": 4.6,
+      "facing_bearing_deg": 0.0,
+      "field_of_view_deg": 180.0,
+      "description": "Open lawn on the bay shore, looking north across the water.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.viewpoint",
+    "pk": 2,
+    "fields": {
+      "name": "Fort Mason Great Meadow",
+      "slug": "fort-mason-great-meadow",
+      "latitude": 37.8060,
+      "longitude": -122.4300,
+      "eye_elevation_m": 31.6,
+      "facing_bearing_deg": 340.0,
+      "field_of_view_deg": 200.0,
+      "description": "Raised meadow on the bluff, roughly 30m above the bay.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.viewpoint",
+    "pk": 3,
+    "fields": {
+      "name": "Crissy Field East Beach",
+      "slug": "crissy-field-east-beach",
+      "latitude": 37.8055,
+      "longitude": -122.4530,
+      "eye_elevation_m": 3.6,
+      "facing_bearing_deg": 350.0,
+      "field_of_view_deg": 180.0,
+      "description": "Sand at the water's edge, facing the strait.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.viewpoint",
+    "pk": 4,
+    "fields": {
+      "name": "Palace of Fine Arts",
+      "slug": "palace-of-fine-arts",
+      "latitude": 37.8029,
+      "longitude": -122.4484,
+      "eye_elevation_m": 6.6,
+      "facing_bearing_deg": 20.0,
+      "field_of_view_deg": 120.0,
+      "description": "Set back from the shore, with a narrower outlook.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "marina_views.viewpoint",
+    "pk": 5,
+    "fields": {
+      "name": "Fort Point",
+      "slug": "fort-point",
+      "latitude": 37.8106,
+      "longitude": -122.4770,
+      "eye_elevation_m": 10.6,
+      "facing_bearing_deg": 45.0,
+      "field_of_view_deg": 200.0,
+      "description": "Directly beneath the south end of the Golden Gate Bridge.",
+      "is_active": true
+    }
+  }
+]

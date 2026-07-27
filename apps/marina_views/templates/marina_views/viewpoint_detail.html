@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ viewpoint.name }} - Marina Views{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+
+    <a href="{% url 'marina_views:viewpoint_list' %}"
+       class="text-sm text-gray-500 hover:text-neon-cyan transition-colors">&larr; All viewpoints</a>
+
+    <header class="mt-4 mb-10">
+        <h1 class="text-4xl font-bold mb-3">{{ viewpoint.name }}</h1>
+        {% if viewpoint.description %}
+        <p class="text-gray-400 mb-4">{{ viewpoint.description }}</p>
+        {% endif %}
+        <p class="text-sm text-gray-500">
+            Eye elevation {{ viewpoint.eye_elevation_m|floatformat:1 }} m &middot;
+            facing {{ viewpoint.facing_bearing_deg|floatformat:0 }}&deg; &middot;
+            {{ viewpoint.field_of_view_deg|floatformat:0 }}&deg; field of view
+        </p>
+    </header>
+
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">
+            In view
+            <span class="text-neon-green">({{ visible_lines|length }} of {{ total_count }})</span>
+        </h2>
+
+        {% if visible_lines %}
+        <div class="overflow-x-auto rounded-xl border border-midnight-600">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-midnight-700 text-gray-400 uppercase text-xs">
+                    <tr>
+                        <th class="px-4 py-3">Landmark</th>
+                        <th class="px-4 py-3 text-right">Distance</th>
+                        <th class="px-4 py-3">Direction</th>
+                        <th class="px-4 py-3 text-right">Height</th>
+                        <th class="px-4 py-3 text-right">Horizon margin</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-midnight-600">
+                    {% for line in visible_lines %}
+                    <tr class="bg-midnight-800">
+                        <td class="px-4 py-3 font-medium">{{ line.landmark.name }}</td>
+                        <td class="px-4 py-3 text-right tabular-nums">{{ line.distance_km|floatformat:1 }} km</td>
+                        <td class="px-4 py-3">
+                            <span class="text-neon-cyan font-semibold">{{ line.compass }}</span>
+                            <span class="text-gray-500 tabular-nums">{{ line.bearing_deg|floatformat:0 }}&deg;</span>
+                        </td>
+                        <td class="px-4 py-3 text-right tabular-nums text-gray-400">{{ line.landmark.height_m|floatformat:0 }} m</td>
+                        <td class="px-4 py-3 text-right tabular-nums text-gray-500">+{{ line.horizon_margin_km|floatformat:0 }} km</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-400">Nothing is in view from here.</p>
+        {% endif %}
+    </section>
+
+    {% if blocked_lines %}
+    <section>
+        <h2 class="text-2xl font-semibold mb-4 text-gray-500">Not in view</h2>
+        <div class="overflow-x-auto rounded-xl border border-midnight-600">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-midnight-700 text-gray-500 uppercase text-xs">
+                    <tr>
+                        <th class="px-4 py-3">Landmark</th>
+                        <th class="px-4 py-3 text-right">Distance</th>
+                        <th class="px-4 py-3">Direction</th>
+                        <th class="px-4 py-3">Why not</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-midnight-600">
+                    {% for line in blocked_lines %}
+                    <tr class="bg-midnight-800 text-gray-500">
+                        <td class="px-4 py-3">{{ line.landmark.name }}</td>
+                        <td class="px-4 py-3 text-right tabular-nums">{{ line.distance_km|floatformat:1 }} km</td>
+                        <td class="px-4 py-3">{{ line.compass }} <span class="tabular-nums">{{ line.bearing_deg|floatformat:0 }}&deg;</span></td>
+                        <td class="px-4 py-3">{{ line.blocked_reason }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+
+    <p class="mt-8 text-xs text-gray-600 max-w-2xl">
+        Visibility here is geometric only: it accounts for the direction you are
+        facing and the curvature of the earth, but not for terrain, buildings or
+        trees between you and the landmark.
+    </p>
+
+</div>
+{% endblock %}

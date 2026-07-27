@@ -22,3 +22,4 @@ urlpatterns = [
 ]
 urlpatterns += [path("health/", health)]
 urlpatterns += [path("api/map-data.json", map_view.render_json, name="map_data")]
+urlpatterns += [path("marina/", include("apps.marina_views.urls"))]
