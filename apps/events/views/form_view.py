@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from config.forms import EventInformationForm
-from config.forms import BandInformationForm
-from config.forms import VenueInformationForm
-from config.forms import ToDoForm
-from config.models import Bands
+from apps.events.forms import EventInformationForm
+from apps.events.forms import BandInformationForm
+from apps.events.forms import VenueInformationForm
+from apps.events.forms import ToDoForm
+from apps.events.models import Bands
 
 
 def band_information(request):

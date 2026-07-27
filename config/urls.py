@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.urls import path
 
 
-from config.views import map_view, form_view, test_view
+from apps.events.views import map_view, form_view, test_view
 
 def health(_): return HttpResponse("ok")
 urlpatterns = [

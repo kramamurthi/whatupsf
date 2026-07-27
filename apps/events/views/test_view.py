@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from config.models import Bands
-from config.models import Events
-from config.models import Venues
+from apps.events.models import Bands
+from apps.events.models import Events
+from apps.events.models import Venues
 import json
 
 

@@ -31,7 +31,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'config',
+    'apps.events',
+    'apps.marina_views',
     'bootstrap3_datetime',
 ]
 
@@ -81,7 +82,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # required for collectstatic
 STATICFILES_DIRS = [
-    BASE_DIR / 'config' / 'static',
+    BASE_DIR / 'core' / 'static',
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -94,7 +95,7 @@ USE_CONVEX_HULL = True  # Set to True to experiment with convex hulls
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # add template dirs if you have them
+        'DIRS': [BASE_DIR / 'core' / 'templates'],  # shared templates (base.html)
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
