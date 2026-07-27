@@ -14,6 +14,24 @@ const CONFIG = window.MARINA_CONFIG || {};
 const SF_CENTRE = [37.7749, -122.4494];
 const DEFAULT_ZOOM = 13;
 
+// Elevations are stored and computed in metres because that is what the DEM
+// provides; feet appear only on screen. The slider itself reads in feet.
+const M_TO_FT = 3.280839895;
+
+const MAX_ADDED_FT = 250;
+
+// Inline SVG so the pin needs no image assets from the Leaflet CDN.
+const PIN_ICON = L.divIcon({
+    className: 'marina-pin',
+    html: `<svg width="26" height="34" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg">
+             <path d="M13 33C13 33 24 19.5 24 12A11 11 0 1 0 2 12C2 19.5 13 33 13 33Z"
+                   fill="#00f0ff" fill-opacity="0.9" stroke="#04070f" stroke-width="1.5"/>
+             <circle cx="13" cy="12" r="4.2" fill="#04070f"/>
+           </svg>`,
+    iconSize: [26, 34],
+    iconAnchor: [13, 34],
+});
+
 const el = {
     hint: document.getElementById('marina-hint'),
     readout: document.getElementById('marina-readout'),
@@ -23,6 +41,7 @@ const el = {
     heightLabel: document.getElementById('marina-height-label'),
     total: document.getElementById('marina-total'),
     error: document.getElementById('marina-error'),
+    open: document.getElementById('marina-open'),
 };
 
 const state = {
@@ -56,20 +75,20 @@ function initMap() {
     map.on('click', (event) => selectPoint(event.latlng.lat, event.latlng.lng));
 }
 
-async function selectPoint(lat, lng) {
+/**
+ * Place the camera at a point and read its ground elevation.
+ *
+ * `desiredAltM` restores a previous total altitude — used when returning from
+ * the rendered view — by backing out how much structure height it implied.
+ */
+async function selectPoint(lat, lng, desiredAltM = null) {
     state.lat = lat;
     state.lng = lng;
 
     if (marker) {
         marker.setLatLng([lat, lng]);
     } else {
-        marker = L.circleMarker([lat, lng], {
-            radius: 7,
-            color: '#00f0ff',
-            weight: 2,
-            fillColor: '#00f0ff',
-            fillOpacity: 0.4,
-        }).addTo(map);
+        marker = L.marker([lat, lng], { icon: PIN_ICON, keyboard: false }).addTo(map);
     }
 
     el.hint.classList.add('hidden');
@@ -89,7 +108,12 @@ async function selectPoint(lat, lng) {
         }
 
         state.groundM = data.elevation_m;
-        el.ground.textContent = `${data.elevation_m.toFixed(1)} m`;
+        el.ground.textContent = `${Math.round(data.elevation_m * M_TO_FT)} ft`;
+
+        if (desiredAltM !== null) {
+            const addedFt = (desiredAltM - data.elevation_m) * M_TO_FT;
+            el.height.value = Math.min(MAX_ADDED_FT, Math.max(0, Math.round(addedFt / 5) * 5));
+        }
         render();
     } catch (error) {
         state.groundM = null;
@@ -100,17 +124,43 @@ async function selectPoint(lat, lng) {
 }
 
 function render() {
-    const added = Number(el.height.value);
-    el.heightLabel.textContent = `${added} m`;
+    const addedFt = Number(el.height.value);
+    el.heightLabel.textContent = `${addedFt} ft`;
 
     if (state.groundM === null) {
         el.total.textContent = '—';
         return;
     }
-    el.total.textContent = `${(state.groundM + added).toFixed(1)} m`;
+    const totalFt = state.groundM * M_TO_FT + addedFt;
+    el.total.textContent = `${Math.round(totalFt)} ft`;
 }
 
 el.height.addEventListener('input', render);
 
+el.open.addEventListener('click', () => {
+    if (state.groundM === null) return;
+    // The API speaks metres; the slider speaks feet.
+    const altM = state.groundM + Number(el.height.value) / M_TO_FT;
+    const query = new URLSearchParams({
+        lat: state.lat.toFixed(6),
+        lng: state.lng.toFixed(6),
+        alt: altM.toFixed(1),
+    });
+    window.location.href = `${CONFIG.frustumUrl}?${query}`;
+});
+
+/** Restore a selection handed back in the query string, e.g. after Esc. */
+function restoreFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const lat = parseFloat(params.get('lat'));
+    const lng = parseFloat(params.get('lng'));
+    const alt = parseFloat(params.get('alt'));
+    if (!isFinite(lat) || !isFinite(lng)) return;
+
+    map.setView([lat, lng], Math.max(map.getZoom(), 14));
+    selectPoint(lat, lng, isFinite(alt) ? alt : null);
+}
+
 initMap();
+restoreFromQuery();
 render();

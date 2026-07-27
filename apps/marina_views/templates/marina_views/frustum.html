@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Camera view - Marina Views{% endblock %}
+
+{% block extra_head %}
+<style>
+    #frustum-canvas {
+        display: block;
+        width: 100%;
+        height: calc(100vh - 64px);
+        cursor: grab;
+        touch-action: none;
+    }
+    #frustum-canvas.dragging { cursor: grabbing; }
+    .fov-btn {
+        border-color: #252525;
+        color: #9ca3af;
+    }
+    .fov-btn.active {
+        border-color: #00f0ff;
+        color: #00f0ff;
+        background: rgba(0, 240, 255, 0.12);
+    }
+    .frustum-chip {
+        position: absolute;
+        z-index: 20;
+        background: rgba(18, 18, 18, 0.85);
+        border: 1px solid #252525;
+        border-radius: 0.6rem;
+        padding: 0.5rem 0.8rem;
+        backdrop-filter: blur(6px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative">
+    <canvas id="frustum-canvas"></canvas>
+
+    <div class="frustum-chip" style="top: 1rem; left: 1rem;">
+        <div class="text-xs text-gray-500">Looking</div>
+        <div class="text-2xl font-bold text-neon-cyan tabular-nums">
+            <span id="frustum-compass">N</span>
+            <span id="frustum-heading" class="text-base text-gray-400">0&deg;</span>
+        </div>
+        <div id="frustum-position" class="text-[11px] text-gray-500 mt-1 tabular-nums">&mdash;</div>
+    </div>
+
+    <div class="frustum-chip text-xs text-gray-400"
+         style="bottom: 1rem; left: 50%; transform: translateX(-50%);">
+        Drag or use &larr; &rarr; to pan &middot; <kbd class="text-neon-cyan">Esc</kbd> for the map
+    </div>
+
+    <div class="frustum-chip" style="top: 1rem; right: 1rem;">
+        <div class="text-[10px] uppercase text-gray-500 mb-1">Field of view</div>
+        <div class="flex gap-1 mb-3">
+            <button data-fov="100" class="fov-btn px-2 py-1 rounded text-[11px] border">100&deg;</button>
+            <button data-fov="50" class="fov-btn px-2 py-1 rounded text-[11px] border">50&deg;</button>
+        </div>
+        <div class="text-[10px] text-gray-600 mb-3">vertical &times;2</div>
+        <div class="text-[10px] uppercase text-gray-500 mb-1">Distance bands</div>
+        <div id="frustum-legend" class="text-[11px] text-gray-400 space-y-1"></div>
+    </div>
+
+    <div id="frustum-status" class="frustum-chip text-sm text-gray-300"
+         style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        Casting rays&hellip;
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    window.MARINA_CONFIG = {
+        panoramaUrl: '{% url "marina_views:api_panorama" %}',
+        pickerUrl: '{% url "marina_views:picker" %}'
+    };
+</script>
+<script type="module" src="/static/marina_views/js/frustum.js?v=5"></script>
+{% endblock %}

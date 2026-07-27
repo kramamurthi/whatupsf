@@ -6,9 +6,10 @@ of `geometry` being pure and `sight_lines()` accepting its landmarks as an
 argument.
 """
 
+import numpy as np
 from django.test import SimpleTestCase
 
-from . import geometry, visibility
+from . import camera, geometry, visibility
 from .models import Landmark, Viewpoint
 
 # Reference coordinates, checked against published figures.
@@ -195,3 +196,63 @@ class SightLineTests(SimpleTestCase):
         ]
         visible = visibility.visible_landmarks(_viewpoint(), landmarks)
         self.assertEqual([line.landmark.name for line in visible], ['Test Landmark'])
+
+
+class CurvatureTests(SimpleTestCase):
+
+    def test_drop_at_ten_km_matches_surveying_figure(self):
+        # ~6.7m with standard refraction; ~7.8m without.
+        self.assertAlmostEqual(camera.curvature_drop_m(10000.0), 6.7, delta=0.15)
+
+    def test_drop_grows_with_the_square_of_distance(self):
+        near = camera.curvature_drop_m(10000.0)
+        far = camera.curvature_drop_m(20000.0)
+        self.assertAlmostEqual(far / near, 4.0, places=6)
+
+    def test_no_drop_at_zero_distance(self):
+        self.assertEqual(camera.curvature_drop_m(0.0), 0.0)
+
+
+class ElevationAngleTests(SimpleTestCase):
+
+    def test_target_high_above_and_close(self):
+        angle = camera.elevation_angle_deg(1000.0, 100.0, 0.0)
+        self.assertAlmostEqual(angle, 5.71, delta=0.05)
+
+    def test_equal_heights_dip_slightly_from_curvature(self):
+        # Same elevation, so only the earth's curve separates them.
+        angle = camera.elevation_angle_deg(10000.0, 50.0, 50.0)
+        self.assertLess(angle, 0.0)
+        self.assertAlmostEqual(angle, -0.038, delta=0.01)
+
+    def test_looking_down_from_a_hill(self):
+        self.assertLess(camera.elevation_angle_deg(500.0, 0.0, 200.0), -20.0)
+
+    def test_further_away_is_lower_for_equal_heights(self):
+        near = camera.elevation_angle_deg(5000.0, 100.0, 100.0)
+        far = camera.elevation_angle_deg(50000.0, 100.0, 100.0)
+        self.assertGreater(near, far)
+
+    def test_mount_tamalpais_from_the_marina(self):
+        # 784m summit, 18.3km away, eye at 4.6m: a shade over two degrees up.
+        angle = camera.elevation_angle_deg(18300.0, 784.0, 4.6)
+        self.assertAlmostEqual(angle, 2.37, delta=0.1)
+
+    def test_accepts_numpy_arrays(self):
+        distances = np.array([1000.0, 2000.0, 4000.0])
+        angles = camera.elevation_angle_deg(distances, 100.0, 0.0)
+        self.assertEqual(angles.shape, (3,))
+        # Same target height gets lower as it recedes.
+        self.assertTrue(np.all(np.diff(angles) < 0))
+
+
+class HorizonDipTests(SimpleTestCase):
+
+    def test_eye_level_at_sea_level_has_no_dip(self):
+        self.assertAlmostEqual(camera.horizon_dip_deg(0.0), 0.0, places=9)
+
+    def test_dip_from_a_low_shoreline(self):
+        self.assertAlmostEqual(camera.horizon_dip_deg(4.6), -0.064, delta=0.005)
+
+    def test_dip_deepens_with_height(self):
+        self.assertLess(camera.horizon_dip_deg(200.0), camera.horizon_dip_deg(10.0))

@@ -22,6 +22,11 @@
     input[type="range"] {
         accent-color: #00f0ff;
     }
+    /* divIcon wrappers get a white box by default; the SVG is the whole pin. */
+    .marina-pin {
+        background: none;
+        border: none;
+    }
 </style>
 {% endblock %}
 
@@ -49,9 +54,9 @@
 
             <label for="marina-height" class="block text-xs text-gray-500 mb-2">
                 Additional structure height
-                <span id="marina-height-label" class="text-neon-cyan font-semibold">0 m</span>
+                <span id="marina-height-label" class="text-neon-cyan font-semibold">0 ft</span>
             </label>
-            <input type="range" id="marina-height" min="0" max="300" step="1" value="0"
+            <input type="range" id="marina-height" min="0" max="250" step="5" value="0"
                    class="w-full mb-4">
 
             <div class="flex justify-between items-baseline pt-3 border-t border-midnight-600">
@@ -59,12 +64,13 @@
                 <span id="marina-total" class="text-2xl font-bold text-neon-green tabular-nums">&mdash;</span>
             </div>
 
-            <button id="marina-open" disabled
-                    class="mt-4 w-full py-2 rounded-lg bg-midnight-700 text-gray-500 cursor-not-allowed text-sm">
+            <button id="marina-open"
+                    class="mt-4 w-full py-2 rounded-lg bg-neon-cyan/20 border border-neon-cyan
+                           text-neon-cyan hover:bg-neon-cyan/30 transition-colors text-sm font-semibold">
                 Open camera view
             </button>
             <p class="mt-2 text-[11px] text-gray-600">
-                The rendered view arrives in the next milestone.
+                Looking due north at 100&deg;. Drag to pan, Esc to come back.
             </p>
         </div>
 
@@ -80,8 +86,9 @@
     // an environment variable once a second page needs it.
     window.MARINA_CONFIG = {
         stadiaApiKey: '1ce6d341-6ad2-4e0e-a58f-9948f9f8d224',
-        elevationUrl: '{% url "marina_views:api_elevation" %}'
+        elevationUrl: '{% url "marina_views:api_elevation" %}',
+        frustumUrl: '{% url "marina_views:frustum" %}'
     };
 </script>
-<script type="module" src="/static/marina_views/js/picker.js?v=1"></script>
+<script type="module" src="/static/marina_views/js/picker.js?v=4"></script>
 {% endblock %}

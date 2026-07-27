@@ -5,16 +5,52 @@ render or serialise the result. Logic about what can be seen belongs in
 `visibility.py`; logic about the ground belongs in `terrain.py`.
 """
 
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
-from . import terrain, visibility
+from . import panorama, terrain, visibility
 from .models import Viewpoint
+
+#: A ray cast takes a second or so, and nudging the camera by a metre cannot
+#: change the skyline, so results are shared across nearby requests.
+PANORAMA_CACHE_SECONDS = 60 * 60
 
 
 def picker(request):
     """Landing page: pick a point on the map and choose a camera altitude."""
     return render(request, 'marina_views/picker.html')
+
+
+def frustum(request):
+    """Full-page rendered view from a camera position given in the query."""
+    return render(request, 'marina_views/frustum.html')
+
+
+def api_panorama(request):
+    """360 degree horizon profile for a camera at a position and altitude."""
+    try:
+        lat = float(request.GET['lat'])
+        lng = float(request.GET['lng'])
+        alt = float(request.GET['alt'])
+    except (KeyError, TypeError, ValueError):
+        return JsonResponse(
+            {'error': 'lat, lng and alt query parameters are required'},
+            status=400)
+
+    if not (-90.0 <= lat <= 90.0 and -180.0 <= lng <= 180.0):
+        return JsonResponse({'error': 'coordinate out of range'}, status=400)
+    if not (-500.0 <= alt <= 10000.0):
+        return JsonResponse({'error': 'altitude out of range'}, status=400)
+
+    # Round to about a metre horizontally before caching.
+    key = 'marina:panorama:{:.5f}:{:.5f}:{:.1f}'.format(lat, lng, alt)
+    payload = cache.get(key)
+    if payload is None:
+        payload = panorama.terrain_profile(lat, lng, alt)
+        cache.set(key, payload, PANORAMA_CACHE_SECONDS)
+
+    return JsonResponse(payload)
 
 
 def api_elevation(request):

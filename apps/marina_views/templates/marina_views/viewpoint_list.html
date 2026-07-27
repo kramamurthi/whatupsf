@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load imperial %}
 
 {% block title %}Marina Views - What can you see from here?{% endblock %}
 
@@ -26,7 +27,7 @@
             <dl class="text-xs text-gray-500 space-y-1">
                 <div class="flex justify-between">
                     <dt>Eye elevation</dt>
-                    <dd class="text-gray-300">{{ viewpoint.eye_elevation_m|floatformat:1 }} m</dd>
+                    <dd class="text-gray-300">{{ viewpoint.eye_elevation_m|feet }} ft</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt>Facing</dt>

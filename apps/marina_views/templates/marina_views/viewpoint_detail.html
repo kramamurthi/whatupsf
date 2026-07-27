@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load imperial %}
 
 {% block title %}{{ viewpoint.name }} - Marina Views{% endblock %}
 
@@ -14,7 +15,7 @@
         <p class="text-gray-400 mb-4">{{ viewpoint.description }}</p>
         {% endif %}
         <p class="text-sm text-gray-500">
-            Eye elevation {{ viewpoint.eye_elevation_m|floatformat:1 }} m &middot;
+            Eye elevation {{ viewpoint.eye_elevation_m|feet }} ft &middot;
             facing {{ viewpoint.facing_bearing_deg|floatformat:0 }}&deg; &middot;
             {{ viewpoint.field_of_view_deg|floatformat:0 }}&deg; field of view
         </p>
@@ -42,13 +43,13 @@
                     {% for line in visible_lines %}
                     <tr class="bg-midnight-800">
                         <td class="px-4 py-3 font-medium">{{ line.landmark.name }}</td>
-                        <td class="px-4 py-3 text-right tabular-nums">{{ line.distance_km|floatformat:1 }} km</td>
+                        <td class="px-4 py-3 text-right tabular-nums">{{ line.distance_km|miles }} mi</td>
                         <td class="px-4 py-3">
                             <span class="text-neon-cyan font-semibold">{{ line.compass }}</span>
                             <span class="text-gray-500 tabular-nums">{{ line.bearing_deg|floatformat:0 }}&deg;</span>
                         </td>
-                        <td class="px-4 py-3 text-right tabular-nums text-gray-400">{{ line.landmark.height_m|floatformat:0 }} m</td>
-                        <td class="px-4 py-3 text-right tabular-nums text-gray-500">+{{ line.horizon_margin_km|floatformat:0 }} km</td>
+                        <td class="px-4 py-3 text-right tabular-nums text-gray-400">{{ line.landmark.height_m|feet }} ft</td>
+                        <td class="px-4 py-3 text-right tabular-nums text-gray-500">+{{ line.horizon_margin_km|miles:0 }} mi</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -76,7 +77,7 @@
                     {% for line in blocked_lines %}
                     <tr class="bg-midnight-800 text-gray-500">
                         <td class="px-4 py-3">{{ line.landmark.name }}</td>
-                        <td class="px-4 py-3 text-right tabular-nums">{{ line.distance_km|floatformat:1 }} km</td>
+                        <td class="px-4 py-3 text-right tabular-nums">{{ line.distance_km|miles }} mi</td>
                         <td class="px-4 py-3">{{ line.compass }} <span class="tabular-nums">{{ line.bearing_deg|floatformat:0 }}&deg;</span></td>
                         <td class="px-4 py-3">{{ line.blocked_reason }}</td>
                     </tr>
