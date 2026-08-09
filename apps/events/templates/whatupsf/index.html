@@ -101,15 +101,282 @@
         border-bottom: none;
     }
 
+    /* Locate control — deliberately loud, it is the one thing you hunt for in a crowd. */
+    .leaflet-bar a.locate-btn,
     .locate-btn {
-        font-size: 18px;
-        line-height: 34px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 50% !important;
+        background: rgba(14, 8, 10, 0.92);
+        color: #FF2D2D;
+        border: 2px solid #FF2D2D;
+        box-shadow: 0 0 14px rgba(255, 45, 45, 0.65), 0 2px 10px rgba(0, 0, 0, 0.5);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .leaflet-bar a.locate-btn:hover {
+        background: rgba(30, 8, 12, 0.96);
+        box-shadow: 0 0 20px rgba(255, 45, 45, 0.9), 0 2px 10px rgba(0, 0, 0, 0.5);
+        transform: scale(1.06);
+    }
+
+    /* The control sits in a .leaflet-bar, whose chrome would boxes-in the circle. */
+    .leaflet-bar:has(> .locate-btn) {
+        border: none;
+        box-shadow: none;
+        background: transparent;
     }
 
     /* Map container */
     #map {
         height: calc(100vh - 64px);
         width: 100%;
+    }
+
+    /* ---- Festival time slider ---------------------------------------- */
+    .time-slider {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;               /* above Leaflet panes, below the popup layer */
+        padding: 8px 16px calc(10px + env(safe-area-inset-bottom));
+        background: rgba(10, 12, 18, 0.92);
+        backdrop-filter: blur(6px);
+        border-top: 1px solid rgba(0, 240, 255, 0.25);
+    }
+
+    .time-slider__head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 2px;
+        min-height: 28px;
+    }
+
+    .time-slider__value {
+        color: #00f0ff;
+        font-size: 1.15rem;
+        font-weight: 700;
+        text-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
+    }
+
+    .time-slider__now {
+        color: #39FF14;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        border: 1px solid rgba(57, 255, 20, 0.5);
+        border-radius: 9999px;
+        padding: 1px 7px;
+    }
+
+    .time-slider__reset {
+        margin-left: auto;
+        background: rgba(0, 240, 255, 0.12);
+        border: 1px solid rgba(0, 240, 255, 0.55);
+        color: #00f0ff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        border-radius: 9999px;
+        padding: 4px 12px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .time-slider__reset:hover {
+        background: rgba(0, 240, 255, 0.22);
+    }
+
+    .time-slider__scale {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        color: #7a8290;
+        font-size: 0.65rem;
+        margin-top: -2px;
+    }
+
+    .time-slider__clock {
+        color: #9aa3b2;
+        font-weight: 600;
+    }
+
+    .time-slider__input {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 26px;                /* generous touch target for a phone */
+        background: transparent;
+        margin: 0;
+    }
+
+    .time-slider__input::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, rgba(0,240,255,0.65), rgba(255,0,255,0.65));
+    }
+
+    .time-slider__input::-moz-range-track {
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, rgba(0,240,255,0.65), rgba(255,0,255,0.65));
+    }
+
+    .time-slider__input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 22px;
+        height: 22px;
+        margin-top: -9px;
+        border-radius: 50%;
+        background: #0a0c12;
+        border: 2px solid #00f0ff;
+        box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+        cursor: pointer;
+    }
+
+    .time-slider__input::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #0a0c12;
+        border: 2px solid #00f0ff;
+        box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+        cursor: pointer;
+    }
+
+    /* Lift Leaflet's bottom controls clear of the slider bar. The height is published
+       by TimeSlider at runtime, so adding a row to the bar cannot re-bury them. */
+    body.has-time-slider .leaflet-bottom {
+        bottom: calc(var(--time-slider-h, 96px) + 12px);
+    }
+
+    /* The attribution wraps to full width on a phone and lands on top of the locate
+       button, swallowing its taps. Give the button its own row above it, and let clicks
+       fall through the attribution's empty space while its links stay clickable. */
+    body.has-time-slider .leaflet-bottom.leaflet-left {
+        bottom: calc(var(--time-slider-h, 96px) + 42px);
+        z-index: 1001;
+    }
+
+    .leaflet-control-attribution {
+        pointer-events: none;
+    }
+
+    .leaflet-control-attribution a {
+        pointer-events: auto;
+    }
+
+    /* ---- Stage readout, parked in the dimmed band above the park ----- */
+    .stage-panel {
+        position: fixed;
+        top: 72px;                    /* clear of the 64px header */
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+        width: calc(100% - 24px);
+        max-width: 460px;
+        z-index: 1000;
+        padding: 10px 14px 12px;
+        box-sizing: border-box;
+        border-radius: 12px;
+        background: rgba(12, 14, 20, 0.93);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(0, 240, 255, 0.3);
+        box-shadow: 0 0 22px rgba(0, 240, 255, 0.18);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .stage-panel.is-open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .stage-panel__title,
+    .stage-panel__title a {
+        color: #00f0ff;
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-decoration: none;
+        text-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
+        padding-right: 24px;          /* room for the close button */
+        display: block;
+    }
+
+    .stage-panel__close {
+        position: absolute;
+        top: 6px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: #ff00ff;
+        font-size: 1.4rem;
+        line-height: 1;
+        cursor: pointer;
+        padding: 2px 4px;
+    }
+
+    .stage-panel__body h2 {
+        color: #ff00ff;
+        font-size: 0.95rem;
+        margin: 4px 0 0;
+    }
+
+    .stage-panel__body iframe {
+        max-width: 100%;
+    }
+
+    /* ---- Single-show popup ------------------------------------------- */
+    .show-tag {
+        display: inline-block;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        padding: 2px 8px;
+        margin-right: 5px;
+        border-radius: 9999px;
+        color: #ffb347;
+        border: 1px solid rgba(255, 179, 71, 0.5);
+    }
+
+    /* Playing right now, and the slider still agrees with the clock. */
+    .show-tag--now {
+        color: #39FF14;
+        border-color: rgba(57, 255, 20, 0.6);
+        box-shadow: 0 0 10px rgba(57, 255, 20, 0.25);
+    }
+
+    /* Still to come. */
+    .show-tag--upcoming {
+        color: #00f0ff;
+        border-color: rgba(0, 240, 255, 0.5);
+    }
+
+    /* Already finished. */
+    .show-tag--completed {
+        color: #8b93a1;
+        border-color: rgba(139, 147, 161, 0.45);
+    }
+
+    /* Position in the day (first/last), shown alongside the status rather than
+       instead of it — the closer is still either upcoming or completed. */
+    .show-tag--edge {
+        color: #ffb347;
+        border-color: rgba(255, 179, 71, 0.5);
+        background: rgba(255, 179, 71, 0.08);
+    }
+
+    /* Leaflet sizes popups by content, then adds wrapper padding on top, which can
+       push the whole thing past a narrow viewport. Hard-stop it. */
+    .leaflet-popup-content-wrapper {
+        max-width: calc(100vw - 24px);
+        box-sizing: border-box;
     }
 
     /* Bottom sheet for mobile */
@@ -176,20 +443,45 @@
     }
 
     /* User location dot */
+    /* "You are here" beacon: a beating red core throwing off radar rings. Two rings on
+       the same animation, offset by half its duration, give a continuous pulse-out. */
     .user-location-dot {
-        width: 16px;
-        height: 16px;
-        background: #39FF14;
+        position: relative;
+        width: 18px;
+        height: 18px;
+        background: radial-gradient(circle at 32% 30%, #ff7a7a 0%, #ff1f3d 55%, #c60022 100%);
         border-radius: 50%;
         border: 2px solid #fff;
-        box-shadow: 0 0 8px rgba(57, 255, 20, 0.8);
-        animation: userPulse 2s ease-out infinite;
+        box-shadow: 0 0 14px rgba(255, 31, 61, 0.95), 0 0 30px rgba(255, 31, 61, 0.55);
+        animation: userHeartbeat 1.3s ease-in-out infinite;
     }
 
-    @keyframes userPulse {
-        0%   { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.6); }
-        70%  { box-shadow: 0 0 0 12px rgba(57, 255, 20, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
+    .user-location-dot::before,
+    .user-location-dot::after {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 31, 61, 0.85);
+        animation: userRadar 2.6s cubic-bezier(0.15, 0.6, 0.3, 1) infinite;
+    }
+
+    .user-location-dot::after {
+        animation-delay: 1.3s;
+    }
+
+    /* Double-thump, like a pulse rather than a metronome. */
+    @keyframes userHeartbeat {
+        0%, 100% { transform: scale(1); }
+        14%      { transform: scale(1.30); }
+        28%      { transform: scale(1.02); }
+        42%      { transform: scale(1.18); }
+        60%      { transform: scale(1); }
+    }
+
+    @keyframes userRadar {
+        0%   { transform: scale(1);   opacity: 0.85; }
+        100% { transform: scale(4.5); opacity: 0; }
     }
 
     /* Disable animations on venue and cluster markers to prevent position glitches */
@@ -335,7 +627,8 @@
 <!-- Map Configuration -->
 <script>
     window.MAP_CONFIG = {
-        useConvexHull: {{ use_convex_hull|lower }}
+        useConvexHull: {{ use_convex_hull|lower }},
+        oslActive: {% if osl_active %}true{% else %}false{% endif %}
     };
 </script>
 

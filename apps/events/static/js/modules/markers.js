@@ -1,3 +1,5 @@
+import { nowMinutesSF } from './time-slider.js';
+
 /**
  * Calculate convex hull of points using Graham scan algorithm
  * @param {Array} points - Array of [lat, lng] coordinates
@@ -48,6 +50,18 @@ function isLeftTurn(p1, p2, p3) {
     return ((p2[1] - p1[1]) * (p3[0] - p2[0]) - (p2[0] - p1[0]) * (p3[1] - p2[1])) > 0;
 }
 
+// How long the final act of the day is assumed to run, since nothing follows it to
+// mark its end. Only affects whether the closer still reads as "on now".
+const ASSUMED_SET_MINUTES = 75;
+
+/** Parse publish.json's "12:35 PM" into minutes since midnight, or null. */
+export function parseClockToMinutes(text) {
+    const m = /^\s*(\d{1,2}):(\d{2})\s*(AM|PM)\s*$/i.exec(text || '');
+    if (!m) return null;
+    const hour = (parseInt(m[1], 10) % 12) + (/pm/i.test(m[3]) ? 12 : 0);
+    return hour * 60 + parseInt(m[2], 10);
+}
+
 /**
  * MarkerFactory - Creates venue and cluster markers with modern styling
  */
@@ -56,6 +70,17 @@ export class MarkerFactory {
         this.venueColorActive = '#39FF14';   // Neon green for venues with events today
         this.venueColorInactive = '#A0856C'; // Muted amber for venues with no events today
         this.selectedColor = '#FF00FF'; // Magenta for selected
+
+        // Show one act per venue instead of the whole lineup. Set during OSL, where a
+        // stage's full day is unreadable on a phone.
+        this.singleShowMode = !!window.MAP_CONFIG?.oslActive;
+        // {minutes} is what the slider points at, {realNow} the actual clock, {custom}
+        // whether the user has scrubbed away from now. Labelling needs all three.
+        // Overridden by MapManager once the time slider exists.
+        this.getTimeContext = () => {
+            const now = nowMinutesSF();
+            return { minutes: now, realNow: now, custom: false };
+        };
     }
 
     hasEvents(venue) {
@@ -78,19 +103,27 @@ export class MarkerFactory {
         marker._venueColor = color; // store for reset
         marker._isActive = active;  // store for sizing
 
-        // Build event list HTML
-        const eventListHTML = this.buildEventList(venue.events);
+        // In single-show mode the readout lives in the fixed StagePanel above the park, not
+        // in a popup hanging off this marker, so nothing is bound here at all.
+        if (this.singleShowMode) {
+            marker.venueData = venue;
+            return marker;
+        }
 
-        // Create popup content with neon styling
+        // Build event list HTML
         const popupContent = `
             <a href="http://${venue.url}" target="_blank" rel="noopener">
                 <h1>${venue.venue}</h1>
             </a>
-            ${eventListHTML}
+            ${this.buildEventList(venue.events)}
         `;
 
+        // A full lineup is taller and wider than a phone screen, so cap both and let the
+        // body scroll. 480 alone overflows a 390px viewport once Leaflet adds its wrapper
+        // padding, hence the CSS guard on .leaflet-popup-content-wrapper as well.
         marker.bindPopup(popupContent, {
-            maxWidth: 480,
+            maxWidth: Math.min(480, Math.max(240, window.innerWidth - 48)),
+            maxHeight: Math.max(240, Math.round(window.innerHeight * 0.6)),
             className: 'dark-popup'
         });
 
@@ -98,9 +131,18 @@ export class MarkerFactory {
         // which would block interaction with embedded iframes.
         marker.on('popupopen', function () {
             const el = this.getPopup().getElement();
-            if (el) {
-                L.DomEvent.disableClickPropagation(el);
-                L.DomEvent.disableScrollPropagation(el);
+            if (!el) return;
+            L.DomEvent.disableClickPropagation(el);
+            L.DomEvent.disableScrollPropagation(el);
+
+            // Leaflet hangs the popup above its marker. A cap based on window height
+            // cannot know how much room that leaves, and when the view is fenced autoPan
+            // cannot create any, so a tall lineup slides up under the site header. Clamp
+            // the scroll area to the space that actually exists above this marker.
+            const scroller = el.querySelector('.leaflet-popup-scrolled');
+            if (scroller) {
+                const y = this._map.latLngToContainerPoint(this.getLatLng()).y;
+                scroller.style.maxHeight = Math.max(160, y - 48) + 'px';
             }
         });
 
@@ -163,6 +205,67 @@ export class MarkerFactory {
      * 3-band nights: 2 openers side-by-side (small) on top, headliner full-width (large) on bottom.
      * All other counts: vertical stack.
      */
+    /**
+     * Pick the single act to show for a venue at a given moment.
+     * Returns {event, status} where status is 'now' or 'next', or {event: null,
+     * status: 'done', last} once the day's programme has finished.
+     */
+    pickShow(events, ctx) {
+        const { minutes, realNow, custom } = ctx;
+
+        const list = (events || [])
+            .map((e) => ({ e, min: parseClockToMinutes(e.eventTime) }))
+            .filter((x) => x.min !== null)
+            .sort((a, b) => a.min - b.min);
+
+        if (!list.length) return null;
+
+        // An act owns the slot from its start until the next one begins. The closer has no
+        // successor, so it gets a nominal set length.
+        const endOf = (i) => (i + 1 < list.length ? list[i + 1].min : list[i].min + ASSUMED_SET_MINUTES);
+
+        // Which act the *slider* is pointing at: the one whose window contains it, else
+        // the next one to start, else — scrubbed past the close — the day's finale.
+        let idx = list.findIndex((x, i) => x.min <= minutes && minutes < endOf(i));
+        if (idx === -1) idx = list.findIndex((x) => x.min > minutes);
+        if (idx === -1) idx = list.length - 1;
+
+        // The status compares that act to the *real* clock, not the slider: scrubbing to
+        // 9pm should not claim a set is on now when it is still the afternoon.
+        const chosen = list[idx];
+        const endsAt = endOf(idx);
+
+        let status;
+        if (!custom && chosen.min <= realNow && realNow < endsAt) status = 'now';
+        else if (endsAt <= realNow) status = 'completed';
+        else status = 'upcoming';
+
+        // Position in the day is independent of status — the closer can be upcoming or
+        // completed and is the closer either way — so it rides along as its own flag.
+        return {
+            event: chosen.e,
+            status,
+            isFirst: idx === 0,
+            isLast: idx === list.length - 1,
+        };
+    }
+
+    /**
+     * Popup body showing exactly one act — a full lineup is too much to read on a phone.
+     */
+    buildSingleEvent(events, ctx, size = 'small') {
+        const pick = this.pickShow(events, ctx);
+        if (!pick) return '<p style="color:#808080">No events here today</p>';
+
+        const LABELS = { now: 'ON NOW', completed: 'COMPLETED', upcoming: 'UPCOMING' };
+
+        const tags = [`<span class="show-tag show-tag--${pick.status}">${LABELS[pick.status]}</span>`];
+        if (pick.isFirst) tags.push('<span class="show-tag show-tag--edge">FIRST EVENT</span>');
+        if (pick.isLast) tags.push('<span class="show-tag show-tag--edge">LAST EVENT</span>');
+
+        return `<div class="single-show">${tags.join('')}${this.buildEventCard(pick.event, size)}</div>`;
+    }
+
     buildEventList(events) {
         if (!events || events.length === 0 || events[0].eventName === '') {
             return '<p style="color:#808080">No Events Today</p>';

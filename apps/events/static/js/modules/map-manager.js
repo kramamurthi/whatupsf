@@ -3,6 +3,14 @@
  */
 import { ClusteringEngine } from './clustering.js';
 import { MarkerFactory } from './markers.js';
+import { TimeSlider, nowMinutesSF } from './time-slider.js';
+import { StagePanel } from './stage-panel.js';
+
+// Golden Gate Park: Fulton to Lincoln, Stanyan to the Great Highway. Used both as the
+// hole in the Outside Lands dim mask and as the fence the locked view cannot leave.
+const PARK_SW = [37.7645, -122.5110];
+const PARK_NE = [37.7740, -122.4530];
+
 
 export class MapManager {
     constructor(mapElementId, stadiaApiKey, useConvexHull = false) {
@@ -39,21 +47,58 @@ export class MapManager {
             }
         );
 
-        // Initialize map with dark tiles
+        // Outside Lands 2026 — lock the map onto Golden Gate Park for the run of the
+        // festival. The window is decided server-side (map_view.osl_active) so the date
+        // lives in exactly one place; see window.MAP_CONFIG in whatupsf/index.html.
+        const isOSL = !!window.MAP_CONFIG?.oslActive;
+        this.isOSL = isOSL;
+        const OSL_CENTER = [37.7698, -122.4890];
+        const OSL_ZOOM = 16;
+        // Bounding box of the 8 stages, used to guarantee none of them lands off-screen.
+        const OSL_BOUNDS = L.latLngBounds([[37.76759, -122.49495], [37.77193, -122.48307]]);
+
+        // Initialize map with dark tiles. During the festival the view is fixed: no
+        // dragging, no zooming, no keyboard nav — it is a poster of the park, not a
+        // browsable map.
         this.map = L.map(this.mapElementId, {
-            center: [37.7749, -122.4494], // San Francisco center (shifted west)
-            zoom: 14,
+            center: isOSL ? OSL_CENTER : [37.7749, -122.4494], // San Francisco center (shifted west)
+            zoom: isOSL ? OSL_ZOOM : 14,
             minZoom: 11,
             maxZoom: 17,
             zoomControl: false,
+            dragging: !isOSL,
+            touchZoom: !isOSL,
+            doubleClickZoom: !isOSL,
+            boxZoom: !isOSL,
+            keyboard: !isOSL,
             layers: [darkTiles]
         });
 
         // Disable scroll wheel zoom (use pinch on mobile)
         this.map.scrollWheelZoom.disable();
 
-        // Add zoom control to bottom-left
-        L.control.zoom({ position: 'bottomleft' }).addTo(this.map);
+        if (isOSL) {
+            // Zoom 16 frames the park nicely on a laptop but crops the stage footprint on
+            // a phone — and with panning off, a cropped stage is simply unreachable. Back
+            // off only as far as needed to fit all 8, then freeze the zoom there.
+            const fitZoom = Math.min(OSL_ZOOM, this.map.getBoundsZoom(OSL_BOUNDS, false, L.point(28, 28)));
+            this.map.setView(OSL_CENTER, fitZoom, { animate: false });
+            this.map.setMinZoom(fitZoom);
+            this.map.setMaxZoom(fitZoom);
+
+            // Fence the map to the park. Dragging is already off, so the only thing that
+            // can still move the view is a popup's autoPan — which we want, because a
+            // popup anchored near a phone's screen edge is unreadable otherwise. This
+            // bounds that nudge: it can reposition within the park, never wander off it.
+            this.map.setMaxBounds(L.latLngBounds(PARK_SW, PARK_NE));
+            this.map.options.maxBoundsViscosity = 1.0;
+
+            // Mute everything outside the park so the festival footprint reads first.
+            this.addParkSpotlight();
+        } else {
+            // Add zoom control to bottom-left
+            L.control.zoom({ position: 'bottomleft' }).addTo(this.map);
+        }
 
         // Add locate-me control
         this.addLocateMeControl();
@@ -79,6 +124,38 @@ export class MapManager {
     }
 
     /**
+     * Dim everything outside Golden Gate Park.
+     *
+     * One polygon whose outer ring is the whole world and whose inner ring is the park;
+     * Leaflet treats the second ring as a hole, so the fill covers everything except the
+     * park. Sits in its own pane above the overlay pane, which means venue circles outside
+     * the park get muted along with the tiles, while popups and the user-location marker
+     * (higher panes) stay crisp. pointer-events:none keeps clicks reaching the markers.
+     */
+    addParkSpotlight() {
+        const WORLD = [[-90, -180], [-90, 180], [90, 180], [90, -180]];
+        const PARK = [
+            [PARK_NE[0], PARK_SW[1]],
+            [PARK_NE[0], PARK_NE[1]],
+            [PARK_SW[0], PARK_NE[1]],
+            [PARK_SW[0], PARK_SW[1]]
+        ];
+
+        this.map.createPane('oslDim');
+        const pane = this.map.getPane('oslDim');
+        pane.style.zIndex = 450;          // tiles 200 < overlay 400 < here < marker 600
+        pane.style.pointerEvents = 'none';
+
+        L.polygon([WORLD, PARK], {
+            pane: 'oslDim',
+            stroke: false,
+            fillColor: '#05060a',
+            fillOpacity: 0.7,
+            interactive: false
+        }).addTo(this.map);
+    }
+
+    /**
      * Add custom locate-me control
      */
     addLocateMeControl() {
@@ -88,8 +165,8 @@ export class MapManager {
         const userIcon = L.divIcon({
             className: '',
             html: `<div class="user-location-dot"></div>`,
-            iconSize: [16, 16],
-            iconAnchor: [8, 8]
+            iconSize: [18, 18],
+            iconAnchor: [9, 9]
         });
 
         const updateUserPos = (latlng, accuracy) => {
@@ -105,8 +182,8 @@ export class MapManager {
             }
             userCircle = L.circle(latlng, {
                 radius: accuracy || 25,
-                color: '#136AEC',
-                fillColor: '#136AEC',
+                color: '#FF2D2D',
+                fillColor: '#FF2D2D',
                 fillOpacity: 0.15,
                 weight: 2
             }).addTo(this.map);
@@ -120,8 +197,9 @@ export class MapManager {
                 const btn = L.DomUtil.create("a", "locate-btn", container);
                 btn.href = "#";
                 btn.title = "Find my location";
-                btn.setAttribute("style", "display:flex;align-items:center;justify-content:center;width:34px;height:34px;");
-                btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#39FF14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                // Sizing and colour live in CSS (.locate-btn) so the control can be
+                // restyled without touching the SVG markup.
+                btn.innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"/>
                     <line x1="12" y1="2" x2="12" y2="6"/>
                     <line x1="12" y1="18" x2="12" y2="22"/>
@@ -139,7 +217,10 @@ export class MapManager {
                     }
 
                     map.locate({
-                        setView: true,
+                        // During OSL the view is pinned to the park; recentring on the
+                        // user would strand them, since dragging is off and there would
+                        // be no way back. Drop the marker, leave the framing alone.
+                        setView: !this.isOSL,
                         maxZoom: 14,
                         watch: false,
                         enableHighAccuracy: true,
@@ -461,7 +542,11 @@ export class MapManager {
 
         // Highlight new selection
         this.markerFactory.highlightMarker(marker, radius);
-        marker.openPopup();
+        if (this.isOSL) {
+            this.showStageInPanel(marker.venueData);
+        } else {
+            marker.openPopup();
+        }
         this.currentSelectedMarkerId = index;
     }
 
@@ -476,7 +561,9 @@ export class MapManager {
 
         // Find nearest marker with popup
         this.displayedMarkers.forEach((marker, index) => {
-            if (marker._popup) {
+            // In festival mode markers carry no popup — their readout goes to the fixed
+            // panel — so selectability keys off venue data instead.
+            if (marker._popup || (this.isOSL && marker.venueData)) {
                 const distance = marker.getLatLng().distanceTo(e.latlng);
                 if (distance < nearestDistance) {
                     nearestDistance = distance;
@@ -514,8 +601,105 @@ export class MapManager {
             this.rawMarkers.push(marker);
         });
 
+        if (this.isOSL) this.addTimeSlider();
+
         // Initial display
         this.showClusteredMarkers();
+
+        // Needs displayedMarkers, so it runs after the first render.
+        if (this.isOSL) this.autoSelectStage();
+    }
+
+    /**
+     * Add the bottom time slider and keep the open popup in sync with it.
+     * Its range comes from the data rather than being hardcoded, so it still frames the
+     * day correctly if set times shift or a different day is being shown.
+     */
+    addTimeSlider() {
+        // Closing the panel has to clear the selection too, or the stage stays magenta
+        // with nothing open to explain why.
+        this.stagePanel = new StagePanel({ onClose: () => this.deselectMarker() });
+
+        this.timeSlider = new TimeSlider({
+            startHour: 12,   // noon
+            endHour: 24,     // midnight
+            onChange: () => this.refreshStagePanel(),
+        });
+
+        // getMinutes() already returns the real clock while the slider is untouched — its
+        // 45-minute notches cannot land exactly on now, and rounding 4:42 to 4:45 can fall
+        // in the next act's slot and mislabel the live set.
+        this.markerFactory.getTimeContext = () => ({
+            minutes: this.timeSlider.getMinutes(),
+            realNow: nowMinutesSF(),
+            custom: !this.timeSlider.isNow(),
+        });
+    }
+
+    /** Drop the current selection and put the marker back to its normal colour. */
+    deselectMarker() {
+        if (this.currentSelectedMarkerId === -1) return;
+        const marker = this.displayedMarkers[this.currentSelectedMarkerId];
+        if (marker && !marker.isCluster) {
+            this.markerFactory.resetMarker(marker, this.clusteringEngine.getZoomRadius(this.map.getZoom()));
+        }
+        this.currentSelectedMarkerId = -1;
+    }
+
+    /**
+     * Open a stage on load so the map arrives with something to read. Prefers whichever
+     * stage the visitor is standing nearest; falls back to Lands End if location is
+     * refused, unavailable, or simply never answered.
+     */
+    autoSelectStage() {
+        const stages = this.displayedMarkers.filter((m) => m.venueData?.url === 'www.sfoutsidelands.com');
+        if (!stages.length) return;
+
+        const pick = (marker) => {
+            const index = this.displayedMarkers.indexOf(marker);
+            if (index !== -1) this.selectMarker(marker, index);
+        };
+        const fallback = () => {
+            if (this.currentSelectedMarkerId !== -1) return;   // already resolved
+            pick(stages.find((m) => /lands end/i.test(m.venueData.venue)) || stages[0]);
+        };
+
+        if (!navigator.geolocation) return fallback();
+
+        // An unanswered permission prompt fires no callback at all, so back the browser's
+        // own timeout with our own — otherwise the map could sit empty indefinitely.
+        const guard = setTimeout(fallback, 9000);
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                clearTimeout(guard);
+                if (this.currentSelectedMarkerId !== -1) return;
+                const here = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                const nearest = stages.reduce((best, m) =>
+                    here.distanceTo(m.getLatLng()) < here.distanceTo(best.getLatLng()) ? m : best);
+                pick(nearest);
+            },
+            () => { clearTimeout(guard); fallback(); },
+            { timeout: 8000, maximumAge: 300000 }
+        );
+    }
+
+    /** Show a stage's act for the selected time in the fixed panel above the park. */
+    showStageInPanel(venue) {
+        if (!this.stagePanel) return;
+        this.stagePanel.show(
+            venue,
+            this.markerFactory.buildSingleEvent(venue.events, this.markerFactory.getTimeContext())
+        );
+    }
+
+    /** Keep the panel in step with the time slider. */
+    refreshStagePanel() {
+        if (!this.stagePanel || !this.stagePanel.isOpen()) return;
+        const venue = this.stagePanel.venue;
+        this.stagePanel.update(
+            this.markerFactory.buildSingleEvent(venue.events, this.markerFactory.getTimeContext())
+        );
     }
 
     /**

@@ -179,12 +179,21 @@ def _retry(fn, attempts=3, delay=5, label=''):
 # Phase 1: Venue Fetch & Calendar Discovery
 # ---------------------------------------------------------------------------
 
-def get_venues():
-    """Read all venues from MySQL. Returns list of (id, name, url, calendar_url) tuples."""
+def get_venues(include_festival=False):
+    """Read all venues from MySQL. Returns list of (id, name, url, calendar_url) tuples.
+
+    Outside Lands stages are held out of the default sweep: they share one JS-driven
+    schedule page, and insert_events() purges a venue's events before re-inserting, so an
+    unattended run could wipe hand-entered festival sets. Pass include_festival=True for
+    the explicit --venue path, where the operator has named a single id on purpose.
+    """
+    sql = "SELECT id, name, url, calendar_url FROM venues WHERE url != ''"
+    if not include_festival:
+        sql += " AND url NOT LIKE '%sfoutsidelands%'"
     db = get_db_connection(DB_NAME)
     cursor = db.cursor()
     try:
-        cursor.execute("SELECT id, name, url, calendar_url FROM venues WHERE url != ''")
+        cursor.execute(sql)
         return cursor.fetchall()
     finally:
         db.close()
@@ -1336,12 +1345,21 @@ if __name__ == '__main__':
 
     if args.venue:
         venue_id = args.venue
-        venues = get_venues()
+        venues = get_venues(include_festival=True)
         match = [(vid, vname, vurl, vcal) for vid, vname, vurl, vcal in venues if vid == venue_id]
         if not match:
             print(f"No venue found with id={venue_id}")
             sys.exit(1)
         vid, vname, vurl, vcal = match[0]
+        if 'sfoutsidelands' in (vurl or ''):
+            # Not a footgun worth leaving loaded. The festival puts all three days and
+            # all eight stages behind one client-side-filtered URL, so this path cannot
+            # tell which day or which stage it is reading: it has already produced one
+            # stage's lineup filed under another, and a whole day mislabelled.
+            print(f"[{vid}] {vname} is an Outside Lands stage — the generic scraper "
+                  f"cannot attribute its events correctly.")
+            print("Use the festival's structured API instead:  python osl_ingest.py")
+            sys.exit(1)
         print(f"[{vid}] {vname}  ({vurl})\n")
         cal_url, method = discover_calendar_url(vid, vname, vurl, vcal)
         if not cal_url:
