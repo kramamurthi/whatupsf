@@ -1,0 +1,26 @@
+/* Shared Marina Views controls, used by both the picker and the rendered view. */
+
+input[type="range"] {
+    accent-color: #00f0ff;
+}
+
+/* Vertical range input. Three declarations because no single one covers the
+   field: `appearance: slider-vertical` is the legacy WebKit/Blink route and is
+   deprecated in newer Chrome, while `writing-mode: vertical-lr` with rtl is the
+   modern standard. Together they cover current and older browsers, and rtl is
+   what makes the track run bottom-to-top, which is the only sane direction for
+   a height control. */
+input[type="range"].marina-vslider {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    -webkit-appearance: slider-vertical;
+    appearance: slider-vertical;
+    width: 1.6rem;
+    height: 10rem;
+    padding: 0;
+}
+
+.marina-pin {
+    background: none;
+    border: none;
+}

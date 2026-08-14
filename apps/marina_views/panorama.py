@@ -26,7 +26,7 @@ import rasterio
 from django.conf import settings
 from rasterio.windows import Window
 
-from . import camera
+from . import camera, surfaces
 
 #: 3DEP 1/3 arc-second cell size, in degrees.
 NATIVE_DEG = 1.0 / 10800.0
@@ -47,14 +47,15 @@ MAX_RANGE_M = 80000.0
 #: Azimuth resolution of the output profile.
 AZIMUTH_STEP_DEG = 0.25
 
-#: Distance band edges in metres.
-#:
-#: Reporting only the single highest angle per azimuth would collapse the view
-#: to one far skyline, hiding every nearer hill that happens to sit below it —
-#: from much of San Francisco that erases Bernal Heights behind the East Bay
-#: ridge. Keeping a maximum per band lets the renderer paint far-to-near, so
-#: foreground hills occlude the distance and keep their own outline.
-BAND_EDGES_M = (0.0, 1000.0, 2500.0, 5000.0, 10000.0, 20000.0, 40000.0, 80000.0)
+#: Ignore a rise smaller than this when deciding a surface is newly visible.
+#: Without it, floating-point wobble in a flat sea surface registers as
+#: thousands of infinitesimal steps.
+STEP_EPSILON_DEG = 0.002
+
+#: Merge a new step into the previous one when it adds less than this much
+#: angular height and is the same kind of surface. Purely a payload economy:
+#: at typical frame scales this is well under a pixel.
+STEP_MERGE_DEG = 0.03
 
 SEA_LEVEL_M = 0.0
 
@@ -221,9 +222,12 @@ def _sample_ranges():
     of a degree, while at 40km a 400m step still resolves far better than the
     quarter-degree azimuth spacing.
     """
+    # Steps stay under the structure sampling window out to 6km, so a bridge
+    # tower or a lone tall building cannot fall between two samples.
     return np.concatenate([
         np.arange(20.0, 2000.0, 20.0),
-        np.arange(2000.0, 20000.0, 100.0),
+        np.arange(2000.0, 6000.0, 25.0),
+        np.arange(6000.0, 20000.0, 100.0),
         np.arange(20000.0, MAX_RANGE_M, 400.0),
     ])
 
@@ -251,22 +255,53 @@ def terrain_profile(lat, lng, camera_elevation_m):
     lngs = lng + rng * np.sin(az) * lng_scale
 
     near = ranges < NEAR_RADIUS_M
-    heights = np.empty(lats.shape, dtype=np.float64)
-    heights[:, near] = near_grid(lat, lng).sample(lats[:, near], lngs[:, near])
-    heights[:, ~near] = region_grid().sample(lats[:, ~near], lngs[:, ~near])
+    ground = np.empty(lats.shape, dtype=np.float64)
+    ground[:, near] = near_grid(lat, lng).sample(lats[:, near], lngs[:, near])
+    ground[:, ~near] = region_grid().sample(lats[:, ~near], lngs[:, ~near])
 
-    angles = camera.elevation_angle_deg(rng, heights, camera_elevation_m)
+    # Buildings and bridges exist only in the near field, both because the
+    # footprint data is city-only and because the coarse region grid could not
+    # resolve them anyway.
+    built = np.zeros(lats.shape, dtype=np.float64)
+    built[:, near] = surfaces.sample_structures(lats[:, near], lngs[:, near])
 
-    band_angles = []
-    bands = []
-    for lower, upper in zip(BAND_EDGES_M, BAND_EDGES_M[1:]):
-        mask = (ranges >= lower) & (ranges < upper)
-        if not mask.any():
-            continue
-        bands.append([lower / 1000.0, upper / 1000.0])
-        band_angles.append(angles[:, mask].max(axis=1))
+    bridge = np.zeros(lats.shape, dtype=np.float64)
+    bridge[:, near] = surfaces.sample_bridges(lats[:, near], lngs[:, near])
 
-    stacked = np.stack(band_angles, axis=1)  # (azimuths, bands)
+    # What the camera sees is whichever is higher: ground, a building on it, or
+    # a bridge tower standing in the water beside it. Clamped at sea level, so
+    # nothing below the waterline is ever a visible surface.
+    surface = np.maximum(np.maximum(np.maximum(ground, 0.0), built), bridge)
+    codes = surfaces.classify(ground, built, bridge)
+
+    angles = camera.elevation_angle_deg(rng, surface, camera_elevation_m)
+
+    # The depth test. Marching outward, a sample is visible exactly when it
+    # rises above everything nearer along the same ray — that is what "first
+    # intersection wins" means for a heightfield. np.maximum.accumulate gives
+    # the running maximum, so a sample is visible where it exceeds the running
+    # maximum of every sample before it.
+    running = np.maximum.accumulate(angles, axis=1)
+    previous = np.concatenate(
+        [np.full((angles.shape[0], 1), -90.0), running[:, :-1]], axis=1)
+    newly_visible = angles > previous + STEP_EPSILON_DEG
+
+    distances_km = ranges / 1000.0
+    columns = []
+    for row in range(angles.shape[0]):
+        steps = []
+        for index in np.flatnonzero(newly_visible[row]):
+            angle = float(angles[row, index])
+            code = int(codes[row, index])
+            # Extend the previous step rather than adding one, when this sample
+            # only nudges the silhouette up and is the same kind of surface.
+            if (steps and steps[-1][2] == code
+                    and angle - steps[-1][0] < STEP_MERGE_DEG):
+                steps[-1][0] = round(angle, 3)
+                continue
+            steps.append([round(angle, 3),
+                          round(float(distances_km[index]), 3), code])
+        columns.append(steps)
 
     return {
         'lat': lat,
@@ -274,6 +309,13 @@ def terrain_profile(lat, lng, camera_elevation_m):
         'camera_elevation_m': camera_elevation_m,
         'azimuth_step_deg': AZIMUTH_STEP_DEG,
         'max_range_km': MAX_RANGE_M / 1000.0,
-        'bands': bands,
-        'profile': [[round(float(a), 3) for a in row] for row in stacked],
+        'surface_codes': {'land': surfaces.SURFACE_LAND,
+                          'water': surfaces.SURFACE_WATER,
+                          'structure': surfaces.SURFACE_STRUCTURE,
+                          'bridge': surfaces.SURFACE_BRIDGE},
+        # One entry per azimuth, each a list of [top_angle_deg, distance_km,
+        # surface] ordered from the bottom of the view upward. Step k occupies
+        # the angular span from step k-1's top angle to its own, and everything
+        # above the last step is sky.
+        'columns': columns,
     }

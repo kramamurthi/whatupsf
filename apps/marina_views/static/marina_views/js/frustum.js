@@ -1,15 +1,19 @@
 /**
  * Marina Views - pinhole camera frustum renderer.
  *
- * The server hands us, for each azimuth, the highest terrain elevation angle
- * within each of several distance bands. Panning is therefore pure paint and
- * never touches the network.
+ * The server hands us, for each azimuth, the list of surfaces actually visible
+ * along that ray: a staircase of [topAngle, distance, surfaceKind] running from
+ * the bottom of the view upward. The depth test happens server-side, where the
+ * heightfield lives, so panning is pure paint and never touches the network.
  *
- * Bands are drawn farthest first, each filled from its ridge line down to the
- * bottom of the frame. A nearer band therefore paints over the distance below
- * its own ridge, which is what occlusion looks like, and gives every
- * foreground hill its own outline instead of collapsing the scene onto one
- * far skyline.
+ * Each step occupies the angular span between the previous step's top and its
+ * own, and is painted in its surface's colour hazed by its own distance.
+ * Everything above the last step is sky.
+ *
+ * An earlier version reduced each ray to one maximum angle per distance band
+ * and drew band silhouettes back to front. That produced concentric outlines -
+ * an artefact of the reduction, not of the terrain - because every surface in a
+ * band collapsed onto a single outline. There are no bands now.
  *
  * Projection is rectilinear, as a real pinhole camera is. For a screen column
  * at horizontal offset dx from centre:
@@ -32,12 +36,30 @@ const KM_TO_MI = 0.621371192;
 const COMPASS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
                  'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
 
-// Nearest band is a dark terrain green; the farthest hazes toward the sky so
-// aerial perspective reads correctly. Neither end may be black: the nearest
-// band is painted last and covers the whole lower frame, so if it is black the
-// entire scene is black.
-const NEAR_RGB = [34, 50, 40];
-const FAR_RGB = [112, 138, 166];
+// One ramp per surface type, each running from its near colour to a hazy far
+// colour so aerial perspective reads correctly. No ramp may bottom out at
+// black: the nearest band is painted last and covers the whole lower frame, so
+// a black near colour makes the entire scene black.
+//
+// Codes must match surfaces.py.
+const SURFACE_LAND = 0;
+const SURFACE_WATER = 1;
+const SURFACE_STRUCTURE = 2;
+const SURFACE_BRIDGE = 3;
+
+// Buildings are a warm graphite rather than the stucco white tried earlier:
+// white read as the brightest thing in frame and pulled the eye away from the
+// terrain, and it fought the haze ramp, since a surface cannot both be pure
+// white up close and fade into a blue distance.
+//
+// The bridge colour is not ours. #bf4e3b is the building:colour tag carried by
+// every Golden Gate Bridge tower part in OpenStreetMap.
+const PALETTE = {
+    [SURFACE_LAND]:      { near: [34, 50, 40],    far: [112, 138, 166] },
+    [SURFACE_WATER]:     { near: [22, 58, 92],    far: [96, 128, 162] },
+    [SURFACE_STRUCTURE]: { near: [124, 118, 108], far: [146, 152, 166] },
+    [SURFACE_BRIDGE]:    { near: [191, 78, 59],   far: [163, 104, 100] },
+};
 
 // A pinhole camera has no free vertical parameter: the vertical field follows
 // from the horizontal one and the frame's aspect ratio,
@@ -63,6 +85,10 @@ const ui = {
     position: document.getElementById('frustum-position'),
     status: document.getElementById('frustum-status'),
     legend: document.getElementById('frustum-legend'),
+    height: document.getElementById('frustum-height'),
+    added: document.getElementById('frustum-added'),
+    total: document.getElementById('frustum-total'),
+    ground: document.getElementById('frustum-ground'),
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -72,28 +98,32 @@ const camera = {
     alt: parseFloat(params.get('alt')),   // metres above sea level, canonical
 };
 
-let profile = null;   // [azimuth][band] -> elevation angle in degrees
-let bands = [];       // [[nearKm, farKm], ...] nearest first
+let columns = null;   // [azimuth] -> [[topAngleDeg, distanceKm, surface], ...]
 let stepDeg = 0.25;
 let heading = 0;      // due north to start, as specified
 let width = 0;
 let height = 0;
+let groundM = null;      // terrain under the camera, so the slider can show extra height
+let inFlight = null;     // AbortController for the panorama request in flight
+let refetchTimer = null;
 
-/** Terrain angle for one band at an arbitrary azimuth, interpolated. */
-function angleAt(azimuthDeg, band) {
-    const n = profile.length;
-    const pos = ((azimuthDeg % 360) + 360) % 360 / stepDeg;
-    const i = Math.floor(pos);
-    const frac = pos - i;
-    const a = profile[i % n][band];
-    const b = profile[(i + 1) % n][band];
-    return a + (b - a) * frac;
+/** Haze fraction for a distance: 0 right here, 1 far away. */
+function hazeAt(distanceKm) {
+    // Power under 1 so the first few kilometres, where most of the scene is,
+    // still separate clearly instead of all reading as "near".
+    return Math.min(1, Math.pow(Math.max(distanceKm, 0) / 35, 0.55));
 }
 
-function bandColour(band, alpha) {
-    const t = bands.length > 1 ? band / (bands.length - 1) : 0;
-    const c = NEAR_RGB.map((near, i) => Math.round(near + (FAR_RGB[i] - near) * t));
-    return `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha})`;
+function surfaceColour(surface, distanceKm) {
+    const ramp = PALETTE[surface] || PALETTE[SURFACE_LAND];
+    const t = hazeAt(distanceKm);
+    const c = ramp.near.map((near, i) => Math.round(near + (ramp.far[i] - near) * t));
+    return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+}
+
+/** Signed smallest difference between two bearings, in degrees. */
+function bearingDelta(a, b) {
+    return ((a - b + 540) % 360) - 180;
 }
 
 function resize() {
@@ -108,14 +138,15 @@ function resize() {
 
 function draw() {
     // A zero-width canvas makes the focal length zero, and (x - cx) / 0 is NaN,
-    // which propagates into the profile lookup and throws. draw() can be
+    // which propagates into the column lookup and throws. draw() can be
     // reached before the canvas has been measured, so this guard is load
     // bearing, not defensive dressing.
-    if (!profile || !width || !height) return;
+    if (!columns || !width || !height) return;
 
     const cx = width / 2;
     const cy = height / 2;
     const f = cx / Math.tan((hfovDeg / 2) * Math.PI / 180);
+    const total = columns.length;
 
     const sky = ctx.createLinearGradient(0, 0, 0, cy);
     sky.addColorStop(0, '#081426');
@@ -123,23 +154,45 @@ function draw() {
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, width, height);
 
-    // Farthest band first so nearer terrain paints over it.
-    for (let band = bands.length - 1; band >= 0; band--) {
-        ctx.beginPath();
-        ctx.moveTo(0, height);
-        for (let x = 0; x <= width; x++) {
-            const dAz = Math.atan((x - cx) / f);
-            const eps = angleAt(heading + dAz * 180 / Math.PI, band) * Math.PI / 180;
-            ctx.lineTo(x, cy - VERTICAL_EXAGGERATION * f * Math.tan(eps) / Math.cos(dAz));
-        }
-        ctx.lineTo(width, height);
-        ctx.closePath();
+    // One vertical strip per azimuth sample in view. Each strip paints its own
+    // visible surfaces bottom-up, so occlusion is already decided and nothing
+    // needs to be layered back to front.
+    const half = hfovDeg / 2 + stepDeg;
+    const first = Math.floor((heading - half) / stepDeg);
+    const last = Math.ceil((heading + half) / stepDeg);
 
-        ctx.fillStyle = bandColour(band, 1);
-        ctx.fill();
-        ctx.strokeStyle = bandColour(band, 0.9);
-        ctx.lineWidth = 1;
-        ctx.stroke();
+    for (let i = first; i <= last; i++) {
+        const deltaLeft = bearingDelta(i * stepDeg, heading);
+        const deltaRight = bearingDelta((i + 1) * stepDeg, heading);
+        if (Math.abs(deltaLeft) > 89.5 || Math.abs(deltaRight) > 89.5) continue;
+
+        const xLeft = cx + f * Math.tan(deltaLeft * Math.PI / 180);
+        const xRight = cx + f * Math.tan(deltaRight * Math.PI / 180);
+        if (xRight < 0 || xLeft > width) continue;
+
+        const stripX = Math.floor(xLeft);
+        const stripW = Math.max(1, Math.ceil(xRight) - stripX);
+
+        // The projection's 1/cos term uses the strip's own offset, so wide
+        // lenses bow the horizon exactly as a rectilinear lens does.
+        const secant = 1 / Math.cos(deltaLeft * Math.PI / 180);
+        const column = columns[((i % total) + total) % total];
+
+        let bottom = height;
+        for (let k = 0; k < column.length && bottom > 0; k++) {
+            const angle = column[k][0];
+            const distanceKm = column[k][1];
+            const surface = column[k][2];
+
+            let top = cy - VERTICAL_EXAGGERATION * f
+                      * Math.tan(angle * Math.PI / 180) * secant;
+            if (top >= bottom) continue;          // entirely below what we drew
+            if (top < 0) top = 0;                 // clip at the frame top
+
+            ctx.fillStyle = surfaceColour(surface, distanceKm);
+            ctx.fillRect(stripX, top, stripW, bottom - top);
+            bottom = top;
+        }
     }
 
     drawCompassTicks(cx, cy, f);
@@ -178,22 +231,93 @@ function updateReadout() {
 function buildLegend() {
     if (!ui.legend) return;
     ui.legend.innerHTML = '';
-    for (let band = 0; band < bands.length; band++) {
-        const [nearKm, farKm] = bands[band];
+
+    for (const [code, label] of [[SURFACE_LAND, 'terrain'], [SURFACE_WATER, 'water'],
+                                 [SURFACE_STRUCTURE, 'built'], [SURFACE_BRIDGE, 'bridge']]) {
         const row = document.createElement('div');
         row.className = 'flex items-center gap-2';
+        // Two chips per surface show how its colour hazes with distance.
         row.innerHTML =
             `<span style="width:10px;height:10px;border-radius:2px;` +
-            `background:${bandColour(band, 1)};display:inline-block"></span>` +
-            `<span>${(nearKm * KM_TO_MI).toFixed(1)}–` +
-            `${(farKm * KM_TO_MI).toFixed(0)} mi</span>`;
+            `background:${surfaceColour(code, 0)};display:inline-block"></span>` +
+            `<span style="width:10px;height:10px;border-radius:2px;` +
+            `background:${surfaceColour(code, 30)};display:inline-block"></span>` +
+            `<span>${label}</span>`;
         ui.legend.appendChild(row);
     }
+
+    const note = document.createElement('div');
+    note.className = 'pt-2 mt-1 border-t border-midnight-600 text-[10px] text-gray-600';
+    note.textContent = 'paler = further away';
+    ui.legend.appendChild(note);
 }
 
 function pan(deltaDeg) {
     heading = ((heading + deltaDeg) % 360 + 360) % 360;
     draw();
+}
+
+/**
+ * Fetch the profile for the current camera altitude and redraw.
+ *
+ * Changing height changes the whole ray cast, so unlike panning this does need
+ * the server. Requests are debounced and the previous one aborted, otherwise
+ * dragging the slider queues a second of work per step.
+ */
+async function loadProfile() {
+    if (inFlight) inFlight.abort();
+    inFlight = new AbortController();
+
+    ui.status.style.display = '';
+    ui.status.textContent = 'Casting rays…';
+
+    try {
+        const url = `${CONFIG.panoramaUrl}?lat=${camera.lat}&lng=${camera.lng}&alt=${camera.alt}`;
+        const response = await fetch(url, { signal: inFlight.signal });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+
+        columns = data.columns;
+        stepDeg = data.azimuth_step_deg;
+        ui.status.style.display = 'none';
+        resize();
+    } catch (error) {
+        if (error.name === 'AbortError') return;
+        ui.status.textContent = `Could not build the view: ${error.message}`;
+        return;
+    }
+
+    try {
+        buildLegend();
+    } catch (error) {
+        console.warn('Marina Views: legend failed', error);
+    }
+}
+
+/** Reflect the slider in the readout, the URL, and (debounced) the profile. */
+function applyHeight({ refetch = true } = {}) {
+    // A non-finite ground would poison camera.alt, the URL and every request
+    // that follows, so refuse rather than propagate it.
+    if (groundM === null || !isFinite(groundM)) return;
+    const addedFt = Number(ui.height.value);
+    camera.alt = groundM + addedFt / M_TO_FT;
+
+    ui.added.textContent = `${addedFt} ft`;
+    ui.total.textContent = `${Math.round(camera.alt * M_TO_FT)} ft`;
+    ui.position.textContent =
+        `${camera.lat.toFixed(4)}, ${camera.lng.toFixed(4)} @ ` +
+        `${Math.round(camera.alt * M_TO_FT)} ft`;
+
+    // Keep the URL in step so a reload, a share, or Esc all carry this height.
+    const query = new URLSearchParams({
+        lat: camera.lat.toFixed(6), lng: camera.lng.toFixed(6),
+        alt: camera.alt.toFixed(1),
+    });
+    window.history.replaceState(null, '', `?${query}`);
+
+    if (!refetch) return;
+    clearTimeout(refetchTimer);
+    refetchTimer = setTimeout(loadProfile, 300);
 }
 
 /** Picker URL carrying the current camera, so Esc returns to this selection. */
@@ -258,6 +382,7 @@ window.addEventListener('keydown', (e) => {
 });
 
 window.addEventListener('resize', resize);
+ui.height.addEventListener('input', () => applyHeight());
 
 // --- load ------------------------------------------------------------------
 
@@ -271,31 +396,31 @@ async function load() {
         `${camera.lat.toFixed(4)}, ${camera.lng.toFixed(4)} @ ` +
         `${Math.round(camera.alt * M_TO_FT)} ft`;
 
+    // The slider offers height *above the ground*, so we need to know where the
+    // ground is before it means anything. A failure here is not fatal: the view
+    // still renders at the altitude the URL asked for, only the slider is dead.
     try {
-        const url = `${CONFIG.panoramaUrl}?lat=${camera.lat}&lng=${camera.lng}&alt=${camera.alt}`;
+        const url = `${CONFIG.elevationUrl}?lat=${camera.lat}&lng=${camera.lng}`;
         const response = await fetch(url);
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
 
-        profile = data.profile;
-        bands = data.bands;
-        stepDeg = data.azimuth_step_deg;
-        ui.status.style.display = 'none';
+        if (!isFinite(data.elevation_m)) {
+            throw new Error('elevation response had no usable value');
+        }
+        groundM = data.elevation_m;
+        ui.ground.textContent = `ground ${Math.round(groundM * M_TO_FT)} ft`;
 
-        // resize() measures the canvas and then draws. Nothing may call draw()
-        // before this point, and no decorative step may run ahead of it.
-        resize();
+        const addedFt = Math.round((camera.alt - groundM) * M_TO_FT / 5) * 5;
+        ui.height.value = Math.min(250, Math.max(0, addedFt));
+        applyHeight({ refetch: false });
     } catch (error) {
-        ui.status.textContent = `Could not build the view: ${error.message}`;
-        return;
+        console.warn('Marina Views: ground elevation unavailable', error);
+        ui.height.disabled = true;
+        ui.ground.textContent = 'ground unknown';
     }
 
-    // The legend is decoration. If it fails the view must still stand.
-    try {
-        buildLegend();
-    } catch (error) {
-        console.warn('Marina Views: legend failed', error);
-    }
+    await loadProfile();
 }
 
 load();

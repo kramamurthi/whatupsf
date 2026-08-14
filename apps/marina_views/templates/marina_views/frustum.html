@@ -3,6 +3,7 @@
 {% block title %}Camera view - Marina Views{% endblock %}
 
 {% block extra_head %}
+<link rel="stylesheet" href="/static/marina_views/css/marina.css?v=2">
 <style>
     #frustum-canvas {
         display: block;
@@ -62,6 +63,21 @@
         <div id="frustum-legend" class="text-[11px] text-gray-400 space-y-1"></div>
     </div>
 
+    <div class="frustum-chip" style="bottom: 1rem; left: 1rem;">
+        <div class="text-[10px] uppercase text-gray-500 mb-2">Camera height</div>
+        <div class="flex items-center gap-3">
+            <input type="range" id="frustum-height" class="marina-vslider"
+                   min="0" max="250" step="5" value="0"
+                   aria-label="Additional structure height in feet">
+            <div class="text-[11px] leading-tight">
+                <div id="frustum-added" class="text-neon-cyan font-semibold text-base">0 ft</div>
+                <div class="mt-2 text-gray-500">altitude</div>
+                <div id="frustum-total" class="text-gray-200 tabular-nums text-sm">&mdash;</div>
+                <div id="frustum-ground" class="mt-1 text-gray-600 tabular-nums">&mdash;</div>
+            </div>
+        </div>
+    </div>
+
     <div id="frustum-status" class="frustum-chip text-sm text-gray-300"
          style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
         Casting rays&hellip;
@@ -73,8 +89,9 @@
 <script>
     window.MARINA_CONFIG = {
         panoramaUrl: '{% url "marina_views:api_panorama" %}',
+        elevationUrl: '{% url "marina_views:api_elevation" %}',
         pickerUrl: '{% url "marina_views:picker" %}'
     };
 </script>
-<script type="module" src="/static/marina_views/js/frustum.js?v=5"></script>
+<script type="module" src="/static/marina_views/js/frustum.js?v=10"></script>
 {% endblock %}
