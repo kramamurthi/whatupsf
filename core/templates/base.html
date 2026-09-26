@@ -70,6 +70,14 @@
     </script>
 
     <style>
+        /* One source of truth for the header height. It was previously hardcoded in two
+           places (main's padding and the map's calc), which is how things end up misaligned. */
+        :root {
+            --header-h: 52px;
+            --safe-t: env(safe-area-inset-top, 0px);
+            --safe-b: env(safe-area-inset-bottom, 0px);
+        }
+
         /* Custom scrollbar for dark theme */
         ::-webkit-scrollbar {
             width: 8px;
@@ -99,43 +107,33 @@
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
+        /* The map deserves the vertical space; the header earns only what it needs. */
+        /* border-box so the 1px bottom border is inside the declared height — otherwise the
+           header is 1px taller than the padding that reserves space for it, and the map
+           starts underneath it. */
+        .site-header { box-sizing: border-box; height: calc(var(--header-h) + var(--safe-t)); padding-top: var(--safe-t); }
+        .site-header__bar { height: 100%; min-height: 0; }
+        .site-main { padding-top: calc(var(--header-h) + var(--safe-t)); }
+
         .neon-text {
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
         }
 
-        /* Outside Lands festival badge beside the wordmark */
-        .osl-badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 9999px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            white-space: nowrap;
-            color: #ffb347;
-            border: 1px solid rgba(255, 179, 71, 0.55);
-            background: rgba(255, 179, 71, 0.10);
-            box-shadow: 0 0 10px rgba(255, 179, 71, 0.25);
-        }
     </style>
 
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-midnight-900 text-gray-100 min-h-screen">
+<body class="bg-midnight-900 text-gray-100 min-h-screen {% block body_class %}{% endblock %}">
     <!-- Fixed Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 glass-card border-b border-gray-800">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+    <header class="site-header fixed top-0 left-0 right-0 z-50 glass-card border-b border-gray-800">
+        <div class="site-header__bar container mx-auto px-4 flex items-center justify-between">
             <!-- Logo -->
             <div class="flex items-center space-x-3">
-                <h1 class="text-2xl md:text-3xl font-bold">
+                <h1 class="text-xl md:text-2xl font-bold leading-none">
                     <span class="bg-gradient-to-r from-neon-cyan via-neon-magenta to-neon-blue bg-clip-text text-transparent animate-pulse-neon">
                         WhatUpSF
                     </span>
                 </h1>
-                {% if osl_active %}
-                <span class="osl-badge">OSL edition</span>
-                {% endif %}
             </div>
 
             <!-- Desktop Navigation -->
@@ -175,7 +173,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="pt-16">
+    <main class="site-main">
         {% block content %}{% endblock %}
     </main>
 

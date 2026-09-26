@@ -61,12 +61,16 @@ def get_latest_info(dbName):
 
     db = get_db_connection(dbName)
     cursor = db.cursor()
+    # Outside Lands stages are excluded: they only ever have events during the festival,
+    # so citywide they would sit in Golden Gate Park as permanently dead markers. The rows
+    # and their coordinates stay in the DB for osl_ingest.py to reuse next August.
     sql = """SELECT V.name, V.latitude, V.longitude, V.url,
                     E.event_price, E.event_date, E.event_time,
                     B.name, B.media_url
                     FROM venues V
                     LEFT JOIN events E ON V.id = E.venue_id AND E.event_date = CURDATE()
                     LEFT JOIN bands B ON B.id = E.band_id
+                    WHERE V.url NOT LIKE '%sfoutsidelands%'
                     ORDER BY V.name, E.event_time
           """
     try:
