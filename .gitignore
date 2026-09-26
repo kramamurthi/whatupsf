@@ -10,3 +10,8 @@ venv/
 .DS_Store
 .claude/
 etl/.claude/
+
+# Scraper run artifacts — regenerated every run, no value in history
+etl/logs/
+etl/.scraper_cache*.json
+etl/publish.*

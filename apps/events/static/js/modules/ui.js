@@ -79,6 +79,9 @@ export class UIManager {
         if (!bottomSheet) return;
 
         bottomSheet.classList.remove('open');
+        // The drag handler writes an inline transform; leaving it behind would beat the
+        // stylesheet and pin the sheet open.
+        bottomSheet.style.transform = '';
         this.bottomSheetOpen = false;
     }
 

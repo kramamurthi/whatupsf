@@ -1,637 +1,420 @@
 {% extends "base.html" %}
 
-{% block title %}WhatUpSF - Live Music Map{% endblock %}
+{% block title %}WhatUpSF — San Francisco, right now{% endblock %}
+
+{% block body_class %}page-city{% endblock %}
 
 {% block extra_head %}
-<!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
 <style>
-    /* Custom Leaflet Dark Theme Styles */
-    .leaflet-popup-content-wrapper {
-        background: rgba(18, 18, 18, 0.55);
-        backdrop-filter: blur(3px);
-        color: #f0f0f0;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 240, 255, 0.3);
-        box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-        pointer-events: none;
+    /* ============================================================================
+       WhatUpSF — citywide
+       Three parts, one instrument: the city window, the time rail down its edge, and
+       the dock beneath it. They share edges and gutters so the composition reads as a
+       single object rather than widgets stacked on a map.
+       ============================================================================ */
+
+    :root {
+        --dock-h: 120px;
+        --rail-w: 72px;
+        --ink-0: #07090d;   /* deepest, behind everything */
+        --ink-1: #0c1016;   /* dock/rail ground */
+        --ink-2: #161c25;   /* hairlines */
+        --text-0: #eef2f7;
+        --text-1: #97a3b4;
+        --text-2: #5e6a7a;
+        --accent: #ff7a45;  /* the single warm accent: happening now */
+        --gutter: 18px;
     }
 
-    .leaflet-popup-tip-container {
-        pointer-events: none;
-    }
-
-    .leaflet-popup-tip {
-        background: rgba(18, 18, 18, 0.55);
-        border: 1px solid rgba(0, 240, 255, 0.3);
-    }
-
-    .leaflet-popup-content h1 {
-        color: #00f0ff;
-        text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin: 0 0 12px 0;
-    }
-
-    .leaflet-popup-content h2 {
-        color: #ff00ff;
-        font-size: 1rem;
-        margin: 8px 0;
-    }
-
-    .leaflet-popup-content a {
-        color: #00f0ff;
-        text-decoration: none;
-        transition: color 0.3s;
-        pointer-events: auto;
-    }
-
-    .leaflet-popup-content iframe {
-        pointer-events: auto;
-    }
-
-    .leaflet-popup-content a:hover {
-        color: #00d4e0;
-        text-shadow: 0 0 8px rgba(0, 240, 255, 0.7);
-    }
-
-    .leaflet-container a.leaflet-popup-close-button {
-        color: #ff00ff;
-        font-size: 24px;
-        font-weight: bold;
-        padding: 8px;
-        transition: all 0.3s;
-    }
-
-    .leaflet-container a.leaflet-popup-close-button:hover {
-        color: #ff5500;
-        text-shadow: 0 0 10px rgba(255, 0, 255, 0.7);
-    }
-
-    .leaflet-bar {
-        background: rgba(18, 18, 18, 0.9);
-        border: 1px solid rgba(0, 240, 255, 0.3);
-        box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
-        border-radius: 8px;
-    }
-
-    .leaflet-bar a {
-        background: rgba(18, 18, 18, 0.9);
-        color: #00f0ff;
-        border-bottom: 1px solid rgba(0, 240, 255, 0.2);
-        transition: all 0.3s;
-    }
-
-    .leaflet-bar a:hover {
-        background: rgba(0, 240, 255, 0.1);
-        color: #00f0ff;
-        box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.3);
-    }
-
-    .leaflet-bar a:first-child {
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-    }
-
-    .leaflet-bar a:last-child {
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
-        border-bottom: none;
-    }
-
-    /* Locate control — deliberately loud, it is the one thing you hunt for in a crowd. */
-    .leaflet-bar a.locate-btn,
-    .locate-btn {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 48px !important;
-        height: 48px !important;
-        border-radius: 50% !important;
-        background: rgba(14, 8, 10, 0.92);
-        color: #FF2D2D;
-        border: 2px solid #FF2D2D;
-        box-shadow: 0 0 14px rgba(255, 45, 45, 0.65), 0 2px 10px rgba(0, 0, 0, 0.5);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .leaflet-bar a.locate-btn:hover {
-        background: rgba(30, 8, 12, 0.96);
-        box-shadow: 0 0 20px rgba(255, 45, 45, 0.9), 0 2px 10px rgba(0, 0, 0, 0.5);
-        transform: scale(1.06);
-    }
-
-    /* The control sits in a .leaflet-bar, whose chrome would boxes-in the circle. */
-    .leaflet-bar:has(> .locate-btn) {
-        border: none;
-        box-shadow: none;
-        background: transparent;
-    }
-
-    /* Map container */
-    #map {
-        height: calc(100vh - 64px);
-        width: 100%;
-    }
-
-    /* ---- Festival time slider ---------------------------------------- */
-    .time-slider {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1000;               /* above Leaflet panes, below the popup layer */
-        padding: 8px 16px calc(10px + env(safe-area-inset-bottom));
-        background: rgba(10, 12, 18, 0.92);
-        backdrop-filter: blur(6px);
-        border-top: 1px solid rgba(0, 240, 255, 0.25);
-    }
-
-    .time-slider__head {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 2px;
-        min-height: 28px;
-    }
-
-    .time-slider__value {
-        color: #00f0ff;
-        font-size: 1.15rem;
-        font-weight: 700;
-        text-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
-    }
-
-    .time-slider__now {
-        color: #39FF14;
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        border: 1px solid rgba(57, 255, 20, 0.5);
-        border-radius: 9999px;
-        padding: 1px 7px;
-    }
-
-    .time-slider__reset {
-        margin-left: auto;
-        background: rgba(0, 240, 255, 0.12);
-        border: 1px solid rgba(0, 240, 255, 0.55);
-        color: #00f0ff;
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        border-radius: 9999px;
-        padding: 4px 12px;
-        cursor: pointer;
-        white-space: nowrap;
-    }
-
-    .time-slider__reset:hover {
-        background: rgba(0, 240, 255, 0.22);
-    }
-
-    .time-slider__scale {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        color: #7a8290;
-        font-size: 0.65rem;
-        margin-top: -2px;
-    }
-
-    .time-slider__clock {
-        color: #9aa3b2;
-        font-weight: 600;
-    }
-
-    .time-slider__input {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 100%;
-        height: 26px;                /* generous touch target for a phone */
-        background: transparent;
-        margin: 0;
-    }
-
-    .time-slider__input::-webkit-slider-runnable-track {
-        height: 4px;
-        border-radius: 2px;
-        background: linear-gradient(90deg, rgba(0,240,255,0.65), rgba(255,0,255,0.65));
-    }
-
-    .time-slider__input::-moz-range-track {
-        height: 4px;
-        border-radius: 2px;
-        background: linear-gradient(90deg, rgba(0,240,255,0.65), rgba(255,0,255,0.65));
-    }
-
-    .time-slider__input::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 22px;
-        height: 22px;
-        margin-top: -9px;
-        border-radius: 50%;
-        background: #0a0c12;
-        border: 2px solid #00f0ff;
-        box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
-        cursor: pointer;
-    }
-
-    .time-slider__input::-moz-range-thumb {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        background: #0a0c12;
-        border: 2px solid #00f0ff;
-        box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
-        cursor: pointer;
-    }
-
-    /* Lift Leaflet's bottom controls clear of the slider bar. The height is published
-       by TimeSlider at runtime, so adding a row to the bar cannot re-bury them. */
-    body.has-time-slider .leaflet-bottom {
-        bottom: calc(var(--time-slider-h, 96px) + 12px);
-    }
-
-    /* The attribution wraps to full width on a phone and lands on top of the locate
-       button, swallowing its taps. Give the button its own row above it, and let clicks
-       fall through the attribution's empty space while its links stay clickable. */
-    body.has-time-slider .leaflet-bottom.leaflet-left {
-        bottom: calc(var(--time-slider-h, 96px) + 42px);
-        z-index: 1001;
-    }
-
-    .leaflet-control-attribution {
-        pointer-events: none;
-    }
-
-    .leaflet-control-attribution a {
-        pointer-events: auto;
-    }
-
-    /* ---- Stage readout, parked in the dimmed band above the park ----- */
-    .stage-panel {
-        position: fixed;
-        top: 72px;                    /* clear of the 64px header */
-        left: 50%;
-        transform: translateX(-50%) translateY(-8px);
-        width: calc(100% - 24px);
-        max-width: 460px;
-        z-index: 1000;
-        padding: 10px 14px 12px;
+    /* The city page is a fixed composition, not a scrolling document. */
+    body.page-city { overflow: hidden; background: var(--ink-0); }
+    /* The wordmark lives on the map's left edge here, so the header keeps only navigation
+       and hands the reclaimed height back to the city. */
+    body.page-city { --header-h: 44px; }
+    body.page-city .site-header h1 { display: none; }
+    body.page-city .site-header { background: var(--ink-0); border-bottom-color: var(--ink-2); }
+    /* The header is position:fixed, so it is not a grid child — only .city and .dock are.
+       Its height is reserved with padding rather than a grid row. */
+    body.page-city .site-main {
+        height: 100dvh;
         box-sizing: border-box;
-        border-radius: 12px;
-        background: rgba(12, 14, 20, 0.93);
-        backdrop-filter: blur(6px);
-        border: 1px solid rgba(0, 240, 255, 0.3);
-        box-shadow: 0 0 22px rgba(0, 240, 255, 0.18);
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.18s ease, transform 0.18s ease;
+        display: grid;
+        grid-template-rows: 1fr auto;
     }
 
-    .stage-panel.is-open {
-        opacity: 1;
-        visibility: visible;
-        transform: translateX(-50%) translateY(0);
-    }
+    /* ---- city window --------------------------------------------------------- */
 
-    .stage-panel__title,
-    .stage-panel__title a {
-        color: #00f0ff;
-        font-size: 1.25rem;
-        font-weight: 700;
-        text-decoration: none;
-        text-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
-        padding-right: 24px;          /* room for the close button */
-        display: block;
-    }
-
-    .stage-panel__close {
-        position: absolute;
-        top: 6px;
-        right: 10px;
-        background: none;
-        border: none;
-        color: #ff00ff;
-        font-size: 1.4rem;
-        line-height: 1;
-        cursor: pointer;
-        padding: 2px 4px;
-    }
-
-    .stage-panel__body h2 {
-        color: #ff00ff;
-        font-size: 0.95rem;
-        margin: 4px 0 0;
-    }
-
-    .stage-panel__body iframe {
-        max-width: 100%;
-    }
-
-    /* ---- Single-show popup ------------------------------------------- */
-    .show-tag {
-        display: inline-block;
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        padding: 2px 8px;
-        margin-right: 5px;
-        border-radius: 9999px;
-        color: #ffb347;
-        border: 1px solid rgba(255, 179, 71, 0.5);
-    }
-
-    /* Playing right now, and the slider still agrees with the clock. */
-    .show-tag--now {
-        color: #39FF14;
-        border-color: rgba(57, 255, 20, 0.6);
-        box-shadow: 0 0 10px rgba(57, 255, 20, 0.25);
-    }
-
-    /* Still to come. */
-    .show-tag--upcoming {
-        color: #00f0ff;
-        border-color: rgba(0, 240, 255, 0.5);
-    }
-
-    /* Already finished. */
-    .show-tag--completed {
-        color: #8b93a1;
-        border-color: rgba(139, 147, 161, 0.45);
-    }
-
-    /* Position in the day (first/last), shown alongside the status rather than
-       instead of it — the closer is still either upcoming or completed. */
-    .show-tag--edge {
-        color: #ffb347;
-        border-color: rgba(255, 179, 71, 0.5);
-        background: rgba(255, 179, 71, 0.08);
-    }
-
-    /* Leaflet sizes popups by content, then adds wrapper padding on top, which can
-       push the whole thing past a narrow viewport. Hard-stop it. */
-    .leaflet-popup-content-wrapper {
-        max-width: calc(100vw - 24px);
-        box-sizing: border-box;
-    }
-
-    /* Bottom sheet for mobile */
-    #event-bottom-sheet {
-        transform: translateY(100%);
-        transition: transform 0.3s ease-out;
-    }
-
-    #event-bottom-sheet.open {
-        transform: translateY(0);
-    }
-
-    /* Touch-friendly controls */
-    @media (max-width: 768px) {
-        button, a, input[type="checkbox"] {
-            min-height: 44px;
-            min-width: 44px;
-        }
-    }
-
-    /* Loading spinner */
-    .spinner {
-        border: 3px solid rgba(0, 240, 255, 0.2);
-        border-top: 3px solid #00f0ff;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Cluster number styling */
-    .cluster-icon {
-        background: transparent !important;
-        border: none !important;
-    }
-
-    .cluster-number {
-        background: rgba(0, 102, 255, 0.95);
-        color: white;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 16px;
-        border: 2px solid #00f0ff;
-        box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    .cluster-number:hover {
-        transform: scale(1.2);
-        box-shadow: 0 0 25px rgba(0, 240, 255, 1);
-        background: rgba(0, 240, 255, 0.95);
-    }
-
-    /* User location dot */
-    /* "You are here" beacon: a beating red core throwing off radar rings. Two rings on
-       the same animation, offset by half its duration, give a continuous pulse-out. */
-    .user-location-dot {
+    .city {
         position: relative;
-        width: 18px;
-        height: 18px;
-        background: radial-gradient(circle at 32% 30%, #ff7a7a 0%, #ff1f3d 55%, #c60022 100%);
+        min-height: 0;               /* lets the grid row actually shrink */
+        border-bottom: 1px solid var(--ink-2);
+        background: var(--ink-0);
+    }
+
+    #map { position: absolute; inset: 0; background: var(--ink-0); }
+
+    /* Art direction on the basemap: push it back so markers and type sit in front of the
+       city rather than competing with it. Applied to the tile pane only, so vector markers
+       keep their full contrast. */
+    /* Stadia's "smooth dark" is a mid grey out of the box — too light to sit behind type and
+       markers. Pushed down and desaturated so the city reads as night and the marks read as
+       information on top of it, without losing street legibility. */
+    .leaflet-tile-pane { filter: brightness(0.66) saturate(0.72) contrast(1.14); }
+
+    /* Tonal falloff toward the edges, strongest clarity in the middle of the frame. */
+    .city__vignette {
+        position: absolute; inset: 0; pointer-events: none; z-index: 500;
+        background:
+            radial-gradient(116% 82% at 50% 44%, rgba(7,9,13,0) 46%, rgba(7,9,13,0.72) 100%),
+            linear-gradient(to bottom, rgba(7,9,13,0.55) 0%, rgba(7,9,13,0) 12%);
+    }
+
+    .leaflet-container { background: var(--ink-0); font: inherit; }
+    .leaflet-control-attribution {
+        background: rgba(7,9,13,0.55) !important;
+        color: var(--text-2) !important;
+        font-size: 9px !important;
+        padding: 1px 6px !important;
+        pointer-events: none;
+    }
+    .leaflet-control-attribution a { color: var(--text-2) !important; pointer-events: auto; }
+
+    /* ---- markers ------------------------------------------------------------- */
+
+    .venue-mark {
+        transition: opacity .28s ease, stroke-width .28s ease, r .28s ease;
+        cursor: pointer;
+    }
+
+    .sel-halo { transform-box: fill-box; transform-origin: center; }
+    .sel-halo--in { animation: haloIn .34s cubic-bezier(.2,.8,.3,1); }
+    @keyframes haloIn {
+        from { transform: scale(.45); opacity: 0; }
+        to   { transform: scale(1);   opacity: 1; }
+    }
+
+    /* "You are here" — present and findable, but it is not the subject of the screen. */
+    .me-dot {
+        width: 12px; height: 12px; border-radius: 50%;
+        background: #ff5a4d;
+        border: 2px solid rgba(255,255,255,.92);
+        box-shadow: 0 0 0 4px rgba(255,90,77,.18);
+        animation: mePulse 3.2s ease-in-out infinite;
+    }
+    @keyframes mePulse {
+        0%, 100% { box-shadow: 0 0 0 4px rgba(255,90,77,.18); }
+        50%      { box-shadow: 0 0 0 8px rgba(255,90,77,.05); }
+    }
+
+    /* Identity as part of the composition rather than a bar across the top: set into the
+       left margin of the city window, quiet enough to ignore. */
+    .citymark {
+        position: absolute; z-index: 610;
+        left: 0; top: 50%; transform: translateY(-50%);
+        writing-mode: vertical-rl; rotate: 180deg;
+        padding: 0 3px;
+        font-size: 14px; font-weight: 800;
+        letter-spacing: .34em; text-transform: uppercase;
+        color: #46525f;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* ---- recenter ------------------------------------------------------------ */
+
+    .recenter {
+        position: absolute; z-index: 620;
+        left: var(--gutter); bottom: var(--gutter);
+        width: 44px; height: 44px;
+        display: grid; place-items: center;
+        border-radius: 12px;
+        border: 1px solid var(--ink-2);
+        background: rgba(12,16,22,.82);
+        backdrop-filter: blur(8px);
+        color: #ff5a4d;
+        cursor: pointer;
+        transition: border-color .2s ease, transform .15s ease;
+    }
+    .recenter:hover { border-color: #33404f; transform: translateY(-1px); }
+    /* Without a fix the control is still tappable — it asks again — but it should not imply
+       it knows where you are. */
+    .recenter.is-idle { color: var(--text-2); }
+    .recenter.is-locating { color: var(--accent); animation: locating 1.1s ease-in-out infinite; }
+    @keyframes locating { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+    .recenter svg { width: 19px; height: 19px; }
+
+    /* ---- vertical city-time rail --------------------------------------------- */
+
+    .rail {
+        position: absolute; z-index: 620;
+        top: 0; right: 0; bottom: 0;
+        width: var(--rail-w);
+        display: flex; flex-direction: column; align-items: stretch;
+        padding: 16px 0 16px;
+        /* Only the controls capture touch; the gradient is decoration and lets the map be
+           panned right up to the screen edge. Without this the rail quietly stole a 72px
+           strip of the city. */
+        pointer-events: none;
+        -webkit-user-select: none; user-select: none;
+        background: linear-gradient(to left, rgba(7,9,13,.94) 34%, rgba(7,9,13,.6) 70%, rgba(7,9,13,0) 100%);
+    }
+
+    .rail__track {
+        position: relative; flex: 1 1 auto; margin-right: 26px;
+        cursor: grab; outline: none;
+        pointer-events: auto; touch-action: none;
+    }
+    .rail__track.is-dragging { cursor: grabbing; }
+    .rail__track:focus-visible { outline: 1px solid rgba(255,122,69,.6); outline-offset: 6px; }
+
+    .rail__line {
+        position: absolute; top: 0; bottom: 0; right: 0;
+        width: 1px; background: var(--ink-2);
+    }
+
+    /* Labels and the thumb are read-outs, not controls. Leaving them hit-testable let a tick
+       sit on top of the LIVE NOW button and swallow taps meant for it. */
+    .rail__ticks, .rail__tick, .rail__thumb, .rail__chip, .rail__nowmark, .rail__line {
+        pointer-events: none;
+    }
+    .rail__tick { position: absolute; right: 0; transform: translateY(-50%); display: flex; align-items: center; gap: 5px; }
+    .rail__tick i { order: 2; width: 6px; height: 1px; background: #26303c; }
+    .rail__tick b {
+        order: 1; font-size: 9px; font-weight: 600; letter-spacing: .04em;
+        color: #7a8798; white-space: nowrap;
+        text-shadow: 0 0 4px rgba(7,9,13,.95), 0 0 8px rgba(7,9,13,.75);
+    }
+
+    /* Where the real clock sits, distinct from wherever the user has dragged to. */
+    .rail__nowmark {
+        position: absolute; right: -3px; width: 7px; height: 7px; margin-top: -3.5px;
+        border-radius: 50%; background: var(--accent);
+        box-shadow: 0 0 0 3px rgba(255,122,69,.16);
+    }
+
+    .rail__thumb {
+        position: absolute; right: -1px; width: 3px; height: 22px; margin-top: -11px;
+        background: var(--text-0); border-radius: 2px;
+        box-shadow: 0 0 0 1px rgba(7,9,13,.9);
+        transition: top .12s ease-out;
+    }
+    .rail__track.is-dragging .rail__thumb { transition: none; }
+
+    /* Clear of the hour-label column so the current value never hides a tick. */
+    .rail__chip {
+        position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
+        padding: 3px 8px;
+        font-size: 11px; font-weight: 600; letter-spacing: .01em;
+        color: var(--text-0); white-space: nowrap;
+        background: rgba(12,16,22,.94);
+        border: 1px solid var(--ink-2);
+        border-radius: 6px;
+    }
+
+    /* ---- dock ---------------------------------------------------------------- */
+
+    .dock {
+        position: relative;
+        min-height: var(--dock-h);
+        padding: 11px var(--gutter) calc(10px + var(--safe-b));
+        background: var(--ink-1);
+        display: grid;
+        grid-template-areas: "context" "transport" "credit";
+        gap: 2px;
+    }
+
+    .dock__context {
+        grid-area: context;
+        display: block; width: 100%;
+        text-align: left; background: none; border: 0; padding: 0;
+        color: inherit; cursor: pointer;
+        transition: opacity .18s ease;
+    }
+    .dock.is-swapping .dock__context { opacity: 0; }
+
+    .dock__eyebrow {
+        display: block;
+        font-size: 9.5px; font-weight: 700; letter-spacing: .16em;
+        color: var(--accent);
+        margin-bottom: 3px;
+    }
+    .dock__title {
+        display: block;
+        font-size: 19px; font-weight: 600; letter-spacing: -.015em; line-height: 1.15;
+        color: var(--text-0);
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .dock__sub {
+        display: block;
+        font-size: 12px; color: var(--text-1); margin-top: 2px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* Three columns so the transport stays optically centred while LIVE NOW occupies the
+       space to its right instead of leaving it dead. */
+    .dock__transport {
+        grid-area: transport;
+        display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+        margin-top: 5px;
+    }
+    .dock__keys { display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+    /* The way back to the present: loud once you have scrubbed away, a quiet status light
+       when the city is already showing now. */
+    .dock__live {
+        grid-column: 3; justify-self: end;
+        position: relative;
+        display: flex; align-items: center; gap: 5px;
+        min-height: 32px; padding: 0 10px;
+        font-size: 9.5px; font-weight: 700; letter-spacing: .09em;
+        white-space: nowrap;
+        border-radius: 999px;
+        cursor: pointer;
+        background: var(--accent);
+        border: 1px solid var(--accent);
+        color: #1a0d06;
+        box-shadow: 0 2px 14px rgba(255,122,69,.35);
+        transition: background .22s ease, color .22s ease, border-color .22s ease, box-shadow .22s ease;
+    }
+    .dock__live::after { content: ''; position: absolute; inset: -7px 0; }
+    .dock__live-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+    .dock__live.is-live {
+        background: transparent;
+        border-color: rgba(255,122,69,.4);
+        color: var(--accent);
+        box-shadow: none;
+    }
+
+    .dock__btn {
+        display: grid; place-items: center;
+        background: none; border: 0; padding: 0;
+        color: var(--text-1);
+        cursor: pointer;
+        transition: color .18s ease, transform .12s ease, border-color .18s ease;
+    }
+    .dock__btn:disabled { opacity: .3; cursor: default; }
+    .dock__btn svg { fill: currentColor; }
+
+    /* Subordinate, but still a comfortable target. */
+    .dock__btn--side { width: 46px; height: 46px; }
+    .dock__btn--side svg { width: 20px; height: 20px; }
+    .dock__btn--side:hover:not(:disabled) { color: var(--text-0); }
+
+    /* Play is the primary control and should read that way instantly. */
+    .dock__btn--play {
+        width: 52px; height: 52px;
         border-radius: 50%;
-        border: 2px solid #fff;
-        box-shadow: 0 0 14px rgba(255, 31, 61, 0.95), 0 0 30px rgba(255, 31, 61, 0.55);
-        animation: userHeartbeat 1.3s ease-in-out infinite;
+        border: 1px solid #2b3644;
+        color: var(--text-0);
+        background: #131a23;
+    }
+    .dock__btn--play svg { width: 21px; height: 21px; }
+    .dock__btn--play:hover:not(:disabled) { border-color: var(--accent); transform: scale(1.03); }
+    .dock__icon-pause { display: none; }
+    .dock.is-playing .dock__icon-play { display: none; }
+    .dock.is-playing .dock__icon-pause { display: block; }
+    .dock.is-playing .dock__btn--play { border-color: rgba(255,122,69,.55); }
+
+    .dock__credit {
+        grid-area: credit;
+        text-align: center;
+        font-size: 8.5px; letter-spacing: .1em; text-transform: uppercase;
+        color: var(--text-2);
+        margin-top: 3px;
     }
 
-    .user-location-dot::before,
-    .user-location-dot::after {
-        content: '';
-        position: absolute;
-        inset: -2px;
-        border-radius: 50%;
-        border: 2px solid rgba(255, 31, 61, 0.85);
-        animation: userRadar 2.6s cubic-bezier(0.15, 0.6, 0.3, 1) infinite;
+    /* The player is controlled through the IFrame API; the dock provides the interface. */
+    .dock__player {
+        position: absolute; width: 1px; height: 1px;
+        left: -9999px; top: auto; overflow: hidden;
     }
 
-    .user-location-dot::after {
-        animation-delay: 1.3s;
+    /* ---- bottom sheet (fuller detail) --------------------------------------- */
+
+    #event-bottom-sheet {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200;
+        max-height: 72dvh; overflow-y: auto;
+        padding: 10px var(--gutter) calc(22px + var(--safe-b));
+        background: #0e131a;
+        border-top: 1px solid var(--ink-2);
+        border-radius: 16px 16px 0 0;
+        transform: translateY(100%);
+        transition: transform .28s cubic-bezier(.2,.7,.3,1);
+    }
+    #event-bottom-sheet.open { transform: translateY(0); }
+    .drag-handle {
+        width: 36px; height: 4px; border-radius: 2px;
+        background: #2a3542; margin: 0 auto 14px;
+    }
+    .sheet__venue { font-size: 20px; font-weight: 600; color: var(--text-0); letter-spacing: -.015em; }
+    .sheet__meta { font-size: 11px; color: var(--text-2); letter-spacing: .06em; text-transform: uppercase; margin-top: 3px; }
+    .sheet__list { list-style: none; margin: 14px 0 0; padding: 0; }
+    .sheet__list li {
+        display: flex; gap: 12px; align-items: baseline;
+        padding: 9px 0; border-top: 1px solid var(--ink-2);
+    }
+    .sheet__list span { flex: 0 0 66px; font-size: 11px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+    .sheet__list b { font-size: 13.5px; font-weight: 500; color: var(--text-0); }
+    .sheet__link { display: inline-block; margin-top: 14px; font-size: 12px; color: var(--accent); text-decoration: none; }
+
+    #loading-indicator {
+        position: absolute; z-index: 700; top: 50%; left: 50%; transform: translate(-50%,-50%);
+        font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--text-2);
     }
 
-    /* Double-thump, like a pulse rather than a metronome. */
-    @keyframes userHeartbeat {
-        0%, 100% { transform: scale(1); }
-        14%      { transform: scale(1.30); }
-        28%      { transform: scale(1.02); }
-        42%      { transform: scale(1.18); }
-        60%      { transform: scale(1); }
+    /* ---- larger screens ------------------------------------------------------ */
+
+    @media (min-width: 768px) {
+        :root { --rail-w: 84px; --dock-h: 116px; --gutter: 26px; }
+        .dock {
+            grid-template-areas: "context transport credit";
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 20px;
+        }
+        .dock__transport { margin-top: 0; }
+        .dock__credit { text-align: right; margin-top: 0; }
+        .dock__live { font-size: 10px; letter-spacing: .12em; padding: 0 13px; }
+        .dock__keys { gap: 14px; }
+        .dock__title { font-size: 21px; }
+        #event-bottom-sheet { left: 50%; right: auto; width: min(560px, 92vw); transform: translate(-50%, 100%); }
+        #event-bottom-sheet.open { transform: translate(-50%, 0); }
     }
 
-    @keyframes userRadar {
-        0%   { transform: scale(1);   opacity: 0.85; }
-        100% { transform: scale(4.5); opacity: 0; }
-    }
-
-    /* Disable animations on venue and cluster markers to prevent position glitches */
-    .venue-marker,
-    .cluster-marker {
-        animation: none !important;
-        transition: none !important;
-    }
-
-    /* Red jewel blinking effect - smooth sinusoidal pulsing */
-    .leaflet-interactive.venue-jewel-blink {
-        animation: blinkRed 2s linear infinite;
-    }
-
-    /* Selected venue - no blinking */
-    .leaflet-interactive.venue-selected {
-        animation: none !important;
-        filter: drop-shadow(0 0 8px rgba(255, 0, 255, 1));
-    }
-
-    /* Random delays for twinkling effect - different timings */
-    .venue-jewel-blink:nth-child(7n+1) { animation-delay: 0s; animation-duration: 1.3s; }
-    .venue-jewel-blink:nth-child(7n+2) { animation-delay: 0.2s; animation-duration: 1.6s; }
-    .venue-jewel-blink:nth-child(7n+3) { animation-delay: 0.4s; animation-duration: 1.4s; }
-    .venue-jewel-blink:nth-child(7n+4) { animation-delay: 0.6s; animation-duration: 1.7s; }
-    .venue-jewel-blink:nth-child(7n+5) { animation-delay: 0.8s; animation-duration: 1.5s; }
-    .venue-jewel-blink:nth-child(7n+6) { animation-delay: 1.0s; animation-duration: 1.8s; }
-    .venue-jewel-blink:nth-child(7n) { animation-delay: 1.2s; animation-duration: 1.2s; }
-
-    @keyframes blinkRed {
-        0% {
-            opacity: 1;
-            filter: drop-shadow(0 0 6px rgba(255, 0, 0, 1))
-                    drop-shadow(0 0 10px rgba(255, 0, 0, 0.8));
-        }
-        12.5% {
-            opacity: 0.93;
-            filter: drop-shadow(0 0 5.5px rgba(255, 0, 0, 0.93))
-                    drop-shadow(0 0 9px rgba(255, 0, 0, 0.74));
-        }
-        25% {
-            opacity: 0.8;
-            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.8))
-                    drop-shadow(0 0 7px rgba(255, 0, 0, 0.6));
-        }
-        37.5% {
-            opacity: 0.67;
-            filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.67))
-                    drop-shadow(0 0 6px rgba(255, 0, 0, 0.5));
-        }
-        50% {
-            opacity: 0.6;
-            filter: drop-shadow(0 0 3px rgba(255, 0, 0, 0.6))
-                    drop-shadow(0 0 5px rgba(255, 0, 0, 0.4));
-        }
-        62.5% {
-            opacity: 0.67;
-            filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.67))
-                    drop-shadow(0 0 6px rgba(255, 0, 0, 0.5));
-        }
-        75% {
-            opacity: 0.8;
-            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.8))
-                    drop-shadow(0 0 7px rgba(255, 0, 0, 0.6));
-        }
-        87.5% {
-            opacity: 0.93;
-            filter: drop-shadow(0 0 5.5px rgba(255, 0, 0, 0.93))
-                    drop-shadow(0 0 9px rgba(255, 0, 0, 0.74));
-        }
-        100% {
-            opacity: 1;
-            filter: drop-shadow(0 0 6px rgba(255, 0, 0, 1))
-                    drop-shadow(0 0 10px rgba(255, 0, 0, 0.8));
-        }
-    }
-
-
-    /* Keep animation only for popup markers (not circles) */
-    .leaflet-marker-icon,
-    .leaflet-marker-shadow {
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: scale(0.8);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    /* Pulse animation for selected markers */
-    @keyframes pulse {
-        0%, 100% {
-            box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
-        }
-        50% {
-            box-shadow: 0 0 0 15px rgba(255, 0, 0, 0);
-        }
-    }
-
-    /* Smooth popup animation */
-    .leaflet-popup {
-        animation: slideUpFade 0.3s ease-out;
-    }
-
-    @keyframes slideUpFade {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    @media (prefers-reduced-motion: reduce) {
+        .venue-mark, .rail__thumb, .dock__context, .dock__btn,
+        #event-bottom-sheet, .recenter, .dock__live { transition: none !important; }
+        .me-dot, .sel-halo--in, .recenter.is-locating { animation: none !important; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="flex h-[calc(100vh-64px)] relative">
-    <!-- Map Container -->
-    <div class="flex-1 relative">
-        <div id="map"></div>
+<div class="city">
+    <div id="map"></div>
+    <div class="city__vignette"></div>
 
-        <!-- Loading Indicator -->
-        <div id="loading-indicator" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000] glass-card p-8 rounded-xl">
-            <div class="spinner mx-auto"></div>
-            <p class="mt-4 text-neon-cyan text-center">Loading events...</p>
-        </div>
-    </div>
+    <button id="recenter" class="recenter" type="button" aria-label="Recenter on my location">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <circle cx="12" cy="12" r="3.2"/>
+            <path d="M12 2.5v3.2M12 18.3v3.2M2.5 12h3.2M18.3 12h3.2"/>
+        </svg>
+    </button>
+
+    <div class="citymark">WhatUpSF</div>
+
+    <div id="city-rail" class="rail" aria-label="City time"></div>
+
+    <div id="loading-indicator">Tuning in…</div>
 </div>
+
+<div id="dock" class="dock"></div>
+<div id="event-bottom-sheet"></div>
 {% endblock %}
 
 {% block extra_scripts %}
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- Map Configuration -->
-<script>
-    window.MAP_CONFIG = {
-        useConvexHull: {{ use_convex_hull|lower }},
-        oslActive: {% if osl_active %}true{% else %}false{% endif %}
-    };
-</script>
-
-<!-- Modern ES6+ JavaScript Modules with Dark Tiles -->
-<script type="module" src="/static/js/map-app.js?v=20260216j"></script>
+<script type="module" src="/static/js/map-app.js?v=20260810a"></script>
 {% endblock %}
